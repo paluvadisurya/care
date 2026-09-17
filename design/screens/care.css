@@ -108,6 +108,7 @@ body{margin:0;background:#141419;font-family:"Geist",-apple-system,sans-serif;-w
 .row.top{align-items:flex-start}
 .row.base{align-items:baseline}
 .sp{flex:1;min-width:0}
+.title{display:block}
 .sec-label{display:flex;align-items:baseline;justify-content:space-between;padding:0 var(--xxs);margin-bottom:var(--xs)}
 
 /* Orb rail */
@@ -270,10 +271,10 @@ body{margin:0;background:#141419;font-family:"Geist",-apple-system,sans-serif;-w
 .pill.sm .gl{font-size:14px}
 
 /* Sheets at a detent: the screen behind stays, dimmed, and the sheet is only as tall as its content. */
-.dim{position:absolute;inset:0;background:rgba(21,19,28,.34);backdrop-filter:blur(1.5px);
+.dim{position:absolute;inset:0;z-index:6;background:rgba(21,19,28,.34);backdrop-filter:blur(1.5px);
   -webkit-backdrop-filter:blur(1.5px);pointer-events:none}
 .night .dim{background:rgba(6,5,10,.5)}
-.detent{position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow:hidden;
+.detent{position:absolute;left:0;right:0;bottom:0;max-height:88%;z-index:7;overflow:hidden;
   border-radius:34px 34px 0 0;background:var(--bg-elevated);
   box-shadow:0 -18px 48px rgba(21,19,28,.26), inset 0 1px 0 rgba(255,255,255,.7);padding-bottom:26px}
 .night .detent{background:#17151F;box-shadow:0 -18px 48px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.1)}

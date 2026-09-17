@@ -7,7 +7,7 @@ import SwiftUI
 /// its share. This lays the children out left to right and starts a new line when the next one would not
 /// fit, so a badge row, a tag list or a set of symptom chips stays readable at any Dynamic Type size, in
 /// any language, on any screen width.
-public struct FlowLayout: Layout {
+public nonisolated struct FlowLayout: Layout {
     public var spacing: CGFloat
     public var lineSpacing: CGFloat
     public var alignment: HorizontalAlignment

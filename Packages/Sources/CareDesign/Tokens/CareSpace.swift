@@ -2,7 +2,10 @@ import SwiftUI
 
 /// The spacing scale. Four point steps, named by weight rather than by pixel count.
 /// A section gap is always at least twice the gap inside a section, which is what gives the app its rhythm.
-public enum CareSpace {
+///
+/// Nonisolated on purpose: these are constants, and a `Layout` or any other nonisolated type has to be
+/// able to read them without hopping to the main actor.
+public nonisolated enum CareSpace {
     public static let xxs: CGFloat = 4
     public static let xs: CGFloat = 8
     public static let sm: CGFloat = 12
@@ -18,7 +21,7 @@ public enum CareSpace {
 }
 
 /// Layout metrics. Screens compose from these instead of inventing numbers.
-public enum CareLayout {
+public nonisolated enum CareLayout {
     /// Gap between two sections of a screen.
     public static let sectionGap: CGFloat = 26
     /// Gap between cards inside one section.
@@ -51,7 +54,7 @@ public enum CareLayout {
 
 /// Radii follow the concentric rule: an inner radius equals its outer radius minus the padding between them,
 /// so nested corners stay optically parallel instead of drifting.
-public enum CareRadius {
+public nonisolated enum CareRadius {
     public static let hero: CGFloat = 28
     public static let card: CGFloat = 24
     public static let tile: CGFloat = 20
@@ -67,7 +70,7 @@ public enum CareRadius {
 
 /// Elevation levels. Light mode carries depth with shadow, night mode carries it with glass and border,
 /// so the same level reads correctly in both without a call site ever checking the colour scheme.
-public enum CareElevation: Sendable, Hashable {
+public nonisolated enum CareElevation: Sendable, Hashable {
     /// Flat against the background. Chips, inline fields.
     case flat
     /// Resting surface. Tiles and rows.

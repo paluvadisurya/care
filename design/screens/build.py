@@ -104,9 +104,11 @@ def section(title, body, trailing=None):
     return f'<div><div class="sec-label"><span class="t-label-e">{title}</span>{tr}</div>{body}</div>'
 
 def title(eyebrow, lead, accent=None, role='screen'):
+    # One element, always. Returning two siblings let a parent's section gap open up between the eyebrow
+    # and the title it belongs to, which is why one screen's header sat apart from the rest.
     eb = f'<div class="t-label-e">{eyebrow}</div>' if eyebrow else ''
     ac = f'<span class="t-accent" style="font-size:{"36" if role == "screen" else "30"}px"> {accent}</span>' if accent else ''
-    return f'{eb}<div class="t-{role}" style="margin-top:3px">{lead}{ac}</div>'
+    return f'<div class="title">{eb}<div class="t-{role}" style="margin-top:3px">{lead}{ac}</div></div>'
 
 def pulse(index=3):
     stops = ''.join(f'<i style="left:calc({p}% - 2.5px)"></i>' for p in (10, 30, 50, 70, 90))
