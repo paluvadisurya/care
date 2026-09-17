@@ -61,7 +61,19 @@ records → ModuleLogic.contextPack → ScopeContext → PromptLibrary → LLMPr
 
 ## Design system
 
-`CareDesign` owns the look. Colours are asset-catalogue tokens with light and night variants; roles stay fixed (coral attention, violet intelligence, mint done, amber upcoming). Fonts are bundled and registered at launch: Bricolage Grotesque for display, Geist for text, Geist Mono for metadata, Instrument Serif italic for one accent word per screen. Motion values are the ones in the spec: standard 0.35/0.15, snappy 0.25/0, expressive 0.5/0.3, 0.96 press scale, 80 ms block stagger, all replaced by a 200 ms ease under Reduce Motion. Glass chrome uses Liquid Glass inside a `GlassEffectContainer`; Reduce Transparency swaps it for solid surfaces.
+`CareDesign` owns the look, and it owns it exclusively: the escape hatches were deleted, so a screen that tries to invent a size, a font or a shadow does not compile.
+
+**Tokens.** `CareType` holds twenty semantic text roles; a role carries family, size, tracking ratio, line limit, minimum scale factor and figure style together, and its tracking scales with Dynamic Type. `CareSpace` and `CareLayout` hold every spacing and layout metric, including where the tab bar sits and therefore where a floating action has to sit to clear it. `CareRadius` follows the concentric rule. `CareElevation` resolves its own shadow per colour scheme so no call site checks the appearance. All four are `nonisolated`, because a constant should be readable from anywhere, including from a `Layout`.
+
+**Type discipline.** Four families, each with one job. Bricolage Grotesque for headlines and numerals, Geist for everything you read, Instrument Serif italic for exactly one accent word per screen, and Geist Mono for values a machine produced: times, counts, model names, key status. Never a sentence, never a person's name.
+
+**Components.** Every repeated pattern has exactly one implementation. `PersonOrb` takes a size role and reserves the space its selection ring and attention dot need, so ornaments never clip. `OrbRail` renders every row of people in the app. `CareSurface` has seven variants. `BentoTile`, `AddTile` and `BentoGrid` keep a grid even. `CareTag` is the one capsule badge, `GlyphTile` the one symbol square, `FlowLayout` the one row that wraps instead of truncating.
+
+**Motion.** Standard 0.35/0.15, snappy 0.25/0, expressive 0.5/0.3, 0.96 press scale, 60 ms block stagger, all replaced by a 200 ms ease under Reduce Motion. Tiles zoom into their detail screen through an environment-scoped namespace. Tab changes move in the direction of travel. Glass chrome uses Liquid Glass inside a `GlassEffectContainer`; Reduce Transparency swaps it for solid surfaces.
+
+**Accessibility.** Every interactive surface reserves a 44 pt target even when it draws smaller. Component heights come from `@ScaledMetric`, so they grow with the text inside them. Text colours clear WCAG AA in both appearances.
+
+`docs/DESIGN-AUDIT.md` records what was wrong before each of these existed, and what the renders showed once they did.
 
 ## What is deliberately not here yet
 

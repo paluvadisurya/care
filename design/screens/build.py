@@ -359,13 +359,13 @@ timeline = f'''
 <div class="gutter" style="margin-top:26px">
   <div class="tl">
     {tl_row("8:00 am", "linear-gradient(135deg,#38BDF8,#8B5CF6)", "Telmisartan, 40 mg", "Ramarao · Missed", "Missed", attn=True)}
-    {tl_row("9:00 am", "linear-gradient(135deg,#FFB347,#FF6B57)", "Amlodipine, 5 mg", "Kasi · Medication", "9:00")}
+    {tl_row("9:00 am", "linear-gradient(135deg,#FFB347,#FF6B57)", "Amlodipine, 5 mg", "Kasi · Medication")}
     <div class="nowline"><div class="t">9:41 am</div><b></b><hr></div>
-    {tl_row("1:00 pm", "linear-gradient(135deg,#15131C,#5C5A6B)", "Water check", "0.5 L of 3 L. Tap to add", "0.5 L")}
-    {tl_row("7:30 pm", "linear-gradient(135deg,#FF6B57,#FF4F8B)", "Dinner, just us", "Srivalli · Social", "2h")}
-    {tl_row("8:00 pm", "linear-gradient(135deg,#38BDF8,#8B5CF6)", "Amlodipine, 5 mg", "Ramarao · Medication", "8:00")}
-    {tl_row("8:30 pm", "linear-gradient(135deg,#38BDF8,#8B5CF6)", "Metformin, 500 mg", "Ramarao · Medication", "8:30")}
-    {tl_row("9:00 pm", "linear-gradient(135deg,#15131C,#5C5A6B)", "Evening wrap", "3 questions", "3")}
+    {tl_row("1:00 pm", "linear-gradient(135deg,#15131C,#5C5A6B)", "Water check", "0.5 L of 3 L. Tap to add")}
+    {tl_row("7:30 pm", "linear-gradient(135deg,#FF6B57,#FF4F8B)", "Dinner, just us", "Srivalli · Social", "Calendar")}
+    {tl_row("8:00 pm", "linear-gradient(135deg,#38BDF8,#8B5CF6)", "Amlodipine, 5 mg", "Ramarao · Medication")}
+    {tl_row("8:30 pm", "linear-gradient(135deg,#38BDF8,#8B5CF6)", "Metformin, 500 mg", "Ramarao · Medication")}
+    {tl_row("9:00 pm", "linear-gradient(135deg,#15131C,#5C5A6B)", "Evening wrap", "3 questions")}
   </div>
   <div class="t-foot" style="padding:0 4px;margin-top:14px">Apple Calendar and Reminders merge into this rail in Phase 1.</div>
 </div>'''

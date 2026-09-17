@@ -109,6 +109,11 @@ struct TimelineRow: View {
     }
 }
 
+/// Where a timeline row came from, marked only when it is worth marking.
+///
+/// Everything in Phase 0 comes from Care, so labelling every row "Care" put the same word down the whole
+/// column and said nothing. Care is the unmarked default; an imported row is the one that carries a tag.
+/// That reads correctly now and stays correct when Calendar and Reminders start merging into this rail.
 struct SourceTag: View {
     var source: TimelineItem.Source
     var tone: Tone
@@ -120,16 +125,16 @@ struct SourceTag: View {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(CareColor.positive)
                     .font(.system(size: 18))
-            } else {
+            } else if let label {
                 CareTag(label, tone: tone == .attention ? .attention : .quiet)
             }
         }
         .accessibilityHidden(true)
     }
 
-    var label: String {
+    var label: String? {
         switch source {
-        case .care: "Care"
+        case .care: nil
         case .appleCalendar: "Calendar"
         case .appleReminders: "Reminders"
         }

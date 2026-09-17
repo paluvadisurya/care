@@ -28,22 +28,24 @@ Care is the Phase 0 build of the product described in [`SPEC.html`](SPEC.html): 
 
 These are **design renders** of the shipped SwiftUI screens, produced from the same fonts, tokens, copy and demo data the app uses, at iPhone 17 Pro size. They are not simulator captures: this build was written on a Linux machine with no Xcode, so the first real screenshots come from your Mac (see *Running it*). The renders exist so you can judge the design now.
 
+They also earn their keep. Reading these back as pictures is what caught the floating action sitting behind the tab bar, a badge row pushing a two-column grid off the screen, and a seam where the aura wash began. Each render mirrors one token file, so a change to the design system shows up here the same way it shows up on device. `docs/DESIGN-AUDIT.md` lists all fifteen findings and what each one changed.
+
 The demo circle is the one you gave me: **Surya** (you), **Srivalli** (partner, married 26 August 2026), **Ramarao** (father, BP patient and pre-diabetic), **Kasi Annapurna** (mother, on BP medication, Sunday calls), **Neeraj** (brother) and **Oreo** (Shih Tzu). Birthdays, cities, doctors and medicine names in the demo are placeholders to edit in the app.
 
 | Today | Srivalli | Ramarao |
 |---|---|---|
 | ![Today](docs/screens/01-today.png) | ![Srivalli](docs/screens/02-person-srivalli.png) | ![Ramarao](docs/screens/03-person-ramarao.png) |
-| The hero is Dad's missed 8 am Telmisartan. Orbs carry attention dots. The bento is ranked across everyone. The insight is written on device. | Aura header, the Pulse control, module tiles, the 30-day insight. Swipe left or right to change person; the aura crossfades. | Medication and a BP reading above range both raise attention. The insight names the pattern (Wednesdays) without diagnosing anything. |
+| The hero is Dad's missed 8 am Telmisartan. Every orb in the app comes from one rail component: same reserved width, same label treatment, attention dots that cannot clip. | Her colour washes the whole top of the screen, behind the rail and under the status bar, then fades as you scroll. Swipe left or right to change person and the content enters from the side you came from. | Medication and a BP reading above range both raise attention. The insight names the pattern (Wednesdays) without diagnosing anything. |
 
 | Medication | Timeline | Quick check-in |
 |---|---|---|
 | ![Medication](docs/screens/04-medication-ramarao.png) | ![Timeline](docs/screens/05-timeline.png) | ![Quick sheet](docs/screens/06-quick-sheet.png) |
-| Today's slots with Taken and Skip, adherence rings for 7 and 30 days, refill lead times. | Everyone's day on one rail, coloured by aura, with a live now marker and source labels. | One drag sets mood, chips set health, one line captures a mention. Done closes with a success haptic. |
+| Today's slots with Taken and Skip, adherence rings for 7 and 30 days, refill lead times. A module screen is pushed inside its tab, so the action clears the tab bar rather than hiding behind it. | Everyone's day on one rail, coloured by aura, with a live now marker and source labels. | A detent sheet over the screen it came from. One drag sets mood, chips wrap rather than truncate, one line captures a mention. |
 
 | Insight, night mode | Module store | You and intelligence |
 |---|---|---|
 | ![Insight night](docs/screens/07-insight-night.png) | ![Store](docs/screens/08-module-store.png) | ![You](docs/screens/09-you-intelligence.png) |
-| Every block type in one card: stats, mood strip, insight, list, countdown, action, evidence line. | Every module as a card with its tier label, per person toggles, category chips. | Provider choice, key into the Keychain, editable model ids, a connection test, reminder controls. |
+| Every block type in one card: stats, mood strip, insight, list, countdown, action, evidence line. The three stats land on one baseline however long their labels run. | Every module as a card with its tier badges, per person toggles, category chips. Badges wrap onto a second line instead of squeezing. | Provider choice, key into the Keychain, editable model ids, a connection test, reminder controls. |
 
 | Pet care, Oreo | Evening wrap | Onboarding |
 |---|---|---|
@@ -66,7 +68,7 @@ open Care.xcodeproj
 
 If Xcode refuses the hand-built project file, `brew install xcodegen && xcodegen generate` recreates it from `project.yml`. Set your team under Signing before running on a device.
 
-**Build status.** [![CI](https://github.com/paluvadisurya/care/actions/workflows/ci.yml/badge.svg?branch=claude%2Fpeaceful-euler-0wekx1)](https://github.com/paluvadisurya/care/actions/workflows/ci.yml) The whole app builds for the iOS Simulator on GitHub's macOS runner with Xcode 26.6, and the 36 logic tests pass on Swift 6.2 on Linux. The code was written on a Linux machine without Xcode and checked against Apple's exported Xcode 27 agent skills (`swiftui-whats-new-27`, `swiftui-specialist`), then compiled and fixed through CI. Nobody has tapped through it on a device yet: expect small layout and behaviour fixes on your first run, not a broken build.
+**Build status.** [![CI](https://github.com/paluvadisurya/care/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/paluvadisurya/care/actions/workflows/ci.yml) The whole app builds for the iOS Simulator on GitHub's macOS runner with Xcode 26.6, and the 36 logic tests pass on Swift 6.2 on Linux. The code was written on a Linux machine without Xcode and checked against Apple's exported Xcode 27 agent skills (`swiftui-whats-new-27`, `swiftui-specialist`), then compiled and fixed through CI. Nobody has tapped through it on a device yet: expect small layout and behaviour fixes on your first run, not a broken build.
 
 **iOS 26 and 27.** The deployment target is iOS 26 so the project builds with today's runners and phones. Two iOS 27 additions (swipe actions in scroll views, the minimising navigation bar) sit behind a `CARE_SDK27` compilation condition in [`Compat.swift`](Packages/Sources/CareDesign/Motion/Compat.swift). On Xcode 27, add `-DCARE_SDK27` to Other Swift Flags and they light up on iOS 27.
 
@@ -90,8 +92,8 @@ Packages/                 One Swift package, seven modules (see docs/ARCHITECTUR
   Sources/CareData        SwiftData models, the store, preferences, insight coordinator, scheduler.
   Sources/CareModules     Module screens, quick logs, tiles, the insight block renderer.
   Tests/                  Swift Testing suites for the pure modules.
-design/                   Icon source (SVG) and the screen render sources (HTML/CSS on the same tokens).
-scripts/                  Playwright renderers for the icon and the screens.
+design/                   Icon source (SVG) and the screen render sources (build.py + CSS on the same tokens).
+scripts/                  Playwright renderers for the icon, the screens and the README hero.
 docs/                     Architecture notes, rendered screens, icon previews.
 SPEC.html                 The product and build spec, version 2. Source of truth.
 ```
@@ -104,7 +106,9 @@ Read [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for how a module is built (t
 - **Onboarding**: [`OnboardingView.swift`](Care/Features/Onboarding/OnboardingView.swift). Three steps, each its own view.
 - **Home**: [`TodayView.swift`](Care/Features/Today/TodayView.swift). The hero, orbs, bento and insight are separate sections.
 - **A person**: [`PeopleView.swift`](Care/Features/People/PeopleView.swift) plus [`AuraHeader.swift`](Packages/Sources/CareDesign/Components/AuraHeader.swift).
-- **Type**: Bricolage Grotesque (display), Geist (text), Geist Mono (metadata), Instrument Serif italic (one accent word per screen). All SIL Open Font License, bundled in `CareDesign/Resources/Fonts` with their licences.
+- **Type**: [`CareType.swift`](Packages/Sources/CareDesign/Tokens/CareType.swift) holds twenty semantic roles. Text picks a role, never a size, and the role carries family, tracking, line limit and figure style together. Bricolage Grotesque for headlines and numerals, Geist for everything you read, Instrument Serif italic for one accent word per screen, and Geist Mono strictly for values a machine produced. All SIL Open Font License, bundled in `CareDesign/Resources/Fonts` with their licences.
+- **Components**: every repeated pattern has one implementation, so a change lands once. [`OrbRail`](Packages/Sources/CareDesign/Components/OrbRail.swift) for any row of people, [`CareSurface`](Packages/Sources/CareDesign/Components/CareSurface.swift) for any card, [`BentoTile`](Packages/Sources/CareDesign/Components/BentoTile.swift) for any grid tile, [`CareTag`](Packages/Sources/CareDesign/Components/CareTag.swift) for any badge, [`FlowLayout`](Packages/Sources/CareDesign/Components/FlowLayout.swift) for any row that has to wrap.
+- **Renders**: `design/screens/build.py` generates the screenshots above from the same token values. Regenerate with `python3 design/screens/build.py && node scripts/render-screens.mjs && node scripts/render-hero.mjs`.
 
 ## Roadmap seams already in the code
 

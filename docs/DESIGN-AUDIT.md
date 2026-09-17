@@ -46,6 +46,64 @@ Chips were 34 pt tall against a 44 pt minimum. Fixed heights capped Dynamic Type
 
 **Fix.** Every interactive surface reserves a 44 pt target even when it draws smaller. Heights scale. Labels are required by the component signatures rather than optional.
 
+## Second pass: what the renders showed
+
+The fixes above were made by reading the code. Then the screens were rendered and read back as pictures, which surfaced a different class of problem: things that are correct per component and wrong once assembled.
+
+### 7. Mono was doing a job it is bad at
+
+Geist Mono is for values a machine produced. It was also carrying people's names under the orbs, the five words under the mood scale, and eight explanatory paragraphs. A name set in 11 pt monospace reads as terminal output, and a paragraph set in it reads as a log line.
+
+**Fix.** Two roles took that work: `itemLabel` for a short name or word beneath a circular item or a scale tick, and `footnote` for an explanatory paragraph. `CareType` now documents mono as times, counts, model names and key status only, and nothing else uses it.
+
+### 8. A stat row that did not hold one baseline
+
+Three stats in an insight put their label at the top and their value below. When one label wrapped to two lines, its value dropped with it while its neighbours stayed put, and three readings read as three loose readouts rather than one instrument.
+
+**Fix.** The label sits at the top, the value is pinned to the bottom, and the tile stretches to the row height. Every value in a row lands on one baseline whatever the labels do.
+
+### 9. The same number printed twice
+
+Three places drew a ring with a percentage inside it and the same percentage again beside it. A ring at zero drew an empty circle labelled "0%" next to a headline that already said the state.
+
+**Fix.** `Ring` gained a bare variant with an empty centre for when the number is already written beside it, and tiles draw the ring only once there is progress to show.
+
+### 10. The aura wash began with a hard edge
+
+The wash was a background on the person header, which sits below the orb rail. It therefore started partway down the screen with a visible horizontal seam.
+
+**Fix.** `AuraWash` is a screen layer drawn from the top edge, behind the rail and under the status bar, fading as the header collapses.
+
+### 11. The floating action sat behind the tab bar
+
+A module screen is pushed inside a tab, so the tab bar stays on screen. The module scaffold pinned its action twelve points from the bottom, directly behind it.
+
+**Fix.** `CareLayout.actionBarBottom` places the action above the bar, and the scroll inset is derived from that position plus the action height rather than a guessed constant.
+
+### 12. Rows of badges could not wrap
+
+A row of three tier badges inside a grid column had one answer when it did not fit: truncate. It also reported a minimum width that pushed its column wider than its share, which is enough to push a two column grid off the screen.
+
+**Fix.** `FlowLayout` wraps. The store's badges and the quick check-in's symptom chips use it, so they stay readable at any Dynamic Type size and in any language.
+
+### 13. Muted text failed contrast
+
+`textMuted` measured 3.13:1 on light and 3.78:1 on night, against a 4.5:1 minimum for small text. Captions, footnotes and timestamps were decorative rather than readable.
+
+**Fix.** 4.68:1 and 5.95:1.
+
+### 14. One module looked like two things
+
+The store drew each module as an emoji while every other surface drew the same module as a tinted SF Symbol.
+
+**Fix.** `GlyphTile` is the one component for a symbol in its rounded square, with a tinted fill and an aura fill. The store, every card row and the onboarding cards use it.
+
+### 15. Three hand-built capsule badges
+
+A tier badge, a timeline status label and a refill marker were three implementations of the same seven-by-three capsule, and two of them had already drifted a point apart.
+
+**Fix.** `CareTag` with five tones. `careChipSurface()` does the same for anything that has to look like a chip without being one.
+
 ## Principles the system now enforces
 
 1. **Roles, not values.** Text picks a type role, a surface picks an elevation, an orb picks a size role. No raw numbers in screens.
