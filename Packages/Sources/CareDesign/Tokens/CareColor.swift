@@ -3,7 +3,10 @@ import CareCore
 
 /// Semantic colours. Light and night variants live in the asset catalogue so the system switches them.
 /// Roles stay fixed: coral means attention, violet intelligence, mint done, amber upcoming.
-public enum CareColor {
+///
+/// Nonisolated, like the spacing scale: a colour is a constant, and anything that draws should be able
+/// to name one without hopping to the main actor.
+public nonisolated enum CareColor {
     public static let background = Color("careBackground", bundle: .module)
     public static let backgroundElevated = Color("careBackgroundElevated", bundle: .module)
     public static let surface = Color("careSurface", bundle: .module)
@@ -42,7 +45,7 @@ public enum CareColor {
     }
 }
 
-public extension Color {
+public nonisolated extension Color {
     /// Parses "#RRGGBB" or "#RRGGBBAA". Used for auras, which are stored as hex strings.
     init(hex: String) {
         var s = hex.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -62,7 +65,7 @@ public extension Color {
     }
 }
 
-public extension Aura {
+public nonisolated extension Aura {
     var startColor: Color { Color(hex: start) }
     var endColor: Color { Color(hex: end) }
 
