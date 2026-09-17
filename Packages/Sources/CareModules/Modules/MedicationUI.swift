@@ -20,6 +20,8 @@ struct DoseSlotRow: View {
     let person: PersonRecord
     let slot: DoseSlot
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         CardRow(symbol: "pills.fill", title: "\(slot.medicine.name), \(slot.medicine.dose)",
                 subtitle: "\(CareDates.timeLabel(slot.scheduledAt))\(slot.medicine.withFood ? " · with food" : "")\(slot.medicine.givenBy.map { " · \($0) gives it" } ?? "")",
@@ -27,16 +29,26 @@ struct DoseSlotRow: View {
                 isDone: slot.state == .taken) {
             switch slot.state {
             case .taken:
-                Image(systemName: "checkmark.circle.fill").foregroundStyle(CareColor.positive).careSymbol(.xlarge, weight: .regular)
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(CareColor.positive)
+                    .careSymbol(.xlarge, weight: .regular)
+                    .transition(.scale(scale: 0.6).combined(with: .opacity))
             case .skipped:
-                Text("skipped").careType(.meta).foregroundStyle(CareColor.textMuted)
+                Text("skipped")
+                    .careType(.meta)
+                    .foregroundStyle(CareColor.textMuted)
+                    .transition(.opacity)
             default:
                 HStack(spacing: 6) {
                     PillButton("Taken", style: .ink, compact: true) { log(.taken) }
                     PillButton("Skip", style: .ghost, compact: true) { log(.skipped) }
                 }
+                .transition(.opacity.combined(with: .scale(scale: 0.94)))
             }
         }
+        // The two buttons give way to the mark, rather than being swapped for it between frames.
+        .animation(CareMotion.snappy(reduced: reduceMotion), value: slot.state)
+        .sensoryFeedback(.success, trigger: slot.state == .taken)
     }
 
     func log(_ status: DoseStatus) {

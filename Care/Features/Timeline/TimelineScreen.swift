@@ -9,6 +9,7 @@ import CareModules
 struct TimelineScreen: View {
     @Environment(CareStore.self) private var store
     @Environment(AppRouter.self) private var router
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var mode: Mode = .day
     @State private var now = Date()
 
@@ -30,17 +31,24 @@ struct TimelineScreen: View {
                 VStack(alignment: .leading, spacing: CareLayout.sectionGap) {
                     header
                         .careGutter()
+                        .staggeredEntrance(index: 0)
 
                     DayStrip(days: days.map { date in
                         DayStrip.Day(date: date,
                                      count: store.timelineItems(day: date, now: now).count,
                                      isToday: CareDates.isSameDay(date, now))
                     }, selection: $router.timelineDay)
+                    .staggeredEntrance(index: 1)
 
+                    // Day and week are two readings of the same data, so they slide rather than cut.
                     Group {
                         if mode == .day { dayView } else { weekView }
                     }
                     .careGutter()
+                    .staggeredEntrance(index: 2)
+                    .careDirectionalTransition(mode == .day ? .backward : .forward)
+                    .animation(CareMotion.standard(reduced: reduceMotion), value: mode)
+                    .id(mode)
                 }
                 .padding(.top, CareSpace.xs)
                 .padding(.bottom, CareLayout.scrollBottomInset)
@@ -85,13 +93,14 @@ struct TimelineScreen: View {
 
     private var weekView: some View {
         VStack(alignment: .leading, spacing: CareLayout.stackGap) {
-            ForEach(days.dropFirst(2), id: \.self) { date in
+            ForEach(Array(days.dropFirst(2).enumerated()), id: \.element) { index, date in
                 WeekDayCard(date: date,
                             items: store.timelineItems(day: date, now: now),
                             auraFor: { id in id.flatMap { store.person($0)?.aura } }) {
                     router.timelineDay = date
                     withAnimation(CareMotion.standard) { mode = .day }
                 }
+                .staggeredEntrance(index: index)
             }
         }
     }
