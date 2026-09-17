@@ -68,7 +68,7 @@ struct BriefCard: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Next visit").careType(.labelEmphasis).foregroundStyle(CareColor.textSecondary)
-                    Text(event.title).careType(.cardTitle).displayTracking(20).foregroundStyle(CareColor.textPrimary)
+                    Text(event.title).careType(.cardTitle).foregroundStyle(CareColor.textPrimary)
                     Text("\(event.start.formatted(.dateTime.weekday(.wide).day().month(.wide).hour().minute()))\(event.location.map { " · \($0)" } ?? "")").careType(.caption).foregroundStyle(CareColor.textMuted)
                 }
                 Spacer()

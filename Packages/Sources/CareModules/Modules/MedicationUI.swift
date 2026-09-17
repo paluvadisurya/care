@@ -57,7 +57,7 @@ struct DoseSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: CareSpace.sm) {
                     HStack {
-                        Text("\(person.shortName)'s doses today").careType(.sheetTitle).displayTracking(26).foregroundStyle(CareColor.textPrimary)
+                        Text("\(person.shortName)'s doses today").careType(.sheetTitle).foregroundStyle(CareColor.textPrimary)
                         Spacer()
                         IconButton("xmark", label: "Close") { dismiss() }
                     }
@@ -125,7 +125,7 @@ struct MedicationDetail: View {
         HStack(spacing: CareSpace.sm) {
             Ring(progress: value, size: .row, gradient: [CareColor.mint, CareColor.sky])
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(Int((value * 100).rounded()))%").careType(.tileValue).numeralStyle(22).foregroundStyle(CareColor.textPrimary)
+                Text("\(Int((value * 100).rounded()))%").careType(.tileValue).foregroundStyle(CareColor.textPrimary)
                 Text("taken, \(label)").careType(.caption).foregroundStyle(CareColor.textMuted)
             }
             Spacer(minLength: 0)

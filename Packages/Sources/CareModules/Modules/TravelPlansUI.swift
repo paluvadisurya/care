@@ -28,7 +28,7 @@ struct TravelPlansDetail: View {
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(next.trip.travelers.isEmpty ? "Trip" : next.trip.travelers.joined(separator: " and ")).careType(.labelEmphasis).foregroundStyle(CareColor.textSecondary)
-                                Text(next.trip.destination).careType(.screenTitle).displayTracking(32).foregroundStyle(CareColor.textPrimary)
+                                Text(next.trip.destination).careType(.screenTitle).foregroundStyle(CareColor.textPrimary)
                                 Text("\(next.trip.from.formatted(.dateTime.day().month(.abbreviated))) to \(next.trip.to.formatted(.dateTime.day().month(.abbreviated)))").careType(.caption).foregroundStyle(CareColor.textMuted)
                             }
                             Spacer()

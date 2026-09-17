@@ -31,13 +31,13 @@ struct HydrationQuickLog: View {
             MeshBackground(aura: person.aura, intensity: 0.8)
             VStack(spacing: CareSpace.lg) {
                 HStack {
-                    Text("Water for \(person.shortName)").careType(.sheetTitle).displayTracking(26).foregroundStyle(CareColor.textPrimary)
+                    Text("Water for \(person.shortName)").careType(.sheetTitle).foregroundStyle(CareColor.textPrimary)
                     Spacer()
                     IconButton("xmark", label: "Close") { dismiss() }
                 }
                 Ring(progress: Double(total) / Double(max(1, settings.targetML)), size: .jumbo, gradient: [CareColor.sky, CareColor.violet]) {
                     VStack(spacing: 2) {
-                        Text(ModuleHelpers.litres(total)).careType(.screenTitle).numeralStyle(38).foregroundStyle(CareColor.textPrimary).contentTransition(.numericText())
+                        Text(ModuleHelpers.litres(total)).careType(.screenTitle).foregroundStyle(CareColor.textPrimary).contentTransition(.numericText())
                         Text("of \(ModuleHelpers.litres(settings.targetML))").careType(.caption).foregroundStyle(CareColor.textMuted)
                     }
                 }
