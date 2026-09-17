@@ -48,11 +48,13 @@ final class AppServices {
 
     init() {
         let container: ModelContainer
-        do {
-            container = try CareModelContainer.make()
-        } catch {
-            // A broken store should never brick the app. Fall back to memory and tell the user in You.
-            container = (try? CareModelContainer.make(inMemory: true)) ?? { fatalError("SwiftData unavailable: \(error)") }()
+        if let persistent = try? CareModelContainer.make() {
+            container = persistent
+        } else if let memory = try? CareModelContainer.make(inMemory: true) {
+            // A broken store should never brick the app. Fall back to memory.
+            container = memory
+        } else {
+            fatalError("SwiftData is unavailable on this device.")
         }
         let prefs = AppPreferences()
         let store = CareStore(container: container)

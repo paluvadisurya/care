@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  pure-modules:
+    name: Pure modules (Linux, swift test)
+    runs-on: ubuntu-latest
+    container: swift:6.2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build pure targets
+        working-directory: Packages
+        run: swift build
+      - name: Run tests
+        working-directory: Packages
+        run: swift test --parallel
+
+  app:
+    name: App (Xcode, iOS Simulator)
+    runs-on: macos-26
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode 27
+        run: |
+          ls /Applications | grep -i xcode || true
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_27*.app 2>/dev/null | tail -1 || ls -d /Applications/Xcode*.app | tail -1)"
+          xcodebuild -version
+      - name: Build for simulator
+        run: |
+          xcodebuild -project Care.xcodeproj -scheme Care \
+            -destination 'generic/platform=iOS Simulator' \
+            -skipPackagePluginValidation \
+            CODE_SIGNING_ALLOWED=NO build | tail -200
