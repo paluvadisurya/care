@@ -57,7 +57,7 @@ public struct ModuleScreen<Content: View>: View {
                 .padding(.bottom, actionTitle == nil ? CareSpace.xl : 96)
             }
             .scrollIndicators(.hidden)
-            .swipeActionsContainer()
+            .careSwipeActionsContainer()
             if let actionTitle, let action {
                 PillButton(actionTitle, symbol: "plus", style: .ink, action: action)
                     .padding(.horizontal, CareSpace.gutter)
@@ -66,7 +66,7 @@ public struct ModuleScreen<Content: View>: View {
         }
         .navigationTitle(meta.name)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarMinimizeBehavior(.onScrollDown, for: .navigationBar)
+        .careMinimizingNavigationBar()
     }
 }
 

@@ -98,7 +98,7 @@ let package = Package(
     name: "CarePackages",
     defaultLocalization: "en",
     platforms: [
-        .iOS("27.0"),
+        .iOS("26.0"),
         .macOS("15.0"),   // lets pure targets build in `swift build` on a Mac without Xcode UI
     ],
     products: pureProducts + appleProducts,
