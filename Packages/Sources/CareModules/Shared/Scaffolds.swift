@@ -42,12 +42,14 @@ public struct ModuleScreen<Content: View>: View {
             if let actionTitle, let action {
                 PillButton(actionTitle, symbol: "plus", style: .ink, action: action)
                     .careGutter()
-                    .padding(.bottom, CareSpace.sm)
+                    // A module screen is pushed inside a tab, so the action clears the tab bar instead
+                    // of sitting behind it.
+                    .padding(.bottom, CareLayout.actionBarBottom)
                     .background {
                         // A soft scrim so content scrolling under the action stays legible.
                         LinearGradient(colors: [CareColor.background.opacity(0), CareColor.background.opacity(0.92)],
                                        startPoint: .top, endPoint: .bottom)
-                            .frame(height: 120)
+                            .frame(height: 160)
                             .allowsHitTesting(false)
                             .ignoresSafeArea()
                     }
@@ -122,7 +124,6 @@ public struct CardSection<Content: View>: View {
 
 /// A row inside a list: a tinted glyph, a title, a subtitle, and whatever the row needs on the right.
 public struct CardRow<Trailing: View>: View {
-    @ScaledMetric(relativeTo: .body) private var glyph: CGFloat = 36
     public var symbol: String?
     public var title: String
     public var subtitle: String?
@@ -143,11 +144,7 @@ public struct CardRow<Trailing: View>: View {
     public var body: some View {
         HStack(spacing: CareSpace.sm) {
             if let symbol {
-                Image(systemName: symbol)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(tint)
-                    .frame(width: glyph, height: glyph)
-                    .background(tint.opacity(0.13), in: RoundedRectangle(cornerRadius: CareRadius.small))
+                GlyphTile(symbol: symbol, tint: tint)
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)

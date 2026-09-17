@@ -107,8 +107,9 @@ struct ModuleStoreCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: CareSpace.xs) {
             HStack {
-                Text(meta.emoji)
-                    .font(.system(size: 21))
+                // The same tinted symbol the module shows everywhere else. An emoji here and a symbol on
+                // the tile made one module look like two different things.
+                GlyphTile(symbol: meta.symbol, tint: ModuleAccent.color(for: meta.id))
                 Spacer(minLength: 0)
                 if meta.isImplemented {
                     Toggle("", isOn: Binding(get: { isOn }, set: onToggle))
@@ -122,7 +123,7 @@ struct ModuleStoreCard: View {
                         .foregroundStyle(CareColor.textMuted)
                 }
             }
-            .frame(height: 26)
+            .frame(height: 36)
 
             Text(meta.name)
                 .careType(.bodyEmphasis)
@@ -137,12 +138,14 @@ struct ModuleStoreCard: View {
 
             Spacer(minLength: CareSpace.xxs)
 
-            HStack(spacing: 5) {
+            // Three badges do not fit one line in a grid column at larger text sizes, so they wrap
+            // rather than truncate or push the column wider than its share.
+            FlowLayout(spacing: 5, lineSpacing: 5) {
                 TierBadge(text: label, tone: meta.tier == .core ? CareColor.positive : CareColor.intelligence)
                 if meta.autoFills { TierBadge(text: "auto", tone: CareColor.textMuted) }
                 if isSuggested { TierBadge(text: "suggested", tone: CareColor.upcoming) }
-                Spacer(minLength: 0)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .frame(maxWidth: .infinity, minHeight: minHeight, maxHeight: .infinity, alignment: .topLeading)
         .careSurface(.tile)

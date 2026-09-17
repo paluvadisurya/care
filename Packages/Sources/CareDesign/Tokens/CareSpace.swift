@@ -33,8 +33,14 @@ public enum CareLayout {
     public static let tabBarBottomInset: CGFloat = 10
     /// Bottom inset for any scroll view that sits behind the tab bar.
     public static var scrollBottomInset: CGFloat { tabBarHeight + tabBarBottomInset + sectionGap }
-    /// Bottom inset for a screen with a floating primary action instead of the tab bar.
-    public static let actionBottomInset: CGFloat = 96
+
+    /// Height of a full width primary action.
+    public static let primaryActionHeight: CGFloat = 52
+    /// Where a floating action sits. A module screen is pushed inside a tab, so its action has to clear
+    /// the tab bar rather than sit behind it.
+    public static var actionBarBottom: CGFloat { tabBarHeight + tabBarBottomInset + CareSpace.xs }
+    /// Bottom inset for a scroll view that has both a floating action and the tab bar below it.
+    public static var actionBottomInset: CGFloat { actionBarBottom + primaryActionHeight + sectionGap }
 
     /// Minimum interactive target. Controls may draw smaller but must reserve this.
     public static let touchTarget: CGFloat = 44

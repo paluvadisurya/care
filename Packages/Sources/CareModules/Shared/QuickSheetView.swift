@@ -83,10 +83,10 @@ public struct QuickSheetView: View {
     private var healthCard: some View {
         VStack(alignment: .leading, spacing: CareSpace.xs) {
             SectionLabel("Health", trailing: "private to you")
-            ChipRow(items: HealthState.allCases, selection: health.map { [$0] } ?? [], label: \.label) { state in
+            ChipRow(items: HealthState.allCases, selection: health.map { [$0] } ?? [], wraps: true, label: \.label) { state in
                 health = health == state ? nil : state
             }
-            ChipRow(items: HealthPayload.symptomChips, selection: symptoms, label: { $0.capitalized }) { symptom in
+            ChipRow(items: HealthPayload.symptomChips, selection: symptoms, wraps: true, label: { $0.capitalized }) { symptom in
                 if symptoms.contains(symptom) { symptoms.remove(symptom) } else { symptoms.insert(symptom) }
             }
         }

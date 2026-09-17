@@ -75,7 +75,9 @@ public struct BentoTile: View {
                     .foregroundStyle(CareColor.textMuted)
             }
             Spacer(minLength: 0)
-            if let progress = state.progress {
+            // Only once there is something to show. An empty ring labelled nothing reads as a spinner,
+            // and at zero the headline already says everything the ring could.
+            if let progress = state.progress, progress > 0 {
                 Ring(bare: progress, size: .tile, gradient: [accent, accent.opacity(0.55)])
                     .alignmentGuide(.firstTextBaseline) { $0[.bottom] * 0.72 }
             }
