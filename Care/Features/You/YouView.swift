@@ -235,9 +235,9 @@ struct DataCard: View {
 }
 
 /// A JSON export that ShareLink can hand to Files, Mail or AirDrop.
-struct ExportFile: Transferable {
+struct ExportFile: Transferable, Sendable {
     var data: Data
-    static var transferRepresentation: some TransferRepresentation {
+    nonisolated static var transferRepresentation: some TransferRepresentation {
         DataRepresentation(exportedContentType: .json) { $0.data }
             .suggestedFileName("care-export.json")
     }

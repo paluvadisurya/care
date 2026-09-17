@@ -21,7 +21,7 @@ public struct LocalInsightEngine: Sendable {
         var tone: InsightTone = .neutral
         var headline = "A quiet stretch for \(person.name)"
         var evidence: [String] = []
-        let pack = Dictionary(uniqueKeysWithValues: ctx.packs.map { ($0.moduleID, $0) })
+        let pack = Dictionary(ctx.packs.map { ($0.moduleID, $0) }, uniquingKeysWith: { _, latest in latest })
 
         if person.relationship == .pet {
             return pet(ctx, person: person, pack: pack)

@@ -46,8 +46,8 @@ public struct HealthReading: Codable, Hashable, Sendable {
         switch kind {
         case .bloodPressure: "\(systolic ?? 0)/\(diastolic ?? 0)"
         case .bloodSugar: "\(Int(value ?? 0)) \(unit ?? "mg/dL")\(context.map { " \($0)" } ?? "")"
-        case .weight: String(format: "%.1f %@", value ?? 0, unit ?? "kg")
-        case .temperature: String(format: "%.1f %@", value ?? 0, unit ?? "°C")
+        case .weight: String(format: "%.1f", value ?? 0) + " " + (unit ?? "kg")
+        case .temperature: String(format: "%.1f", value ?? 0) + " " + (unit ?? "°C")
         }
     }
 
@@ -55,9 +55,7 @@ public struct HealthReading: Codable, Hashable, Sendable {
     public var isAboveUsualRange: Bool {
         switch kind {
         case .bloodPressure: return (systolic ?? 0) >= 140 || (diastolic ?? 0) >= 90
-        case .bloodSugar:
-            if context?.lowercased().contains("fast") == true { return (value ?? 0) >= 126 }
-            return (value ?? 0) >= 200
+        case .bloodSugar: return context?.lowercased().contains("fast") == true ? (value ?? 0) >= 126 : (value ?? 0) >= 200
         case .temperature: return (value ?? 0) >= 38
         case .weight: return false
         }

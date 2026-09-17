@@ -29,7 +29,7 @@ public struct TimelineRail: View {
     enum Row: Identifiable {
         case item(TimelineItem)
         case now
-        var id: String {
+        nonisolated var id: String {
             switch self {
             case .item(let i): i.id
             case .now: "now"

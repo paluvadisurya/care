@@ -67,7 +67,7 @@ struct HydrationDetail: View {
     @State private var showLog = false
 
     struct DayTotal: Identifiable {
-        var id: Date { day }
+        nonisolated var id: Date { day }
         var day: Date
         var ml: Int
     }

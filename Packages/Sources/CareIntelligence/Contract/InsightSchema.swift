@@ -78,8 +78,8 @@ public enum InsightSchema {
 
     /// Round-trip check used by tests: the schema must parse and name every block kind.
     public static var coversEveryBlockKind: Bool {
-        let defs = value["$defs"]?.objectValue?.keys ?? [:].keys
-        let names = Set(defs)
+        let defs = value["$defs"]?.objectValue ?? [:]
+        let names = Set(defs.keys)
         return InsightBlockKind.allCases.filter { $0 != .headline }.allSatisfy { names.contains($0.rawValue) }
     }
 }

@@ -10,7 +10,7 @@ public struct TimeOfDay: Codable, Hashable, Sendable, Comparable {
     public static func < (a: TimeOfDay, b: TimeOfDay) -> Bool { (a.hour, a.minute) < (b.hour, b.minute) }
     public var label: String {
         let h12 = hour % 12 == 0 ? 12 : hour % 12
-        return String(format: "%d:%02d %@", h12, minute, hour < 12 ? "am" : "pm")
+        return String(format: "%d:%02d", h12, minute) + (hour < 12 ? " am" : " pm")
     }
     public func date(on day: Date, calendar: Calendar) -> Date {
         CareDates.at(hour: hour, minute: minute, on: day, calendar: calendar)

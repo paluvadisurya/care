@@ -49,6 +49,7 @@ public struct PulseControl: View {
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { g in
+                            guard usable > 0 else { return }
                             dragging = true
                             let clamped = min(max(0, g.location.x - knob / 2), usable)
                             value = Int((clamped / usable * 4).rounded()) + 1

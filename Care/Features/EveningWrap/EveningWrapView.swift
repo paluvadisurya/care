@@ -30,7 +30,7 @@ struct EveningWrapView: View {
                     Spacer()
                     IconButton("xmark", label: "Close") { dismiss() }
                 }
-                if done || people.isEmpty {
+                if done || !people.indices.contains(index) {
                     VStack(alignment: .leading, spacing: CareSpace.sm) {
                         Text(people.isEmpty ? "Nobody to ask about tonight." : "You checked in on \(ModuleHelpers.plural(values.count, "person", "people")).")
                             .font(CareFont.cardTitle).foregroundStyle(CareColor.textPrimary)
@@ -77,7 +77,7 @@ struct EveningWrapView: View {
     private func answer(_ p: PersonRecord) {
         let v = values[p.id] ?? 4
         values[p.id] = v
-        store.addEntry(person: p.id, module: .mood, payload: MoodPayload(value: v), source: .manual)
+        store.addEntry(person: p.id, module: .mood, source: .manual, payload: MoodPayload(value: v))
         advance()
     }
 

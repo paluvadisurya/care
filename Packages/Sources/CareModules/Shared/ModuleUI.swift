@@ -51,10 +51,10 @@ public enum ModuleUIRegistry {
 }
 
 /// Where a module screen is opened from. Drives the navigation destination in the app.
-public struct ModuleRoute: Hashable, Identifiable {
+public struct ModuleRoute: Hashable, Identifiable, Sendable {
     public var personID: UUID
     public var module: ModuleID
-    public var id: String { "\(personID).\(module.rawValue)" }
+    nonisolated public var id: String { "\(personID).\(module.rawValue)" }
     public init(personID: UUID, module: ModuleID) {
         self.personID = personID
         self.module = module
@@ -62,11 +62,11 @@ public struct ModuleRoute: Hashable, Identifiable {
 }
 
 /// A quick log request, presented as a sheet.
-public struct QuickLogRequest: Hashable, Identifiable {
+public struct QuickLogRequest: Hashable, Identifiable, Sendable {
     public var personID: UUID
     public var module: ModuleID?
     public var prefill: String?
-    public var id: String { "\(personID).\(module?.rawValue ?? "quick").\(prefill ?? "")" }
+    nonisolated public var id: String { "\(personID).\(module?.rawValue ?? "quick").\(prefill ?? "")" }
     public init(personID: UUID, module: ModuleID? = nil, prefill: String? = nil) {
         self.personID = personID
         self.module = module

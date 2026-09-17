@@ -25,7 +25,7 @@ public struct WishlistItemPayload: Codable, Hashable, Sendable {
     public var priceLabel: String? {
         guard let price else { return nil }
         let symbol = currency == "INR" || currency == nil ? "₹" : (currency == "USD" ? "$" : (currency ?? "") + " ")
-        return price == price.rounded() ? "\(symbol)\(Int(price))" : String(format: "%@%.2f", symbol, price)
+        return price == price.rounded() ? "\(symbol)\(Int(price))" : symbol + String(format: "%.2f", price)
     }
 }
 

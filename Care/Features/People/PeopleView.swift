@@ -130,7 +130,7 @@ struct PeopleView: View {
                 }
             }
             PulseControl(value: $pulse)
-            PillButton("Save \(PulseControl.words[pulse - 1].lowercased())", style: .ghost, compact: true) {
+            PillButton("Save \(PulseControl.words[max(0, min(4, pulse - 1))].lowercased())", style: .ghost, compact: true) {
                 store.addEntry(person: person.id, module: .mood, payload: MoodPayload(value: pulse))
                 pulseSaved.toggle()
             }

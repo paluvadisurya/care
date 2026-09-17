@@ -15,7 +15,7 @@ final class AppRouter {
         case eveningWrap
         case quickLog(QuickLogRequest)
 
-        var id: String {
+        nonisolated var id: String {
             switch self {
             case .addPerson: "addPerson"
             case .editPerson(let id): "edit.\(id)"

@@ -59,7 +59,7 @@ struct RootView: View {
             .transition(.opacity)
         case .timeline:
             NavigationStack(path: $router.timelinePath) {
-                TimelineView().navigationDestination(for: ModuleRoute.self) { ModuleDetailView(route: $0) }
+                TimelineScreen().navigationDestination(for: ModuleRoute.self) { ModuleDetailView(route: $0) }
             }
             .transition(.opacity)
         case .you:

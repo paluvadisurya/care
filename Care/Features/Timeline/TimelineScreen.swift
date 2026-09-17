@@ -5,7 +5,7 @@ import CareData
 import CareModules
 
 /// Structured-style day rail with a week strip. Items from every module merge into one line, coloured by aura.
-struct TimelineView: View {
+struct TimelineScreen: View {
     @Environment(CareStore.self) private var store
     @Environment(AppRouter.self) private var router
     @State private var mode: Mode = .day
