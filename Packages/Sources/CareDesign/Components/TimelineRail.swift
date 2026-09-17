@@ -121,12 +121,7 @@ struct SourceTag: View {
                     .foregroundStyle(CareColor.positive)
                     .font(.system(size: 18))
             } else {
-                Text(label)
-                    .careType(.meta)
-                    .foregroundStyle(tone == .attention ? CareColor.attention : CareColor.textMuted)
-                    .padding(.horizontal, 7)
-                    .padding(.vertical, 3)
-                    .background(tone == .attention ? CareColor.attention.opacity(0.12) : CareColor.chip, in: Capsule())
+                CareTag(label, tone: tone == .attention ? .attention : .quiet)
             }
         }
         .accessibilityHidden(true)

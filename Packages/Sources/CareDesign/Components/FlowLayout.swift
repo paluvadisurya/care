@@ -1,4 +1,5 @@
 import SwiftUI
+import CareCore
 
 /// A row that wraps instead of squeezing.
 ///
@@ -83,27 +84,54 @@ public nonisolated struct FlowLayout: Layout {
     }
 }
 
-/// A symbol in its tinted rounded square. One definition, so a module reads the same in a list, in the
-/// store and on a card.
+/// A symbol in its rounded square. One definition, so a module reads the same in a list, in the store,
+/// on an onboarding card and anywhere it appears next.
+///
+/// Two fills: tinted, where the square is a wash of the symbol's own colour, and aura, where the square
+/// carries a person's gradient and the symbol goes white.
 public struct GlyphTile: View {
+    public enum Fill {
+        case tint(Color)
+        case aura(Aura)
+    }
+
     @ScaledMetric(relativeTo: .body) private var side: CGFloat = 36
     public var symbol: String
-    public var tint: Color
+    public var fill: Fill
     public var scale: CGFloat
 
-    public init(symbol: String, tint: Color, scale: CGFloat = 1) {
+    public init(symbol: String, fill: Fill, scale: CGFloat = 1) {
         self.symbol = symbol
-        self.tint = tint
+        self.fill = fill
         self.scale = scale
+    }
+
+    public init(symbol: String, tint: Color, scale: CGFloat = 1) {
+        self.init(symbol: symbol, fill: .tint(tint), scale: scale)
+    }
+
+    public init(symbol: String, aura: Aura, scale: CGFloat = 1) {
+        self.init(symbol: symbol, fill: .aura(aura), scale: scale)
+    }
+
+    private var foreground: Color {
+        if case .tint(let color) = fill { return color }
+        return .white
     }
 
     public var body: some View {
         let size = side * scale
-        Image(systemName: symbol)
+        let shape = RoundedRectangle(cornerRadius: size * 0.28, style: .continuous)
+        return Image(systemName: symbol)
             .font(.system(size: size * 0.42, weight: .semibold))
-            .foregroundStyle(tint)
+            .foregroundStyle(foreground)
             .frame(width: size, height: size)
-            .background(tint.opacity(0.13), in: RoundedRectangle(cornerRadius: size * 0.28, style: .continuous))
+            .background {
+                switch fill {
+                case .tint(let color): shape.fill(color.opacity(0.13))
+                case .aura(let aura): shape.fill(aura.gradient)
+                }
+            }
             .accessibilityHidden(true)
     }
 }

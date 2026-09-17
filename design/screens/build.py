@@ -92,10 +92,14 @@ def tile(title, value, detail, aura=None, symbol_color='var(--violet)', attn=Fal
     warn_html = '<i class="warn"></i>' if warn else ''
     ring_html = ring(progress, 44, 6, symbol_color, label='') if progress else ''
     trail_html = f'<div style="margin-top:2px">{strip(trail)}</div>' if trail else ''
+    # CareType.tileValue keeps one line and scales down to 0.65 rather than truncating, so a long state
+    # word still reads. CSS has no minimumScaleFactor, so the generator computes the same fit here.
+    fit = max(0.65, min(1.0, 14 / max(1, len(value))))
+    vstyle = f'font-size:{19 * fit:.1f}px' if fit < 1 else ''
     return f'''<div class="s s-tile tile">
       <div class="lrow">{dot}<span class="t-label">{title}</span>{warn_html}</div>
       <div class="vrow"><div style="min-width:0">
-        <div class="t-tile{' attn' if attn else ''}">{value}</div>
+        <div class="t-tile{' attn' if attn else ''}" style="{vstyle}">{value}</div>
         <div class="t-caption" style="margin-top:3px">{detail}</div>
       </div>{ring_html}</div>{trail_html}</div>'''
 

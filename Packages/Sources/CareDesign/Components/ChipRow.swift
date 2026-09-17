@@ -51,7 +51,6 @@ public struct ChipRow<Item: Hashable>: View {
 }
 
 public struct Chip: View {
-    @ScaledMetric(relativeTo: .subheadline) private var height: CGFloat = 36
     public var text: String
     public var isSelected: Bool
     public var action: () -> Void
@@ -66,12 +65,7 @@ public struct Chip: View {
         Button(action: action) {
             Text(text)
                 .careType(.chipLabel)
-                .foregroundStyle(isSelected ? CareColor.inkText : CareColor.textPrimary)
-                .padding(.horizontal, 14)
-                .frame(height: height)
-                .background(isSelected ? CareColor.ink : CareColor.chip, in: Capsule())
-                .frame(minHeight: CareLayout.touchTarget)
-                .contentShape(Capsule())
+                .careChipSurface(isSelected: isSelected)
         }
         .buttonStyle(.pressable(scale: 0.94))
         .sensoryFeedback(.selection, trigger: isSelected)

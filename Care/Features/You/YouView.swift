@@ -293,11 +293,7 @@ struct DataCard: View {
                 ShareLink(item: ExportFile(data: store.exportJSON()), preview: SharePreview("Care export")) {
                     Label("Export JSON", systemImage: "square.and.arrow.up")
                         .careType(.chipLabel)
-                        .foregroundStyle(CareColor.textPrimary)
-                        .padding(.horizontal, 14)
-                        .frame(height: 38)
-                        .background(CareColor.chip, in: Capsule())
-                        .frame(minHeight: CareLayout.touchTarget)
+                        .careChipSurface()
                 }
                 .buttonStyle(.pressable)
                 if store.isEmpty {

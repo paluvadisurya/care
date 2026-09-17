@@ -290,11 +290,7 @@ struct FloatingCards: View {
 
     private func row(_ card: Card) -> some View {
         HStack(spacing: 10) {
-            Image(systemName: card.symbol)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 32, height: 32)
-                .background(card.aura.gradient, in: RoundedRectangle(cornerRadius: 10))
+            GlyphTile(symbol: card.symbol, aura: card.aura, scale: 0.9)
             VStack(alignment: .leading, spacing: 1) {
                 Text(card.title)
                     .careType(.labelEmphasis)

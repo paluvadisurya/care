@@ -141,9 +141,9 @@ struct ModuleStoreCard: View {
             // Three badges do not fit one line in a grid column at larger text sizes, so they wrap
             // rather than truncate or push the column wider than its share.
             FlowLayout(spacing: 5, lineSpacing: 5) {
-                TierBadge(text: label, tone: meta.tier == .core ? CareColor.positive : CareColor.intelligence)
-                if meta.autoFills { TierBadge(text: "auto", tone: CareColor.textMuted) }
-                if isSuggested { TierBadge(text: "suggested", tone: CareColor.upcoming) }
+                CareTag(label, tone: meta.tier == .core ? .positive : .intelligence)
+                if meta.autoFills { CareTag("auto") }
+                if isSuggested { CareTag("suggested", tone: .upcoming) }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -154,16 +154,4 @@ struct ModuleStoreCard: View {
     }
 }
 
-private struct TierBadge: View {
-    var text: String
-    var tone: Color
 
-    var body: some View {
-        Text(text)
-            .careType(.meta)
-            .foregroundStyle(tone)
-            .padding(.horizontal, 7)
-            .padding(.vertical, 3)
-            .background(CareColor.chip, in: Capsule())
-    }
-}
