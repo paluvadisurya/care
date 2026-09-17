@@ -1,0 +1,57 @@
+# XcodeGen fallback. The checked-in Care.xcodeproj is hand-built; if it ever disagrees with Xcode,
+# `brew install xcodegen && xcodegen generate` recreates it from this file.
+name: Care
+options:
+  bundleIdPrefix: com.paluvadi
+  deploymentTarget:
+    iOS: "27.0"
+  xcodeVersion: "27.0"
+  createIntermediateGroups: true
+packages:
+  CarePackages:
+    path: Packages
+targets:
+  Care:
+    type: application
+    platform: iOS
+    sources:
+      - path: Care
+        excludes: ["Info.plist"]
+    info:
+      path: Care/Info.plist
+      properties:
+        CFBundleDisplayName: Care
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        LSApplicationCategoryType: public.app-category.lifestyle
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLName: com.paluvadi.care
+            CFBundleURLSchemes: [care]
+    dependencies:
+      - package: CarePackages
+        product: CareCore
+      - package: CarePackages
+        product: CareDesign
+      - package: CarePackages
+        product: CareData
+      - package: CarePackages
+        product: CareModules
+      - package: CarePackages
+        product: CareIntelligence
+      - package: CarePackages
+        product: CareReminders
+      - package: CarePackages
+        product: CareFixtures
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.paluvadi.care
+        MARKETING_VERSION: 0.1.0
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+        SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+        SWIFT_APPROACHABLE_CONCURRENCY: YES
+        TARGETED_DEVICE_FAMILY: "1"
+        ENABLE_PREVIEWS: YES
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

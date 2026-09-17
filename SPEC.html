@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Care. Product and build spec, v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800&family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --bg:#09090B;
+  --bg-2:#111114;
+  --surface:rgba(255,255,255,.04);
+  --surface-2:rgba(255,255,255,.07);
+  --line:rgba(255,255,255,.09);
+  --line-2:rgba(255,255,255,.16);
+  --text:#F4F4F5;
+  --text-2:#B3B3BC;
+  --muted:#77777F;
+  --coral:#FF6B57;
+  --rose:#FF4F8B;
+  --violet:#8B5CF6;
+  --amber:#FFB347;
+  --mint:#34D399;
+  --sky:#38BDF8;
+  --lilac:#C4B5FD;
+  --peach:#FFC2B4;
+  --ease:cubic-bezier(.2,0,0,1);
+  --r-xl:28px; --r-lg:20px; --r-md:14px; --r-sm:10px;
+  --shadow-soft:0 1px 0 rgba(255,255,255,.04) inset, 0 20px 60px rgba(0,0,0,.45);
+  --shadow-phone:0 40px 100px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
+  /* app (light) screen tokens */
+  --app-bg:#FBF8FF;
+  --app-text:#15131C;
+  --app-text-2:#5C5A6B;
+  --app-muted:#8E8C9C;
+  --app-card:rgba(255,255,255,.72);
+  --app-line:rgba(21,19,28,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#09090B; --bg-2:#111114; --text:#F4F4F5; }
+}
+:root[data-theme="dark"]{ --bg:#09090B; --bg-2:#111114; --text:#F4F4F5; }
+
+/* ---------- base ---------- */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Helvetica,Arial,sans-serif;
+  font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+h1,h2,h3,h4{font-family:"Inter Tight","Inter",-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;margin:0;color:var(--text);letter-spacing:-.03em;line-height:1.05;text-wrap:balance}
+h1{font-size:clamp(3rem,9vw,6.4rem);font-weight:800}
+h2{font-size:clamp(2.1rem,5.5vw,3.6rem);font-weight:800}
+h3{font-size:clamp(1.25rem,2.6vw,1.6rem);font-weight:700;letter-spacing:-.02em;margin:1.4rem 0 .5rem}
+h4{font-size:1.02rem;font-weight:700;letter-spacing:-.01em;margin:.9rem 0 .35rem}
+p{margin:0 0 1rem;color:var(--text-2)}
+p.lead{font-size:clamp(1.1rem,2.2vw,1.35rem);color:var(--text);line-height:1.45;max-width:38ch;font-weight:500}
+a{color:var(--text);text-decoration:none}
+a:hover{text-decoration:underline}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--lilac);outline-offset:3px;border-radius:8px}
+ul,ol{padding-left:1.15rem;margin:0 0 1rem;color:var(--text-2)}
+li{margin:.3rem 0}
+li::marker{color:var(--muted)}
+strong{color:var(--text);font-weight:600}
+code,pre{font-family:"Geist Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+code{font-size:.86em;background:var(--surface-2);padding:2px 6px;border-radius:6px;color:var(--lilac)}
+pre{margin:14px 0;padding:16px 18px;background:#0E0E12;border:1px solid var(--line);border-radius:var(--r-md);overflow-x:auto;font-size:.8rem;line-height:1.55;color:#D9D9E3}
+pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.k{color:#FFB347}.s{color:#7DD3B0}.c{color:#77777F}.p{color:#C4B5FD}
+hr.sep{border:0;border-top:1px solid var(--line);margin:0}
+small{color:var(--muted)}
+.tn{font-variant-numeric:tabular-nums}
+
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+.narrow{max-width:760px}
+
+/* gradient text */
+.grad{background:linear-gradient(92deg,var(--coral) 0%,var(--rose) 40%,var(--violet) 75%,var(--sky) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-warm{background:linear-gradient(92deg,var(--amber),var(--coral),var(--rose));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:50;background:rgba(9,9,11,.72);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border-bottom:1px solid var(--line)}
+.nav .in{display:flex;align-items:center;gap:14px;padding:10px 22px;max-width:1120px;margin:0 auto}
+.nav .brand{font-family:"Inter Tight",sans-serif;font-weight:800;letter-spacing:-.03em;font-size:1.15rem;display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.nav .brand i{width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,var(--coral),var(--violet));display:inline-block}
+.nav .links{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;min-width:0;flex:1}
+.nav .links::-webkit-scrollbar{display:none}
+.nav .links a{flex:0 0 auto;font-size:.8rem;font-weight:500;color:var(--text-2);padding:7px 9px;border-radius:999px;transition:background .2s var(--ease),color .2s var(--ease)}
+.nav .links a:hover{background:var(--surface-2);color:var(--text);text-decoration:none}
+
+/* ---------- hero ---------- */
+header.hero{position:relative;overflow:hidden;padding:80px 0 40px;min-height:88vh;display:flex;align-items:center}
+header.hero .blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;pointer-events:none}
+header.hero .b1{width:620px;height:620px;background:var(--coral);top:-220px;left:-160px;animation:drift 22s ease-in-out infinite alternate}
+header.hero .b2{width:560px;height:560px;background:var(--violet);bottom:-260px;right:-120px;animation:drift 26s ease-in-out infinite alternate-reverse}
+header.hero .b3{width:380px;height:380px;background:var(--amber);top:30%;left:48%;opacity:.28;animation:drift 30s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(60px,40px) scale(1.08)}}
+header.hero .in{position:relative;display:grid;gap:36px;grid-template-columns:1fr;align-items:center;width:100%}
+@media (min-width:980px){ header.hero .in{grid-template-columns:1.05fr .95fr;gap:20px} .fan{margin-left:-40px} }
+header.hero .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;color:var(--text-2);background:var(--surface-2);border:1px solid var(--line-2);padding:6px 12px 6px 8px;border-radius:999px;margin-bottom:22px}
+header.hero .eyebrow b{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 12px var(--mint)}
+header.hero h1{margin-bottom:18px}
+header.hero .lead{margin-bottom:26px}
+header.hero .pillars{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px}
+header.hero .pillars span{font-size:.84rem;font-weight:600;padding:8px 13px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);color:var(--text)}
+header.hero .meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.82rem;color:var(--muted)}
+header.hero .meta b{color:var(--text-2);font-weight:500}
+
+/* stagger entrance, once */
+.enter{opacity:0;transform:translateY(14px);animation:enter .7s var(--ease) forwards}
+.enter.d1{animation-delay:.05s}.enter.d2{animation-delay:.15s}.enter.d3{animation-delay:.25s}.enter.d4{animation-delay:.35s}.enter.d5{animation-delay:.5s}
+@keyframes enter{to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){
+  .enter{opacity:1;transform:none;animation:none}
+  header.hero .blob{animation:none}
+  html{scroll-behavior:auto}
+  .float{animation:none !important}
+}
+
+/* phone fan in hero */
+.fan{position:relative;height:640px;display:flex;justify-content:center;align-items:center}
+.fan .phone{position:absolute;transform-origin:center bottom}
+.fan .f1{transform:translateX(-150px) rotate(-8deg) scale(.84);z-index:1;filter:brightness(.85)}
+.fan .f2{transform:translateY(-10px) scale(.96);z-index:3}
+.fan .f3{transform:translateX(150px) rotate(8deg) scale(.84);z-index:2;filter:brightness(.85)}
+.float{animation:float 7s ease-in-out infinite}
+.float.s2{animation-duration:8.5s;animation-delay:-2s}
+.float.s3{animation-duration:9.5s;animation-delay:-4s}
+@keyframes float{0%,100%{margin-top:0}50%{margin-top:-10px}}
+@media (max-width:980px){ .fan{height:540px;transform:scale(.82);transform-origin:top center;align-items:flex-start;margin:16px 0 0} }
+@media (max-width:640px){ .fan{transform:scale(.68);height:450px;margin:12px 0 0} .fan .f1{transform:translateX(-140px) rotate(-8deg) scale(.86)} .fan .f3{transform:translateX(140px) rotate(8deg) scale(.86)} }
+
+/* ---------- phone mockup ---------- */
+.phone{width:300px;height:640px;border-radius:44px;background:#000;padding:10px;box-shadow:var(--shadow-phone);flex:0 0 auto;position:relative}
+.phone .scr{width:100%;height:100%;border-radius:36px;overflow:hidden;position:relative;background:var(--app-bg);color:var(--app-text);font-size:12.5px;line-height:1.35;display:flex;flex-direction:column}
+.phone .scr.mesh{background:
+  radial-gradient(60% 45% at 8% 0%, rgba(255,107,87,.34), transparent 60%),
+  radial-gradient(55% 40% at 100% 8%, rgba(139,92,246,.30), transparent 60%),
+  radial-gradient(60% 50% at 50% 100%, rgba(255,179,71,.22), transparent 60%),
+  var(--app-bg)}
+.phone .scr.mesh-mint{background:
+  radial-gradient(60% 45% at 0% 0%, rgba(52,211,153,.30), transparent 60%),
+  radial-gradient(55% 40% at 100% 10%, rgba(56,189,248,.30), transparent 60%),
+  radial-gradient(60% 50% at 50% 100%, rgba(196,181,253,.25), transparent 60%),
+  var(--app-bg)}
+.phone .scr.mesh-rose{background:
+  radial-gradient(60% 45% at 0% 0%, rgba(255,79,139,.30), transparent 60%),
+  radial-gradient(55% 40% at 100% 10%, rgba(255,179,71,.30), transparent 60%),
+  radial-gradient(60% 50% at 50% 100%, rgba(139,92,246,.22), transparent 60%),
+  var(--app-bg)}
+.phone .scr.night{background:
+  radial-gradient(70% 50% at 20% 0%, rgba(255,107,87,.45), transparent 60%),
+  radial-gradient(60% 45% at 100% 20%, rgba(139,92,246,.45), transparent 60%),
+  #0C0B12;color:#F4F4F5}
+.phone .scr.night .card{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.09);color:#F4F4F5}
+.phone .scr.night .card .l{color:#A9A7B8}
+.phone .scr.night .tab{background:rgba(20,20,26,.7);border-color:rgba(255,255,255,.1);color:#9F9DAF}
+.phone .scr.night .tab span.on{color:#fff}
+.phone .scr.night .l{color:#A9A7B8}
+.phone .sb{display:flex;justify-content:space-between;padding:12px 22px 0;font-weight:600;font-size:12px}
+.phone .body{padding:8px 14px 0;flex:1;overflow:hidden;display:flex;flex-direction:column;gap:9px}
+.phone .l{color:var(--app-text-2);font-size:11px;font-weight:500}
+.phone .big{font-family:"Inter Tight",sans-serif;font-weight:800;letter-spacing:-.03em;font-size:26px;line-height:1;color:var(--app-text);white-space:nowrap}
+.phone .huge{font-family:"Inter Tight",sans-serif;font-weight:800;letter-spacing:-.045em;font-size:52px;line-height:.95;font-variant-numeric:tabular-nums}
+.phone .card{background:var(--app-card);border:1px solid var(--app-line);border-radius:20px;padding:11px 12px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(21,19,28,.06)}
+.phone .card.hero{padding:14px 14px 12px;background:linear-gradient(135deg,rgba(255,255,255,.85),rgba(255,255,255,.6))}
+.phone .card.ai{border:1px solid rgba(139,92,246,.35);background:linear-gradient(160deg,rgba(196,181,253,.35),rgba(255,255,255,.75));box-shadow:0 10px 30px rgba(139,92,246,.18)}
+.phone .card.attn{box-shadow:0 0 0 1.5px rgba(255,107,87,.55), 0 10px 30px rgba(255,107,87,.15)}
+.phone .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.phone .orbs{display:flex;gap:9px;padding:2px 2px}
+.phone .orb{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;font-size:13px;position:relative;box-shadow:0 6px 14px rgba(0,0,0,.15);flex:0 0 auto}
+.phone .orb.on{outline:2.5px solid var(--app-text);outline-offset:2px}
+.phone .orb .dot{position:absolute;right:-1px;top:-1px;width:12px;height:12px;border-radius:50%;background:var(--coral);border:2px solid #fff}
+.phone .orb.add{background:rgba(21,19,28,.08);color:var(--app-text-2);box-shadow:none}
+.a-meera{background:linear-gradient(135deg,#FF6B57,#FF4F8B)}
+.a-dad{background:linear-gradient(135deg,#38BDF8,#8B5CF6)}
+.a-mom{background:linear-gradient(135deg,#FFB347,#FF6B57)}
+.a-aarav{background:linear-gradient(135deg,#34D399,#38BDF8)}
+.a-rohan{background:linear-gradient(135deg,#8B5CF6,#C4B5FD)}
+.a-me{background:linear-gradient(135deg,#15131C,#5C5A6B)}
+.phone .grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.phone .chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.phone .chips span{padding:5px 9px;border-radius:999px;background:rgba(21,19,28,.06);font-size:10.5px;font-weight:600;color:var(--app-text-2)}
+.phone .chips span.sel{background:var(--app-text);color:#fff}
+.phone .btn{display:block;text-align:center;background:var(--app-text);color:#fff;border-radius:999px;padding:11px;font-weight:600;font-size:13px}
+.phone .btn.ghost{background:rgba(21,19,28,.06);color:var(--app-text)}
+.phone .tab{margin:auto 10px 12px;background:rgba(255,255,255,.7);border:1px solid var(--app-line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:999px;display:flex;justify-content:space-around;padding:9px 6px;font-size:10px;font-weight:600;color:var(--app-muted);box-shadow:0 10px 30px rgba(21,19,28,.12)}
+.phone .tab span.on{color:var(--app-text)}
+.phone .tab span i{display:block;width:16px;height:16px;border-radius:5px;background:currentColor;opacity:.85;margin:0 auto 3px}
+.phone .ring{width:52px;height:52px;border-radius:50%;background:conic-gradient(var(--sky) 0 62%,rgba(21,19,28,.08) 62% 100%);display:grid;place-items:center}
+.phone .ring b{width:38px;height:38px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:10px;font-weight:700}
+.phone .aura{height:118px;border-radius:24px;padding:12px 14px;color:#fff;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+.phone .aura:before{content:"";position:absolute;inset:0;background:radial-gradient(80% 60% at 100% 0%,rgba(255,255,255,.35),transparent 60%)}
+.phone .aura .big{color:#fff;font-size:30px}
+.phone .aura .l{color:rgba(255,255,255,.85)}
+.phone .pulse{height:38px;border-radius:999px;background:linear-gradient(90deg,#FF6B57,#FFB347,#34D399);position:relative;box-shadow:inset 0 2px 6px rgba(0,0,0,.12)}
+.phone .pulse i{position:absolute;top:4px;left:62%;width:30px;height:30px;border-radius:50%;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.phone .tl{display:grid;grid-template-columns:34px 14px 1fr;gap:0 8px;align-items:start}
+.phone .tl .t{font-size:10px;color:var(--app-muted);font-weight:600;padding-top:6px;text-align:right}
+.phone .tl .rail{position:relative;height:100%;min-height:52px}
+.phone .tl .rail:before{content:"";position:absolute;left:6px;top:0;bottom:-6px;width:2px;background:rgba(21,19,28,.08)}
+.phone .tl .rail b{position:absolute;left:0;top:8px;width:14px;height:14px;border-radius:50%;background:var(--app-text)}
+.phone .tl .rail b.m{background:linear-gradient(135deg,#FF6B57,#FF4F8B)}
+.phone .tl .rail b.d{background:linear-gradient(135deg,#38BDF8,#8B5CF6)}
+.phone .tl .rail b.a{background:linear-gradient(135deg,#34D399,#38BDF8)}
+.phone .tl .rail b.now{background:#fff;border:3px solid var(--coral);box-sizing:border-box}
+.phone .tl .it{background:var(--app-card);border:1px solid var(--app-line);border-radius:14px;padding:8px 10px;margin-bottom:8px}
+.phone .tl .it .l{font-size:10px}
+.phone .blocks .stat{background:rgba(255,255,255,.75);border-radius:14px;padding:9px 10px}
+.phone .blocks .stat b{font-family:"Inter Tight",sans-serif;font-size:20px;letter-spacing:-.03em;display:block}
+.phone .spark{display:flex;align-items:flex-end;gap:3px;height:34px}
+.phone .spark i{flex:1;border-radius:3px 3px 1px 1px;background:linear-gradient(180deg,#8B5CF6,#C4B5FD)}
+.phone .act{display:flex;align-items:center;justify-content:space-between;background:var(--app-text);color:#fff;border-radius:14px;padding:10px 12px;font-weight:600;font-size:12px}
+.phone .act small{color:rgba(255,255,255,.65);display:block;font-weight:500;font-size:10px}
+.phone .polaroids{position:relative;height:270px}
+.phone .polaroids .pc{position:absolute;width:104px;padding:6px 6px 8px;background:#fff;border-radius:12px;box-shadow:0 14px 30px rgba(21,19,28,.18);color:var(--app-text)}
+.phone .polaroids .pc .img{height:74px;border-radius:8px;margin-bottom:6px}
+.phone .polaroids .pc .t{font-size:10px;font-weight:700}
+.phone .polaroids .pc .l{font-size:9px}
+
+/* ---------- chapters ---------- */
+.chapter{padding:96px 0 40px;border-top:1px solid var(--line);position:relative}
+.chapter .num{font-family:"Inter Tight",sans-serif;font-weight:800;font-size:.85rem;letter-spacing:.02em;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.chapter .num:before{content:"";width:22px;height:2px;background:linear-gradient(90deg,var(--coral),var(--violet));border-radius:2px}
+.chapter h2{margin-bottom:16px;max-width:22ch}
+.chapter .lead{margin-bottom:34px}
+.chapter.wash-coral:before,.chapter.wash-violet:before,.chapter.wash-mint:before,.chapter.wash-amber:before,.chapter.wash-sky:before{content:"";position:absolute;inset:0 0 auto 0;height:520px;pointer-events:none;opacity:.5}
+.chapter.wash-coral:before{background:radial-gradient(60% 60% at 15% 0%,rgba(255,107,87,.22),transparent 60%)}
+.chapter.wash-violet:before{background:radial-gradient(60% 60% at 85% 0%,rgba(139,92,246,.22),transparent 60%)}
+.chapter.wash-mint:before{background:radial-gradient(60% 60% at 15% 0%,rgba(52,211,153,.16),transparent 60%)}
+.chapter.wash-amber:before{background:radial-gradient(60% 60% at 85% 0%,rgba(255,179,71,.18),transparent 60%)}
+.chapter.wash-sky:before{background:radial-gradient(60% 60% at 15% 0%,rgba(56,189,248,.18),transparent 60%)}
+.chapter > .wrap{position:relative}
+
+/* tiles */
+.tiles{display:grid;gap:12px;grid-template-columns:1fr;margin:8px 0 26px}
+@media (min-width:700px){ .tiles.c2{grid-template-columns:1fr 1fr} .tiles.c3{grid-template-columns:repeat(3,1fr)} .tiles.c4{grid-template-columns:repeat(2,1fr)} }
+@media (min-width:1000px){ .tiles.c4{grid-template-columns:repeat(4,1fr)} }
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 20px 14px;box-shadow:var(--shadow-soft);transition:border-color .25s var(--ease),transform .25s var(--ease)}
+.tile:hover{border-color:var(--line-2)}
+.tile .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;margin-bottom:12px;background:var(--surface-2)}
+.tile h4{margin:0 0 6px;font-size:1.05rem}
+.tile p{font-size:.94rem;margin:0 0 6px}
+.tile.glow-coral .ic{background:linear-gradient(135deg,rgba(255,107,87,.35),rgba(255,79,139,.25))}
+.tile.glow-violet .ic{background:linear-gradient(135deg,rgba(139,92,246,.35),rgba(196,181,253,.25))}
+.tile.glow-mint .ic{background:linear-gradient(135deg,rgba(52,211,153,.35),rgba(56,189,248,.25))}
+.tile.glow-amber .ic{background:linear-gradient(135deg,rgba(255,179,71,.35),rgba(255,107,87,.25))}
+.tile.glow-sky .ic{background:linear-gradient(135deg,rgba(56,189,248,.35),rgba(139,92,246,.25))}
+
+/* big statement */
+.statement{font-family:"Inter Tight",sans-serif;font-weight:700;letter-spacing:-.025em;font-size:clamp(1.4rem,3vw,2rem);line-height:1.2;color:var(--text);max-width:30ch;margin:10px 0 28px}
+
+/* pill badges */
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:700;padding:4px 9px;border-radius:999px;line-height:1.4;vertical-align:middle;letter-spacing:.01em}
+.pill.core{background:rgba(52,211,153,.16);color:#8CE7C3}
+.pill.plus{background:rgba(139,92,246,.2);color:#D1C4FF}
+.pill.pro{background:rgba(255,179,71,.18);color:#FFD59A}
+.pill.later{background:var(--surface-2);color:var(--muted)}
+.pill.sys{background:rgba(56,189,248,.16);color:#9EDDFB}
+.pill.auto{background:rgba(255,107,87,.16);color:#FFB3A6}
+
+/* deep spec drawers */
+details.deep{margin:18px 0 6px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg-2);overflow:hidden}
+details.deep summary{cursor:pointer;list-style:none;padding:16px 20px;font-weight:600;display:flex;align-items:center;gap:12px;color:var(--text);transition:background .2s var(--ease)}
+details.deep summary::-webkit-details-marker{display:none}
+details.deep summary:hover{background:var(--surface)}
+details.deep summary .tag{font-size:.72rem;font-weight:700;color:var(--lilac);background:rgba(139,92,246,.18);padding:3px 8px;border-radius:999px;letter-spacing:.02em}
+details.deep summary .chev{margin-left:auto;width:22px;height:22px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;transition:transform .3s var(--ease)}
+details.deep summary .chev:before{content:"";width:7px;height:7px;border-right:1.5px solid var(--text);border-bottom:1.5px solid var(--text);transform:rotate(45deg) translate(-1px,-1px)}
+details.deep[open] summary .chev{transform:rotate(180deg)}
+details.deep .in{padding:4px 20px 20px;border-top:1px solid var(--line)}
+details.deep .in > :first-child{margin-top:16px}
+
+/* tables */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-md);margin:16px 0;background:var(--bg-2)}
+table{border-collapse:collapse;width:100%;min-width:600px;font-size:.9rem}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--text-2)}
+th{color:var(--text);font-weight:600;background:var(--surface)}
+td strong{color:var(--text)}
+tr:last-child td{border-bottom:0}
+
+/* screens gallery */
+.screens{display:grid;gap:28px;grid-template-columns:1fr;margin:20px 0}
+@media (min-width:760px){ .screens{grid-template-columns:1fr 1fr} }
+@media (min-width:1080px){ .screens.three{grid-template-columns:repeat(3,1fr)} }
+.screen{display:grid;gap:14px;justify-items:center}
+.screen .desc{max-width:340px}
+.screen .desc h4{margin:0 0 6px;font-size:1.1rem}
+.screen .desc p{font-size:.92rem;margin:0 0 8px}
+.screen .desc ul{font-size:.88rem;padding-left:1rem}
+
+/* module cards */
+.mods{display:grid;gap:12px;grid-template-columns:1fr;margin:10px 0 20px}
+@media (min-width:720px){ .mods{grid-template-columns:1fr 1fr} }
+@media (min-width:1080px){ .mods{grid-template-columns:repeat(3,1fr)} }
+.mod{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 16px 12px;position:relative;overflow:hidden}
+.mod:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--mod-c,var(--violet))}
+.mod .top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.mod .top .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;background:var(--surface-2)}
+.mod .top h4{margin:0;flex:1;font-size:1rem}
+.mod p{font-size:.88rem;margin:0 0 6px}
+.mod dl{display:grid;grid-template-columns:70px 1fr;gap:4px 10px;font-size:.84rem;margin:8px 0 0}
+.mod dt{color:var(--muted);font-weight:600}
+.mod dd{margin:0;color:var(--text-2)}
+.cat{display:flex;align-items:center;gap:12px;margin:34px 0 8px}
+.cat h3{margin:0}
+.cat i{width:12px;height:12px;border-radius:4px;background:var(--cat-c,var(--violet));display:inline-block}
+
+/* flow diagram (intelligence) */
+.flow{display:grid;gap:10px;grid-template-columns:1fr;margin:20px 0}
+@media (min-width:860px){ .flow{grid-template-columns:repeat(6,1fr)} }
+.flow .st{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 14px 10px;position:relative}
+.flow .st b{display:block;font-family:"Inter Tight",sans-serif;font-size:1rem;letter-spacing:-.01em;margin-bottom:4px}
+.flow .st span{font-size:.82rem;color:var(--text-2)}
+.flow .st .n{position:absolute;top:10px;right:12px;font-size:.7rem;font-weight:700;color:var(--muted)}
+.flow .st.hi{border-color:rgba(139,92,246,.5);background:linear-gradient(160deg,rgba(139,92,246,.18),var(--surface))}
+
+/* block renderer legend */
+.blocks-legend{display:grid;gap:10px;grid-template-columns:1fr;margin:14px 0}
+@media (min-width:700px){ .blocks-legend{grid-template-columns:1fr 1fr} }
+.blk{display:grid;grid-template-columns:134px 1fr;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px}
+.blk .demo{height:70px;border-radius:12px;background:#FBF8FF;color:var(--app-text);padding:8px 10px;font-size:10.5px;line-height:1.25;display:flex;flex-direction:column;justify-content:center;overflow:hidden;gap:2px}
+.blk .demo b{font-family:"Inter Tight",sans-serif;font-size:14px;letter-spacing:-.02em;line-height:1.1}
+.blk .demo .sp{display:flex;align-items:flex-end;gap:2px;height:26px}
+.blk .demo .sp i{flex:1;background:linear-gradient(180deg,#8B5CF6,#C4B5FD);border-radius:2px}
+.blk .demo.dark{background:#15131C;color:#fff}
+.blk .demo.ai{background:linear-gradient(160deg,#E9E2FF,#FBF8FF)}
+.blk h4{margin:0 0 3px;font-size:.95rem}
+.blk p{margin:0;font-size:.84rem}
+
+/* timeline / roadmap */
+.road{display:grid;gap:12px;grid-template-columns:1fr;margin:16px 0}
+@media (min-width:760px){ .road{grid-template-columns:repeat(3,1fr)} }
+@media (min-width:1080px){ .road{grid-template-columns:repeat(6,1fr)} }
+.ms{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 14px 8px}
+.ms b{display:block;font-family:"Inter Tight",sans-serif;font-size:1.05rem;letter-spacing:-.01em}
+.ms small{display:block;margin-bottom:8px}
+.ms ul{padding-left:1rem;font-size:.84rem;margin:0}
+
+/* motion table */
+.motion{display:grid;gap:10px;grid-template-columns:1fr;margin:14px 0}
+@media (min-width:760px){ .motion{grid-template-columns:1fr 1fr} }
+.mo{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;font-size:.88rem}
+.mo b{display:block;color:var(--text);margin-bottom:2px}
+.mo code{font-size:.78rem}
+
+/* callout */
+.note{border-radius:var(--r-md);padding:14px 16px;margin:16px 0;border:1px solid var(--line);background:var(--surface)}
+.note.violet{border-color:rgba(139,92,246,.4);background:linear-gradient(160deg,rgba(139,92,246,.14),var(--surface))}
+.note.coral{border-color:rgba(255,107,87,.4);background:linear-gradient(160deg,rgba(255,107,87,.14),var(--surface))}
+.note.mint{border-color:rgba(52,211,153,.4);background:linear-gradient(160deg,rgba(52,211,153,.12),var(--surface))}
+.note p:last-child{margin-bottom:0}
+.note b.t{display:block;color:var(--text);margin-bottom:4px}
+
+/* swatches */
+.swatches{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+@media (min-width:700px){ .swatches{grid-template-columns:repeat(6,1fr)} }
+.sw{border-radius:14px;height:86px;padding:10px;display:flex;flex-direction:column;justify-content:flex-end;color:#fff;font-size:.78rem;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.sw small{color:rgba(255,255,255,.8);font-size:.7rem;font-family:"Geist Mono",monospace}
+
+/* type specimen */
+.spec{background:#FBF8FF;color:var(--app-text);border-radius:var(--r-lg);padding:24px;margin:14px 0}
+.spec .h{font-family:"Inter Tight",sans-serif;font-weight:800;letter-spacing:-.04em;font-size:2.4rem;line-height:1}
+.spec .n{font-family:"Inter Tight",sans-serif;font-weight:800;letter-spacing:-.05em;font-size:4rem;line-height:.95;font-variant-numeric:tabular-nums}
+.spec .b{font-size:.95rem;color:#5C5A6B;margin-top:10px}
+.spec .lab{font-size:.72rem;font-weight:700;color:#8E8C9C;margin-top:14px;text-transform:none}
+
+.footer{padding:60px 0 80px;color:var(--muted);font-size:.88rem;border-top:1px solid var(--line);margin-top:60px}
+.grid-2{display:grid;gap:22px;grid-template-columns:1fr}
+@media (min-width:860px){ .grid-2{grid-template-columns:1fr 1fr;align-items:start} }
+.kicker{font-size:.8rem;font-weight:700;color:var(--lilac);margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Chapters">
+  <div class="in">
+    <div class="brand"><i></i>Care</div>
+    <div class="links">
+      <a href="#vision">Vision</a>
+      <a href="#problem">Problem</a>
+      <a href="#people">People</a>
+      <a href="#principles">Principles</a>
+      <a href="#design">Design</a>
+      <a href="#screens">Screens</a>
+      <a href="#modules">Modules</a>
+      <a href="#intelligence">Intelligence</a>
+      <a href="#reminders">Reminders</a>
+      <a href="#integrations">Apple</a>
+      <a href="#stack">Stack</a>
+      <a href="#build">Build plan</a>
+      <a href="#prompts">Prompts</a>
+      <a href="#pitch">Pitch</a>
+      <a href="#decisions">Decisions</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero" id="vision">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="wrap in">
+    <div>
+      <div class="eyebrow enter d1"><b></b>Product and build spec. Version 2. September 2026</div>
+      <h1 class="enter d2">The people you love, <span class="grad">finally in one place.</span></h1>
+      <p class="lead enter d3">Care is an iOS app that turns looking after people into a ten-second habit. One profile per person, built from modules, with intelligence that remembers, notices and nudges for you.</p>
+      <div class="pillars enter d4">
+        <span>Modules you switch on</span>
+        <span>One Home across everyone</span>
+        <span>Insights that render as visuals</span>
+      </div>
+      <div class="meta enter d4">
+        <span><b>Platform</b> iPhone first. Watch, iPad, Mac later</span>
+        <span><b>Phase 0</b> built for one user, local database</span>
+        <span><b>Stack</b> Swift 6, SwiftUI, iOS 27, SwiftData, OpenAI</span>
+      </div>
+    </div>
+    <div class="fan enter d5">
+      <!-- left: Person -->
+      <div class="phone f1 float s2">
+        <div class="scr mesh-rose">
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="body">
+            <div class="orbs"><span class="orb a-meera on">M</span><span class="orb a-dad">D</span><span class="orb a-mom">Mo</span><span class="orb a-aarav">A<i class="dot"></i></span><span class="orb add">+</span></div>
+            <div class="aura a-meera"><div class="l">Partner. Checked in 2h ago</div><div class="big">Meera</div><div class="l">Good week. Anniversary in 12 days.</div></div>
+            <div class="l">Pulse</div>
+            <div class="pulse"><i></i></div>
+            <div class="grid2">
+              <div class="card"><div class="l">Mood</div><div class="big" style="font-size:20px">Good</div><div class="chips"><span>7 day trail</span></div></div>
+              <div class="card"><div class="l">Health</div><div class="big" style="font-size:20px">Back, d2</div><div class="chips"><span>Private</span></div></div>
+            </div>
+            <div class="card ai"><div class="row"><div><div class="l">This week</div><b>Mood dips on Wednesdays</b></div><span style="font-size:18px">✦</span></div></div>
+          </div>
+          <div class="tab"><span><i></i>Today</span><span class="on"><i></i>People</span><span><i></i>Timeline</span><span><i></i>You</span></div>
+        </div>
+      </div>
+      <!-- center: Home -->
+      <div class="phone f2 float">
+        <div class="scr mesh">
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="body">
+            <div class="row"><div><div class="l">Thursday, Sep 17</div><div class="big">Good morning, Arjun</div></div><span class="orb a-me" style="width:34px;height:34px;font-size:11px">A</span></div>
+            <div class="card hero attn">
+              <div class="row"><div class="l">Dad. Missed dose</div><span class="l">Right now</span></div>
+              <div class="huge" style="margin:4px 0 2px">1<span style="font-size:20px;letter-spacing:0">&nbsp;dose</span></div>
+              <div class="l">Evening BP tablet, not marked. Ravi is away.</div>
+              <div class="chips"><span class="sel">Mark taken</span><span>Call Dad</span></div>
+            </div>
+            <div class="orbs"><span class="orb a-meera">M</span><span class="orb a-dad">D<i class="dot"></i></span><span class="orb a-mom">Mo</span><span class="orb a-aarav">A<i class="dot"></i></span><span class="orb a-rohan">R</span></div>
+            <div class="grid2">
+              <div class="card"><div class="l">Anniversary</div><div class="huge" style="font-size:34px">12<span style="font-size:14px">d</span></div><div class="l">Meera. Plan ready</div></div>
+              <div class="card"><div class="row"><div><div class="l">Water</div><div class="big" style="font-size:20px">0.5 L</div></div><div class="ring"><b>17%</b></div></div></div>
+            </div>
+            <div class="card ai"><div class="l">✦ Insight, refreshed 6h ago</div><b>Mom has felt "neutral" for six days</b><div class="l">Usually "all good". A call might be nice.</div></div>
+          </div>
+          <div class="tab"><span class="on"><i></i>Today</span><span><i></i>People</span><span><i></i>Timeline</span><span><i></i>You</span></div>
+        </div>
+      </div>
+      <!-- right: Timeline (night) -->
+      <div class="phone f3 float s3">
+        <div class="scr night">
+          <div class="sb"><span>9:41</span><span>●●●</span></div>
+          <div class="body">
+            <div class="l">Timeline</div>
+            <div class="big" style="color:#fff">Today</div>
+            <div class="tl">
+              <div class="t">8:00</div><div class="rail"><b class="a"></b></div><div class="it"><b>Text Aarav good luck</b><div class="l">Science exam at 2pm</div></div>
+              <div class="t">10:30</div><div class="rail"><b class="d"></b></div><div class="it"><b>Dr. Iyer, cardiology</b><div class="l">Dad. 2 questions saved</div></div>
+              <div class="t">Now</div><div class="rail"><b class="now"></b></div><div class="it" style="border-color:rgba(255,107,87,.5)"><b>Call Mom</b><div class="l">Sunday rhythm. 2 talking points</div></div>
+              <div class="t">19:00</div><div class="rail"><b class="m"></b></div><div class="it"><b>Dinner, Meera</b><div class="l">From Apple Calendar</div></div>
+            </div>
+          </div>
+          <div class="tab"><span><i></i>Today</span><span><i></i>People</span><span class="on"><i></i>Timeline</span><span><i></i>You</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= 01 VISION ================= -->
+<section class="chapter wash-coral" id="summary">
+  <div class="wrap">
+    <div class="num">01 &nbsp;Vision</div>
+    <h2>Care is the operating system for the people in your life.</h2>
+    <p class="lead">Not a task app. Not a health app. A person-centered layer that sits on top of your calendar, reminders and contacts, and does the remembering so you can do the caring.</p>
+
+    <div class="tiles c3">
+      <div class="tile glow-coral"><div class="ic">🧩</div><h4>Modules</h4><p>Every person gets a profile built from small, switchable modules. Mood, Health, Hydration, Events, Travel, Wishlist, Medication and more. Start with three, grow to twenty. Each module is the same shape in code, so new ones ship without redesigning the app.</p></div>
+      <div class="tile glow-amber"><div class="ic">🏠</div><h4>Home</h4><p>One Today screen that gathers every module across every person and sorts it by what matters right now. You never open five profiles to find the one thing that needs you.</p></div>
+      <div class="tile glow-violet"><div class="ic">✦</div><h4>Intelligence</h4><p>Insights generate themselves the moment you land. A structured pipeline turns raw entries into a visual layer: stats, trends, actions, countdowns. Refreshed every 24 hours, or on demand.</p></div>
+    </div>
+
+    <div class="statement">The bet: people do not fail at caring because they do not care. They fail because caring is a memory and attention job with no system behind it.</div>
+
+    <div class="tiles c4">
+      <div class="tile"><h4>What it replaces</h4><p>The notes app, the "remind me" texts to yourself, the birthday spreadsheet, the WhatsApp thread with your sibling about Dad's tablets.</p></div>
+      <div class="tile"><h4>What it connects to</h4><p>Apple Calendar, Reminders, Contacts, Health, Photos, Weather, Maps. Care reads what already exists and writes back where it belongs.</p></div>
+      <div class="tile"><h4>How it feels</h4><p>Luma's warmth, BoxBox's confidence, Structured's calm. Big type, glass surfaces, per-person color auras, motion that answers every tap.</p></div>
+      <div class="tile"><h4>How it starts</h4><p>Built for one user first, fully local. Perfected on real life for a few months. Then linked profiles, then the world.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 PROBLEM ================= -->
+<section class="chapter wash-violet" id="problem">
+  <div class="wrap">
+    <div class="num">02 &nbsp;The problem</div>
+    <h2>Care is invisible work, and invisible work gets dropped first.</h2>
+    <p class="lead">Six problems show up in different lives. They share one root cause: there is no system for the mental load of looking after people.</p>
+
+    <div class="tiles c3">
+      <div class="tile glow-coral"><div class="ic">🧠</div><h4>Mental load</h4><p>Anticipating needs, remembering details, planning ahead. In most households one person carries nearly all of it, silently. It cannot be shared because it lives in one head.</p></div>
+      <div class="tile glow-amber"><div class="ic">🫧</div><h4>Small moments decay</h4><p>Relationships weaken through missed micro-moments, not big fights. "How did it go?" never asked. A worry mentioned once and never followed up. The date remembered a day late.</p></div>
+      <div class="tile glow-sky"><div class="ic">🥪</div><h4>The sandwich</h4><p>Adults caring for parents and children at the same time juggle medication, exams, appointments and school across three cities and two generations, with a chat thread as the only tool.</p></div>
+      <div class="tile glow-violet"><div class="ic">📡</div><h4>Distance</h4><p>Partners who travel. Parents in another country. Siblings in different time zones. The people who need the most deliberate care are the ones we see least.</p></div>
+      <div class="tile glow-mint"><div class="ic">⚡</div><h4>Attention collapse</h4><p>Work, feeds and notifications crowd out the quiet mental space where "things about the people I love" used to live. Prospective memory (remembering to do something later) is the first thing to go.</p></div>
+      <div class="tile glow-coral"><div class="ic">🗂️</div><h4>Fragmentation</h4><p>Birthdays in Contacts. Appointments in Calendar. Promises in Reminders. Gift ideas in Notes. Trips in Photos. Six tools, none of them organized around a person.</p></div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <h3>Why nothing solves it today</h3>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Tool</th><th>Good at</th><th>Fails because</th></tr></thead>
+            <tbody>
+              <tr><td>Calendar</td><td>Dates and times</td><td>Knows the date, not the person. No state, no follow-up</td></tr>
+              <tr><td>Reminders</td><td>Nudges</td><td>No context, no reason, no learning. Becomes noise</td></tr>
+              <tr><td>Notes</td><td>Capture</td><td>Write-only. Never resurfaces at the right moment</td></tr>
+              <tr><td>Chat</td><td>Where things are said</td><td>Scrolls away. Unsearchable across months</td></tr>
+              <tr><td>Health apps</td><td>Self tracking</td><td>Only about you. No concept of "on behalf of"</td></tr>
+              <tr><td>Couple apps</td><td>Shared lists</td><td>Stop at two people. No parents, kids, clients</td></tr>
+              <tr><td>Caregiving apps</td><td>Medication logs</td><td>Clinical, heavy, built for illness not for love</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h3>The insight behind Care</h3>
+        <p>Every existing tool is organized around a <strong>type of information</strong> (a date, a task, a note). Care is organized around a <strong>person</strong>. Everything about Meera lives with Meera. That single shift makes the information findable, the patterns visible, and the mental load shareable.</p>
+        <p>The second insight is that most of the work should be <strong>automatic</strong>. Birthdays come from Contacts. Appointments come from Calendar. Trips come from Photos. Mood comes from a single tap on a notification. The user's job is to answer, not to enter.</p>
+        <div class="note violet">
+          <b class="t">What "care" means, operationally</b>
+          <p><strong>Knowing</strong> how someone is. <strong>Remembering</strong> what matters to them. <strong>Acting</strong> at the right moment. <strong>Noticing</strong> patterns a single day hides. Every module supports one or more of these four verbs.</p>
+        </div>
+      </div>
+    </div>
+
+    <details class="deep">
+      <summary><span class="tag">Depth</span> The wider problem space and who feels it most <span class="chev"></span></summary>
+      <div class="in">
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Situation</th><th>What breaks</th><th>What Care gives them</th><th>Phase</th></tr></thead>
+            <tbody>
+              <tr><td><strong>New couple</strong></td><td>Learning each other's preferences, moods, family dates. Small forgets feel big</td><td>Mentions, Mood, Dates, Wishlist, Travel plans, Intimacy</td><td>0</td></tr>
+              <tr><td><strong>Busy partner</strong></td><td>Work eats the day. Partner feels unseen</td><td>Pulse check-ins from notifications, evening wrap, follow-up nudges</td><td>0</td></tr>
+              <tr><td><strong>Adult child of aging parents</strong></td><td>Medication, doctors, refills, split with a sibling over chat</td><td>Medication, Appointments, Documents, co-carer sync, call rhythm</td><td>1 to 2</td></tr>
+              <tr><td><strong>Parent of school-age kids</strong></td><td>Exams, water bottles, moods, activities, teacher meetings</td><td>School, Hydration, Mood, Events with follow-up</td><td>1</td></tr>
+              <tr><td><strong>Long-distance family</strong></td><td>Calls slip. No idea what is happening in their week</td><td>Call rhythm with talking points, weather where they are, Travel plans</td><td>1</td></tr>
+              <tr><td><strong>Person with ADHD or heavy load</strong></td><td>Prospective memory fails. Guilt builds</td><td>Automatic capture, single-tap answers, reminders that carry the reason</td><td>0</td></tr>
+              <tr><td><strong>Professional carer, PA, coach</strong></td><td>Notes per client on paper. Confidentiality. Handover</td><td>Client circles with strict separation, Notes, visit prep insights</td><td>3</td></tr>
+              <tr><td><strong>Friend group</strong></td><td>Birthdays, gifts, who owes a dinner</td><td>Dates, Wishlist with gift claiming, Shared checklist</td><td>2</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>Beliefs to validate during Phase 0 (self use)</h4>
+        <ul>
+          <li>A daily loop of under 15 seconds is sustainable for 30 days without feeling like a chore.</li>
+          <li>Insights generated on app open are read more often than insights behind a button.</li>
+          <li>The "how did it go?" follow-up is the single most valued reminder.</li>
+          <li>Passive imports (Contacts, Calendar, Photos) create more than half of all entries.</li>
+          <li>Per-person color auras make switching between people feel instant and clear.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= 03 PEOPLE ================= -->
+<section class="chapter wash-mint" id="people">
+  <div class="wrap">
+    <div class="num">03 &nbsp;Who it is for</div>
+    <h2>Built for one person first. Designed for everyone with people to look after.</h2>
+    <p class="lead">Phase 0 has exactly one user: the founder, with a partner, two parents, a sibling and a friend in the circle. Everything is tuned on that real life before anyone else sees it.</p>
+
+    <div class="tiles c3">
+      <div class="tile"><div class="ic" style="background:linear-gradient(135deg,#FF6B57,#FF4F8B)">👤</div><h4>The founder, Phase 0</h4><p>Newly married. Busy. Wants to remember what his wife said, know how her week went, never miss a family date, keep his parents' medication straight, and call his mother on Sundays. One device, one account, local data.</p></div>
+      <div class="tile"><div class="ic" style="background:linear-gradient(135deg,#38BDF8,#8B5CF6)">👥</div><h4>The circle, Phase 1</h4><p>The partner joins as a linked profile. Both log about themselves and each other with per-module visibility. A sibling joins as a co-carer on the parents' managed profiles. Requires sync (CloudKit).</p></div>
+      <div class="tile"><div class="ic" style="background:linear-gradient(135deg,#34D399,#38BDF8)">🌍</div><h4>The world, Phase 2 and on</h4><p>Couples, families, sandwich-generation adults, long-distance families, then professional carers. The module system is the growth engine: each new life situation is a new set of modules, not a new app.</p></div>
+    </div>
+
+    <details class="deep">
+      <summary><span class="tag">Depth</span> Circle types and starter modules <span class="chev"></span></summary>
+      <div class="in">
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Relationship</th><th>Default modules (on at creation)</th><th>Suggested next</th></tr></thead>
+            <tbody>
+              <tr><td>Partner</td><td>Mood, Health, Mentions, Dates, Events, Shared checklist</td><td>Travel plans, Wishlist, Favorite brands, Intimacy</td></tr>
+              <tr><td>Parent</td><td>Health, Dates, Call rhythm, Appointments</td><td>Medication, Documents, Travel log, Weather where they are</td></tr>
+              <tr><td>Child</td><td>Mood, Hydration, Events, Dates</td><td>School, Wishlist, Health</td></tr>
+              <tr><td>Sibling</td><td>Dates, Events, Mentions</td><td>Shared checklist, Travel plans, Wishlist</td></tr>
+              <tr><td>Friend</td><td>Dates, Mentions, Wishlist</td><td>Events, Travel log, Food and places</td></tr>
+              <tr><td>Client</td><td>Notes, Appointments, Tasks</td><td>Medication, Documents, Health</td></tr>
+              <tr><td>Me</td><td>Mood, Health, Hydration, Dates, Travel plans</td><td>Sleep and energy, Wishlist</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><small>Defaults are a starting point. Every module can be switched on or off per person in under two taps.</small></p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= 04 PRINCIPLES ================= -->
+<section class="chapter wash-amber" id="principles">
+  <div class="wrap">
+    <div class="num">04 &nbsp;Principles</div>
+    <h2>Zero-exam UX. The app asks, you answer. Never the other way round.</h2>
+    <p class="lead">The biggest risk is logging fatigue. Every design decision follows one rule: reduce what the user has to type, then reduce what they have to open, then reduce what they have to remember.</p>
+
+    <h3>The input ladder</h3>
+    <p>Every piece of data enters Care through the lowest rung possible. Typing is the last resort, and it is always voice-first.</p>
+    <div class="tiles c4">
+      <div class="tile glow-mint"><div class="ic">1</div><h4>Passive</h4><p>Imported with permission. Birthdays from Contacts. Events from Calendar. Trips from Photos. Water and sleep from Health (self only). No effort at all.</p></div>
+      <div class="tile glow-sky"><div class="ic">2</div><h4>Ambient</h4><p>Answered where you already are. A notification with three buttons. A Lock Screen widget. A Watch complication. One tap, app never opens.</p></div>
+      <div class="tile glow-amber"><div class="ic">3</div><h4>Quick</h4><p>Inside the app, one gesture. The Pulse slider sets mood and energy in one drag. Chips for symptoms. A tap on a water cup.</p></div>
+      <div class="tile glow-coral"><div class="ic">4</div><h4>Spoken</h4><p>Only for Mentions and notes. Hold to talk, on iPhone or Watch. Siri: "Remember that Meera wants to try the pottery class." Typing exists but is never required.</p></div>
+    </div>
+
+    <div class="tiles c3">
+      <div class="tile"><h4>Fifteen seconds a day</h4><p>The core loop is a morning glance at Today and one or two ambient answers. The evening wrap is three questions, skippable in one tap. Nothing else is required, ever.</p></div>
+      <div class="tile"><h4>Nothing to log is a good day</h4><p>Empty states are calm, not guilty. "Everyone is fine. Nothing needs you today." No streaks to break, no red badges for missed days.</p></div>
+      <div class="tile"><h4>Push with a reason</h4><p>Every nudge names the person, the reason and the one action. "Aarav's exam finished. Ask how it went." Reminders without a reason are not sent.</p></div>
+      <div class="tile"><h4>Private by default</h4><p>Everything is local in Phase 0. When sharing arrives, visibility is set per module per person, and every adult can see what exists about them.</p></div>
+      <div class="tile"><h4>Read what exists, write where it belongs</h4><p>Apple Calendar and Reminders stay the system of record for dates and to-dos. Care adds the person layer and writes back, two-way.</p></div>
+      <div class="tile"><h4>Motion answers every touch</h4><p>Every tap gets a spring, a haptic and a visible state change. The app should feel like it is made of soft glass and light, not forms and lists.</p></div>
+    </div>
+
+    <details class="deep">
+      <summary><span class="tag">Depth</span> The daily loop, timed <span class="chev"></span></summary>
+      <div class="in">
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Moment</th><th>Surface</th><th>What happens</th><th>Time</th></tr></thead>
+            <tbody>
+              <tr><td>Wake</td><td>Lock Screen widget, morning notification</td><td>"Three things today. Everyone else is fine." Tap opens Today with insights already rendered.</td><td>5 s</td></tr>
+              <tr><td>Morning</td><td>Today tab</td><td>Hero card (the one thing), orbs with attention dots, bento of today, insight card. Quick check-ins by tapping an orb.</td><td>10 s</td></tr>
+              <tr><td>Midday</td><td>Interactive notification</td><td>"Water: 1 of 3 L" with +250 ml button. "How is Meera today?" with three faces.</td><td>2 s</td></tr>
+              <tr><td>Anytime</td><td>Watch, Siri, Share sheet</td><td>Dictate a mention. Share a product link into a wishlist. Log a cup of water from the wrist.</td><td>3 s</td></tr>
+              <tr><td>Evening</td><td>Evening wrap sheet</td><td>Three questions about the people you saw. Tomorrow preview. Skippable.</td><td>45 s</td></tr>
+              <tr><td>Weekly</td><td>Sunday insight</td><td>One deeper insight per person, generated by the larger model. Plus the call-rhythm nudge with talking points.</td><td>60 s</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= 05 DESIGN ================= -->
+<section class="chapter wash-coral" id="design">
+  <div class="wrap">
+    <div class="num">05 &nbsp;Design language</div>
+    <h2>Aura. Soft glass, living color, big confident type.</h2>
+    <p class="lead">Every person has an aura: a two-color gradient that tints their profile, their orb, their cards and their notifications. The app is light and warm by default, deep and glowing at night.</p>
+
+    <div class="grid-2">
+      <div>
+        <h3>References, decoded</h3>
+        <ul>
+          <li><strong>Luma:</strong> giant tight headline with one gradient phrase, pastel mesh background, floating cards with real content, black pill buttons. We take the headline system, the mesh and the pill button.</li>
+          <li><strong>BoxBox Club:</strong> dark surfaces lit by one strong color, huge tabular countdown numerals, glass tab bar, hero cards that feel like posters. We take the numerals, the night mode and the hero card.</li>
+          <li><strong>Structured:</strong> a calm vertical timeline with time rail, colored icons per item, soft blush palette. We take the timeline for the day view and the gentle tone.</li>
+          <li><strong>ShopBack:</strong> bold gradient header that fades into white cards, clear tabs. We take the "gradient header into content" transition for person profiles.</li>
+        </ul>
+        <div class="note coral">
+          <b class="t">One rule to keep it premium</b>
+          <p>Spend boldness in one place per screen. One hero card, one huge number, one aura wash. Everything else is quiet glass. Two heroes on one screen is the fastest way to look like a template.</p>
+        </div>
+      </div>
+      <div>
+        <h3>Type</h3>
+        <div class="spec">
+          <div class="h">Good morning, Arjun</div>
+          <div class="n tn">12<span style="font-size:1.6rem;letter-spacing:0">d</span> 04<span style="font-size:1.6rem;letter-spacing:0">h</span></div>
+          <div class="b">Body text stays calm and readable. Labels are sentence case, never all caps.</div>
+          <div class="lab">SF Pro Display Heavy for headlines and numerals, tight tracking. SF Pro Text for body. SF Pro Rounded for playful labels only. Brand font on marketing surfaces: Inter Tight.</div>
+        </div>
+        <p><small>Use the system font family in the app for Dynamic Type and rendering quality. Tracking: headlines -3 to -4 percent, numerals -5 percent, tabular figures everywhere numbers change.</small></p>
+      </div>
+    </div>
+
+    <h3>Color</h3>
+    <p>Six aura hues. Each person is assigned a pair at creation (or picks their own). Semantic roles stay fixed: coral means attention, violet means intelligence, mint means done, amber means upcoming.</p>
+    <div class="swatches">
+      <div class="sw" style="background:linear-gradient(135deg,#FF6B57,#FF4F8B)">Coral Rose<small>attention, love</small></div>
+      <div class="sw" style="background:linear-gradient(135deg,#8B5CF6,#C4B5FD)">Violet Lilac<small>intelligence</small></div>
+      <div class="sw" style="background:linear-gradient(135deg,#FFB347,#FF6B57)">Amber Coral<small>upcoming</small></div>
+      <div class="sw" style="background:linear-gradient(135deg,#34D399,#38BDF8)">Mint Sky<small>done, healthy</small></div>
+      <div class="sw" style="background:linear-gradient(135deg,#38BDF8,#8B5CF6)">Sky Violet<small>calm, care</small></div>
+      <div class="sw" style="background:linear-gradient(135deg,#15131C,#5C5A6B)">Ink<small>you, actions</small></div>
+    </div>
+
+    <h3>Motion</h3>
+    <p>Motion is the difference between a form and a product. Every interaction below has an exact value. The coding agent uses these, not approximations.</p>
+    <div class="motion">
+      <div class="mo"><b>Standard spring</b><code>.spring(duration: 0.35, bounce: 0.15)</code><br>Cards, sheets, chip selection, tab switch.</div>
+      <div class="mo"><b>Snappy spring</b><code>.spring(duration: 0.25, bounce: 0)</code><br>Toggles, counters, small state changes.</div>
+      <div class="mo"><b>Expressive spring</b><code>.spring(duration: 0.5, bounce: 0.3)</code><br>Celebrations only: milestone reached, streak of care, first insight.</div>
+      <div class="mo"><b>Press</b><code>scaleEffect(pressed ? 0.96 : 1)</code> + <code>.sensoryFeedback(.impact(weight: .light))</code><br>Every tappable surface. Interruptible.</div>
+      <div class="mo"><b>Numbers</b><code>.contentTransition(.numericText())</code><br>Countdowns, water totals, counts. Digits roll, never blink.</div>
+      <div class="mo"><b>Hero to detail</b><code>.navigationTransition(.zoom)</code> with <code>matchedTransitionSource</code><br>Cards grow into their detail screens.</div>
+      <div class="mo"><b>Person switch</b>Aura crossfade 350 ms, content slides 16 pt in the swipe direction, orbs use <code>matchedGeometryEffect</code> for the selection ring.</div>
+      <div class="mo"><b>Insight reveal</b>Blocks enter staggered by 80 ms: opacity 0 to 1, scale 0.96 to 1, blur 4 to 0. Exit is a fixed 8 pt slide, softer than entry.</div>
+      <div class="mo"><b>Rings and bars</b><code>keyframeAnimator</code> fill with a slight overshoot; <code>phaseAnimator</code> for the pulse glow on attention dots.</div>
+      <div class="mo"><b>Scroll</b><code>.scrollTransition</code> scales cards 0.94 to 1 and fades 0.6 to 1 near edges. Timeline "now" marker uses <code>TimelineView</code>.</div>
+      <div class="mo"><b>Symbols</b><code>.symbolEffect(.bounce)</code> on check-in success, <code>.symbolEffect(.pulse)</code> on live activity, <code>.variableColor</code> on the insight sparkle while generating.</div>
+      <div class="mo"><b>Respect</b>Reduce Motion replaces springs with 200 ms ease and removes parallax. Reduce Transparency swaps glass for solid surfaces.</div>
+    </div>
+
+    <details class="deep">
+      <summary><span class="tag">Depth</span> Tokens, surfaces and components <span class="chev"></span></summary>
+      <div class="in">
+        <h4>Semantic color tokens (light / night)</h4>
+        <pre><code><span class="c">// CareDesign/Tokens.swift</span>
+<span class="k">enum</span> CareColor {
+  <span class="k">static let</span> background   = <span class="p">Color</span>(light: <span class="s">"#FBF8FF"</span>, night: <span class="s">"#0C0B12"</span>)
+  <span class="k">static let</span> surface      = <span class="p">Color</span>(light: .white.opacity(0.72), night: .white.opacity(0.07))
+  <span class="k">static let</span> textPrimary  = <span class="p">Color</span>(light: <span class="s">"#15131C"</span>, night: <span class="s">"#F4F4F5"</span>)
+  <span class="k">static let</span> textSecondary= <span class="p">Color</span>(light: <span class="s">"#5C5A6B"</span>, night: <span class="s">"#A9A7B8"</span>)
+  <span class="k">static let</span> separator    = <span class="p">Color</span>(light: <span class="s">"#15131C"</span>.opacity(0.07), night: .white.opacity(0.09))
+  <span class="k">static let</span> attention    = <span class="p">Color</span>(<span class="s">"#FF6B57"</span>)   <span class="c">// coral</span>
+  <span class="k">static let</span> intelligence = <span class="p">Color</span>(<span class="s">"#8B5CF6"</span>)   <span class="c">// violet</span>
+  <span class="k">static let</span> positive     = <span class="p">Color</span>(<span class="s">"#34D399"</span>)   <span class="c">// mint</span>
+  <span class="k">static let</span> upcoming     = <span class="p">Color</span>(<span class="s">"#FFB347"</span>)   <span class="c">// amber</span>
+}
+<span class="k">struct</span> Aura: Codable { <span class="k">let</span> start: <span class="p">String</span>; <span class="k">let</span> end: <span class="p">String</span> }   <span class="c">// per person</span></code></pre>
+        <h4>Radius and spacing (concentric rule: outer = inner + padding)</h4>
+        <ul>
+          <li>Screen cards 24 pt with 12 pt padding, inner tiles 12 pt. Hero card 28 pt. Chips 999. Orbs 44 pt circles. Tab bar pill 999.</li>
+          <li>Spacing scale 4, 8, 12, 16, 24, 32. Section gap is at least twice the gap inside a section.</li>
+          <li>Shadows for elevation, borders for structure. Cards: <code>shadow(color: .black.opacity(0.06), radius: 24, y: 8)</code> in light, none in night (glass carries depth).</li>
+        </ul>
+        <h4>Surfaces</h4>
+        <ul>
+          <li><strong>Mesh background:</strong> <code>MeshGradient</code> 3x3 with the active person's aura in two corners and amber at the bottom, animated slowly with <code>TimelineView</code>. Opacity 0.3 in light, 0.45 in night.</li>
+          <li><strong>Glass chrome:</strong> tab bar, floating action, sheet headers use Liquid Glass <code>.glassEffect()</code> inside a <code>GlassEffectContainer</code> so they morph together.</li>
+          <li><strong>Cards:</strong> white at 72 percent with <code>.ultraThinMaterial</code> behind on light; 7 percent white on night. One hairline border at 7 percent.</li>
+          <li><strong>Attention state:</strong> a 1.5 pt coral ring plus coral glow, never a red fill.</li>
+        </ul>
+        <h4>Component library (CareDesign package)</h4>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Component</th><th>Purpose</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td><code>AuraHeader</code></td><td>Person profile top, gradient into content</td><td>Name at 34 pt heavy, status line from intelligence, collapses on scroll to a 56 pt bar</td></tr>
+              <tr><td><code>PersonOrb</code></td><td>Avatar with aura ring, attention dot</td><td>44 pt, selection ring via matchedGeometryEffect, long press for quick sheet</td></tr>
+              <tr><td><code>HeroCard</code></td><td>The one thing on Today</td><td>Supports big numeral, state word, or countdown; max one per screen</td></tr>
+              <tr><td><code>BentoTile</code></td><td>Module summary on profile and Today</td><td>Sizes 1x1, 2x1, 2x2; today state plus one-tap action</td></tr>
+              <tr><td><code>PulseControl</code></td><td>One-drag mood and energy</td><td>Horizontal gradient track, haptic ticks at five stops, optional vertical axis for energy</td></tr>
+              <tr><td><code>ChipRow</code></td><td>Single or multi select</td><td>Selected chip fills ink, spring 0.25</td></tr>
+              <tr><td><code>Ring</code></td><td>Hydration, medication adherence</td><td>Keyframe fill, numericText center</td></tr>
+              <tr><td><code>InsightCard</code></td><td>Rendered AI blocks</td><td>Violet border and glow, sparkle icon, "refreshed 6h ago", refresh with 24 h cooldown</td></tr>
+              <tr><td><code>Countdown</code></td><td>Days, hours to a date</td><td>Tabular heavy numerals, unit suffix at 40 percent size</td></tr>
+              <tr><td><code>TimelineRail</code></td><td>Day view</td><td>Time labels, aura-colored dots, now marker, drag to reschedule</td></tr>
+              <tr><td><code>GlassTabBar</code></td><td>Today, People, Timeline, You</td><td>Liquid Glass, hides on scroll down, returns on scroll up</td></tr>
+              <tr><td><code>PillButton</code></td><td>Primary action</td><td>Ink fill, white text, 52 pt height, scale 0.96 on press</td></tr>
+              <tr><td><code>QuickSheet</code></td><td>Half sheet from orb tap</td><td>Pulse + two chip rows + done. Dismiss on done with success haptic</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= 06 SCREENS ================= -->
+<section class="chapter wash-violet" id="screens">
+  <div class="wrap">
+    <div class="num">06 &nbsp;Screens</div>
+    <h2>Four tabs. One hero per screen. Everything else is glass.</h2>
+    <p class="lead">Today, People, Timeline, You. Insights are not a tab; they live inside Today and inside every person, already rendered when you arrive.</p>
+
+    <div class="screens three">
+      <div class="screen">
+        <div class="phone">
+          <div class="scr mesh">
+            <div class="sb"><span>9:41</span><span>●●●</span></div>
+            <div class="body">
+              <div class="polaroids">
+                <div class="pc" style="left:6px;top:8px;transform:rotate(-8deg)"><div class="img a-meera"></div><div class="t">Mood</div><div class="l">Meera, Good</div></div>
+                <div class="pc" style="left:96px;top:0;transform:rotate(4deg)"><div class="img" style="background:linear-gradient(135deg,#38BDF8,#8B5CF6)"></div><div class="t">Medication</div><div class="l">Dad, 2 of 2</div></div>
+                <div class="pc" style="left:160px;top:30px;transform:rotate(9deg)"><div class="img" style="background:linear-gradient(135deg,#FFB347,#FF6B57)"></div><div class="t">Anniversary</div><div class="l">12 days</div></div>
+                <div class="pc" style="left:22px;top:118px;transform:rotate(5deg)"><div class="img" style="background:linear-gradient(135deg,#34D399,#38BDF8)"></div><div class="t">Water</div><div class="l">Aarav, 62%</div></div>
+                <div class="pc" style="left:126px;top:132px;transform:rotate(-6deg)"><div class="img" style="background:linear-gradient(135deg,#8B5CF6,#C4B5FD)"></div><div class="t">Insight</div><div class="l">Mom, quiet week</div></div>
+              </div>
+              <div style="text-align:center;padding:6px 6px 0">
+                <div class="l" style="font-weight:700;color:var(--app-muted)">care</div>
+                <div class="big" style="font-size:28px;margin:4px 0 6px">The people you love,<br><span style="background:linear-gradient(90deg,#FF6B57,#FF4F8B,#8B5CF6);-webkit-background-clip:text;background-clip:text;color:transparent">in one place.</span></div>
+                <div class="l">Modules for every person. Insights every morning.</div>
+              </div>
+              <div style="margin-top:auto"></div>
+              <a class="btn">Continue with Apple</a>
+              <a class="btn ghost">Start on this device only</a>
+            </div>
+            <div style="height:14px"></div>
+          </div>
+        </div>
+        <div class="desc">
+          <h4>Onboarding</h4>
+          <p>Luma-style: real module cards drift in with the auras of people you will add. One headline, two buttons. Sign in with Apple, or start local (Phase 0 default).</p>
+          <ul>
+            <li>Under three minutes to first check-in</li>
+            <li>Contacts import suggests family by relationship labels</li>
+            <li>Permissions asked when needed, never in a wall</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="phone">
+          <div class="scr mesh">
+            <div class="sb"><span>9:41</span><span>●●●</span></div>
+            <div class="body">
+              <div class="row"><div><div class="l">Thursday, Sep 17</div><div class="big">Today</div></div><span class="orb a-me" style="width:34px;height:34px;font-size:11px">A</span></div>
+              <div class="card hero">
+                <div class="row"><div class="l">Aarav. Science exam</div><span class="l">2:00 PM</span></div>
+                <div class="huge" style="margin:4px 0 2px">4<span style="font-size:20px;letter-spacing:0">h</span> 19<span style="font-size:20px;letter-spacing:0">m</span></div>
+                <div class="l">You planned to text good luck at 8am.</div>
+                <div class="chips"><span class="sel">Text now</span><span>Remind after</span></div>
+              </div>
+              <div class="orbs"><span class="orb a-meera">M</span><span class="orb a-dad">D<i class="dot"></i></span><span class="orb a-mom">Mo</span><span class="orb a-aarav on">A</span><span class="orb a-rohan">R</span></div>
+              <div class="grid2">
+                <div class="card"><div class="l">Dad. Medication</div><div class="big" style="font-size:20px">1 missed</div><div class="chips"><span class="sel">Taken</span></div></div>
+                <div class="card"><div class="row"><div><div class="l">Water</div><div class="big" style="font-size:20px">0.5 L</div></div><div class="ring"><b>17%</b></div></div></div>
+              </div>
+              <div class="card ai"><div class="l">✦ Insight, 6h ago</div><b>Mom has felt "neutral" for six days</b><div class="l">A call might be nice. Two talking points ready.</div></div>
+            </div>
+            <div class="tab"><span class="on"><i></i>Today</span><span><i></i>People</span><span><i></i>Timeline</span><span><i></i>You</span></div>
+          </div>
+        </div>
+        <div class="desc">
+          <h4>Today (Home)</h4>
+          <p>The agent picks one hero. Then orbs for quick check-ins, a bento of what is due, and the auto-generated insight. Hero and bento are built from module cards, so new modules appear here without new code.</p>
+          <ul>
+            <li>Hero: highest-ranked signal, big numeral or state word</li>
+            <li>Orbs: attention dot pulses; tap opens QuickSheet</li>
+            <li>Insight: rendered from JSON blocks, cached 24 h</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="phone">
+          <div class="scr mesh-rose">
+            <div class="sb"><span>9:41</span><span>●●●</span></div>
+            <div class="body">
+              <div class="orbs"><span class="orb a-meera on">M</span><span class="orb a-dad">D</span><span class="orb a-mom">Mo</span><span class="orb a-aarav">A</span><span class="orb add">+</span></div>
+              <div class="aura a-meera"><div class="l">Partner. Checked in 2h ago</div><div class="big">Meera</div><div class="l">Good week so far. Anniversary in 12 days.</div></div>
+              <div class="l">How is she today?</div>
+              <div class="pulse"><i></i></div>
+              <div class="grid2">
+                <div class="card"><div class="l">Mentions</div><b>Pottery class</b><div class="l">said twice this month</div></div>
+                <div class="card"><div class="l">Travel plans</div><b>Goa, Oct 3</b><div class="l">packing list, 4 of 9</div></div>
+                <div class="card"><div class="l">Shared checklist</div><b>3 open</b><div class="l">dentist, curtains, gift</div></div>
+                <div class="card"><div class="l">Wishlist</div><b>6 items</b><div class="l">3 in budget</div></div>
+              </div>
+              <div class="card ai"><div class="l">✦ This week</div><b>Mood dips on Wednesdays, tagged work</b></div>
+            </div>
+            <div class="tab"><span><i></i>Today</span><span class="on"><i></i>People</span><span><i></i>Timeline</span><span><i></i>You</span></div>
+          </div>
+        </div>
+        <div class="desc">
+          <h4>People (Person profile)</h4>
+          <p>Orbs at the top, an aura header that fades into content, the Pulse control, then a bento of the person's modules. Swipe between people; the aura crossfades.</p>
+          <ul>
+            <li>Pulse: one drag sets mood, vertical drag adds energy</li>
+            <li>Bento tiles are the modules; long press to rearrange</li>
+            <li>Insight header replaces the old "Analyze" button</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="phone">
+          <div class="scr">
+            <div class="sb"><span>9:41</span><span>●●●</span></div>
+            <div class="body">
+              <div class="row"><div><div class="l">Timeline</div><div class="big">Thu 17</div></div><div class="chips"><span class="sel">Day</span><span>Week</span></div></div>
+              <div class="tl">
+                <div class="t">8:00</div><div class="rail"><b class="a"></b></div><div class="it"><b>Text Aarav good luck</b><div class="l">Care. Event follow-up at 3pm</div></div>
+                <div class="t">10:30</div><div class="rail"><b class="d"></b></div><div class="it"><b>Dr. Iyer, cardiology</b><div class="l">Apple Calendar. Dad. Prep ready</div></div>
+                <div class="t">13:00</div><div class="rail"><b class="now"></b></div><div class="it" style="border-color:rgba(255,107,87,.5)"><b>Water check</b><div class="l">1 of 3 L. Tap to add</div></div>
+                <div class="t">17:00</div><div class="rail"><b></b></div><div class="it"><b>Book the dentist</b><div class="l">Apple Reminders. Promise, 11 days</div></div>
+                <div class="t">19:00</div><div class="rail"><b class="m"></b></div><div class="it"><b>Dinner, Meera</b><div class="l">Apple Calendar</div></div>
+                <div class="t">21:00</div><div class="rail"><b style="background:#8B5CF6"></b></div><div class="it"><b>Evening wrap</b><div class="l">3 questions</div></div>
+              </div>
+            </div>
+            <div class="tab"><span><i></i>Today</span><span><i></i>People</span><span class="on"><i></i>Timeline</span><span><i></i>You</span></div>
+          </div>
+        </div>
+        <div class="desc">
+          <h4>Timeline</h4>
+          <p>Structured-style day rail. Items from Care, Apple Calendar and Apple Reminders merge into one line, colored by the person's aura. Drag to reschedule, and it writes back.</p>
+          <ul>
+            <li>Sources shown as small labels, never hidden</li>
+            <li>Week view shows dates, trips and countdowns as a strip</li>
+            <li>"Now" marker driven by TimelineView</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="phone">
+          <div class="scr night">
+            <div class="sb"><span>9:41</span><span>●●●</span></div>
+            <div class="body">
+              <div class="l">✦ Insight. Meera, last 30 days</div>
+              <div class="big" style="color:#fff;font-size:24px">A good month with a Wednesday dip</div>
+              <div class="blocks">
+                <div class="grid2">
+                  <div class="card"><div class="l">Check-ins</div><div class="big" style="color:#fff;font-size:22px">21</div></div>
+                  <div class="card"><div class="l">Good or better</div><div class="big" style="color:#fff;font-size:22px">71%</div></div>
+                </div>
+                <div class="card"><div class="l">Mood, 14 days</div><div class="spark"><i style="height:60%"></i><i style="height:70%"></i><i style="height:40%"></i><i style="height:75%"></i><i style="height:80%"></i><i style="height:85%"></i><i style="height:70%"></i><i style="height:65%"></i><i style="height:72%"></i><i style="height:38%"></i><i style="height:78%"></i><i style="height:82%"></i><i style="height:88%"></i><i style="height:80%"></i></div><div class="l">Dips on both Wednesdays, tagged work</div></div>
+                <div class="card"><div class="l">Things she mentioned</div><b>Pottery class (2x). Weekend in the hills.</b></div>
+                <div class="act"><div>Plan a midweek dinner<small>Adds an event on Wed 7pm</small></div><span>→</span></div>
+              </div>
+              <div class="l" style="margin-top:2px">Based on 21 check-ins, 6 mentions, 2 events. Not medical advice.</div>
+            </div>
+            <div class="tab"><span><i></i>Today</span><span class="on"><i></i>People</span><span><i></i>Timeline</span><span><i></i>You</span></div>
+          </div>
+        </div>
+        <div class="desc">
+          <h4>Insight detail (night)</h4>
+          <p>The AI never returns prose alone. It returns typed blocks: headline, stats, trend, list, action, evidence. Each block has a SwiftUI view. This is the core feature, so it gets the most polish.</p>
+          <ul>
+            <li>Blocks enter staggered with blur and scale</li>
+            <li>Actions deep-link into modules with prefilled data</li>
+            <li>Evidence line shows exactly what was read</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="phone">
+          <div class="scr mesh-mint">
+            <div class="sb"><span>9:41</span><span>●●●</span></div>
+            <div class="body">
+              <div class="row"><div><div class="l">Meera</div><div class="big">Modules</div></div><span class="l">Done</span></div>
+              <div class="chips"><span class="sel">All</span><span>Wellbeing</span><span>Moments</span><span>Together</span><span>Care</span><span>Taste</span></div>
+              <div class="grid2">
+                <div class="card"><div class="row"><span style="font-size:18px">🙂</span><span class="chips" style="margin:0"><span class="sel">On</span></span></div><b>Mood</b><div class="l">Included</div></div>
+                <div class="card"><div class="row"><span style="font-size:18px">✈️</span><span class="chips" style="margin:0"><span class="sel">On</span></span></div><b>Travel plans</b><div class="l">Included</div></div>
+                <div class="card"><div class="row"><span style="font-size:18px">🛍️</span><span class="chips" style="margin:0"><span>Off</span></span></div><b>Favorite brands</b><div class="l">Plus, later</div></div>
+                <div class="card"><div class="row"><span style="font-size:18px">🔒</span><span class="chips" style="margin:0"><span>Off</span></span></div><b>Intimacy</b><div class="l">Both must opt in</div></div>
+                <div class="card"><div class="row"><span style="font-size:18px">🗺️</span><span class="chips" style="margin:0"><span class="sel">On</span></span></div><b>Travel log</b><div class="l">From Photos</div></div>
+                <div class="card"><div class="row"><span style="font-size:18px">💊</span><span class="chips" style="margin:0"><span>Off</span></span></div><b>Medication</b><div class="l">Included</div></div>
+              </div>
+            </div>
+            <div class="tab"><span><i></i>Today</span><span class="on"><i></i>People</span><span><i></i>Timeline</span><span><i></i>You</span></div>
+          </div>
+        </div>
+        <div class="desc">
+          <h4>Module store</h4>
+          <p>Exists from day one, even though everything is free in Phase 0. Every card shows a tier label so the paywall can be switched on later without redesign.</p>
+          <ul>
+            <li>Toggle per person, category filter chips</li>
+            <li>Tier labels come from the module descriptor</li>
+            <li>Entitlement check is one function, always true today</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <details class="deep">
+      <summary><span class="tag">Depth</span> Remaining screens and states <span class="chev"></span></summary>
+      <div class="in">
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Screen</th><th>Layout</th><th>Key interactions</th></tr></thead>
+            <tbody>
+              <tr><td><strong>QuickSheet</strong> (from an orb)</td><td>Half sheet, aura tint, Pulse control, symptom chips, one line mention with mic</td><td>Done closes with success haptic and the orb's dot clears with a bounce</td></tr>
+              <tr><td><strong>Module detail</strong></td><td>Header with today state, hero visual (ring, trail, map, list), history calendar, settings</td><td>Zoom transition from bento tile; scrub history with haptic ticks</td></tr>
+              <tr><td><strong>Event composer</strong></td><td>Category picker (icons), title, date, person, "how to support" note, lead-time and follow-up toggles</td><td>Writes to the Care calendar; category sets default reminders</td></tr>
+              <tr><td><strong>Travel plan</strong></td><td>Destination hero with map tile, dates countdown, packing checklist, weather at destination, "who is going"</td><td>Trip imports from Calendar when title looks like travel; share sheet accepts booking emails later</td></tr>
+              <tr><td><strong>Travel log</strong></td><td>Full-bleed map with visited pins, list by year, memories from Photos</td><td>Suggested trips from photo clusters, confirm with one tap</td></tr>
+              <tr><td><strong>Evening wrap</strong></td><td>Full sheet, three cards, one per person seen today, tomorrow preview</td><td>Each answer is one tap; skip is one tap; ends with "You checked in on 4 people"</td></tr>
+              <tr><td><strong>You</strong></td><td>Own profile (Me modules), Presence note, settings, integrations, intelligence controls, module store, data export</td><td>API key entry (Keychain), model choice, refresh cadence</td></tr>
+              <tr><td><strong>Empty states</strong></td><td>Illustrated with the aura, one question, one button</td><td>"How is Meera today?" is the whole screen</td></tr>
+              <tr><td><strong>Loading insight</strong></td><td>Skeleton blocks with violet shimmer, sparkle in variableColor</td><td>Never blocks the rest of the screen</td></tr>
+              <tr><td><strong>Error</strong></td><td>Plain sentence, one retry</td><td>"Could not reach the model. Yesterday's insight is still here."</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>Widgets and beyond the phone</h4>
+        <ul>
+          <li><strong>Lock Screen:</strong> "Next up" for the top-ranked person; hydration ring; countdown to the next date.</li>
+          <li><strong>Home Screen:</strong> Today bento (medium), Person tile with Pulse buttons (small), Insight headline (large).</li>
+          <li><strong>Live Activities:</strong> hydration through the day; exam or appointment day with countdown and follow-up button.</li>
+          <li><strong>Apple Watch (Phase 1):</strong> orbs as complications, Pulse crown control, dictate a mention, water tap, medication confirm.</li>
+          <li><strong>iPad and Mac (Phase 2):</strong> two-column people and profile; month timeline; insight review.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= 07 MODULES ================= -->
+<section class="chapter wash-mint" id="modules">
+  <div class="wrap">
+    <div class="num">07 &nbsp;Modules</div>
+    <h2>Twenty-two modules, one shape. New ones ship without touching the app.</h2>
+    <p class="lead">A module is a Swift package that declares what it collects, how it is logged with one tap, how it renders on Today, what the AI may read, and which reminders it can send. Tier labels are baked in from day one so the paywall can be switched on later.</p>
+
+    <div class="tiles c4">
+      <div class="tile"><h4>Quick log</h4><p>One tap or one gesture. The module defines its own QuickSheet fragment and notification actions.</p></div>
+      <div class="tile"><h4>Today tile</h4><p>A bento tile with today's state and one action. The Home agent ranks these across people.</p></div>
+      <div class="tile"><h4>Insight contract</h4><p>A compact context pack the AI can read, and the block types it may return. Nothing else is sent.</p></div>
+      <div class="tile"><h4>Reminder rules</h4><p>Declarative triggers with lead times, follow-ups, caps and quiet hours. The planner combines them.</p></div>
+    </div>
+    <p><span class="pill core">Core</span> included, on by default for the relationship &nbsp; <span class="pill plus">Plus</span> optional, future paid tier &nbsp; <span class="pill pro">Pro</span> future professional tier &nbsp; <span class="pill auto">Auto</span> fills itself from Apple data &nbsp; <span class="pill later">Later</span> planned</p>
+
+    <div class="cat" style="--cat-c:#FF6B57"><i></i><h3>Wellbeing</h3></div>
+    <div class="mods">
+      <div class="mod" style="--mod-c:#FF6B57"><div class="top"><span class="ic">🙂</span><h4>Mood</h4><span class="pill core">Core</span></div><p>Five states on the Pulse control, optional reason tag. Self and observed entries side by side. Trail of 14 days on the tile.</p><dl><dt>Auto</dt><dd>Interactive notification answers, Watch</dd><dt>Insight</dt><dd>Trend, dips by weekday, tag correlation, one suggestion</dd><dt>Reminds</dt><dd>3 low days in a row, quiet week without a check-in</dd></dl></div>
+      <div class="mod" style="--mod-c:#FF6B57"><div class="top"><span class="ic">💚</span><h4>Health</h4><span class="pill core">Core</span></div><p>All good, neutral, not good. Symptom chips, photo, note. Days-in-a-row counter. Private by default.</p><dl><dt>Auto</dt><dd>Links to Medication and Appointments</dd><dt>Insight</dt><dd>Symptom streaks, sleep correlation, "consider a doctor" nudge</dd><dt>Reminds</dt><dd>Symptom past 3 days, follow-up on a noted worry</dd></dl></div>
+      <div class="mod" style="--mod-c:#38BDF8"><div class="top"><span class="ic">💧</span><h4>Hydration</h4><span class="pill core">Core</span><span class="pill auto">Auto</span></div><p>Cup taps, target ring, Live Activity, Watch. For self from Apple Health; for kids and parents logged on their behalf.</p><dl><dt>Auto</dt><dd>HealthKit water (self), spaced smart reminders</dd><dt>Insight</dt><dd>Hit rate, weak hours, best days</dd><dt>Reminds</dt><dd>Adaptive to usual drinking times, quiet at night</dd></dl></div>
+      <div class="mod" style="--mod-c:#8B5CF6"><div class="top"><span class="ic">🌙</span><h4>Sleep and energy</h4><span class="pill plus">Plus</span><span class="pill auto">Auto</span></div><p>Self from Apple Health. Observed for others as a one-word energy state on the Pulse vertical axis.</p><dl><dt>Insight</dt><dd>Sleep to mood correlation</dd><dt>Reminds</dt><dd>None by default</dd></dl></div>
+      <div class="mod" style="--mod-c:#FF4F8B"><div class="top"><span class="ic">🌸</span><h4>Cycle</h4><span class="pill later">Later</span></div><p>Self-tracked, private by design, shareable with a partner only by explicit choice. Needs its own privacy review.</p></div>
+    </div>
+
+    <div class="cat" style="--cat-c:#FFB347"><i></i><h3>Moments</h3></div>
+    <div class="mods">
+      <div class="mod" style="--mod-c:#FFB347"><div class="top"><span class="ic">🗓️</span><h4>Events</h4><span class="pill core">Core</span><span class="pill auto">Auto</span></div><p>Anything happening in a person's life, classified by category. Each category carries default lead-time, day-of and follow-up nudges. Two-way with Apple Calendar.</p><dl><dt>Auto</dt><dd>Imported from Calendar by attendee and keyword match</dd><dt>Insight</dt><dd>Busy weeks ahead, support opportunities</dd><dt>Reminds</dt><dd>Before, day of, and the after nudge ("how did it go?")</dd></dl></div>
+      <div class="mod" style="--mod-c:#FFB347"><div class="top"><span class="ic">🎂</span><h4>Milestones and dates</h4><span class="pill core">Core</span><span class="pill auto">Auto</span></div><p>Birthdays, anniversaries, memorials, first-date days, name days. Countdown hero. Gift history so nothing repeats.</p><dl><dt>Auto</dt><dd>Contacts birthdays, Calendar yearly events</dd><dt>Insight</dt><dd>Connects mentions and wishlist to the next date</dd><dt>Reminds</dt><dd>14 days, 3 days, day of</dd></dl></div>
+      <div class="mod" style="--mod-c:#38BDF8"><div class="top"><span class="ic">✈️</span><h4>Travel plans</h4><span class="pill core">Core</span><span class="pill auto">Auto</span></div><p>Upcoming trips for this person or together: dates, destination, who is going, packing checklist, weather at destination, "away" state that pauses other nudges.</p><dl><dt>Auto</dt><dd>Calendar events that look like travel, WeatherKit</dd><dt>Insight</dt><dd>Packing gaps, things they mentioned wanting to do there</dd><dt>Reminds</dt><dd>7 days pack, day before, safe-arrival check, welcome-home</dd></dl></div>
+      <div class="mod" style="--mod-c:#34D399"><div class="top"><span class="ic">🗺️</span><h4>Travel log</h4><span class="pill plus">Plus</span><span class="pill auto">Auto</span></div><p>Where you have been, together or apart. Map with pins, list by year, memories. Built from Photos location clusters, confirmed with one tap.</p><dl><dt>Auto</dt><dd>PhotoKit clusters (on-device only)</dd><dt>Insight</dt><dd>"Two years since Goa", places you both loved</dd><dt>Reminds</dt><dd>Anniversary of a trip, optional</dd></dl></div>
+      <div class="mod" style="--mod-c:#FFB347"><div class="top"><span class="ic">⏳</span><h4>Countdowns</h4><span class="pill core">Core</span></div><p>A pinned big-numeral countdown for the one thing that matters most for this person right now. Auto-picked from Events, Dates and Travel; can be pinned manually.</p></div>
+    </div>
+
+    <div class="cat" style="--cat-c:#8B5CF6"><i></i><h3>Together</h3></div>
+    <div class="mods">
+      <div class="mod" style="--mod-c:#8B5CF6"><div class="top"><span class="ic">✅</span><h4>Shared checklist</h4><span class="pill core">Core</span><span class="pill auto">Auto</span></div><p>A list between you and this person: errands, chores, trip packing, party prep. Mirrors to an Apple Reminders list named after the person. Completion syncs both ways.</p><dl><dt>Auto</dt><dd>EventKit reminders two-way</dd><dt>Insight</dt><dd>Who did what this month, what is stuck</dd><dt>Reminds</dt><dd>Due items, stale items after 14 days</dd></dl></div>
+      <div class="mod" style="--mod-c:#8B5CF6"><div class="top"><span class="ic">🤞</span><h4>Promises</h4><span class="pill core">Core</span></div><p>Things you said you would do for this person. Separate from chores because a broken promise costs more. Gentle follow-up, never nagging.</p><dl><dt>Insight</dt><dd>Open promises by age</dd><dt>Reminds</dt><dd>Due date, then a soft weekly nudge</dd></dl></div>
+      <div class="mod" style="--mod-c:#FF6B57"><div class="top"><span class="ic">📝</span><h4>Mentions</h4><span class="pill core">Core</span></div><p>Tiny notes of what they said, want, like, dislike, worry about. Voice-first. Classified on-device (want, like, dislike, fact, worry, promise). Resurfaced when useful.</p><dl><dt>Auto</dt><dd>Siri, Watch dictation, share sheet; on-device classification</dd><dt>Insight</dt><dd>Gift ideas, talking points, unresolved worries</dd><dt>Reminds</dt><dd>Worry not followed up in 7 days</dd></dl></div>
+      <div class="mod" style="--mod-c:#38BDF8"><div class="top"><span class="ic">📞</span><h4>Call rhythm</h4><span class="pill core">Core</span></div><p>"Every Sunday" for Mom. Nudges before the rhythm slips, with two talking points from Mentions, Events and the weather where they are.</p><dl><dt>Auto</dt><dd>Detects calls to the contact (CallKit history is not available; user confirms with one tap)</dd><dt>Insight</dt><dd>Gaps, best times</dd><dt>Reminds</dt><dd>Rhythm day at preferred time</dd></dl></div>
+      <div class="mod" style="--mod-c:#FF4F8B"><div class="top"><span class="ic">🔒</span><h4>Intimacy</h4><span class="pill plus">Plus</span></div><p>Adult partners only, both opt in. A tap, optional feeling word, optional note. Face ID locked. Never in notification previews. Never read by AI unless both allow.</p></div>
+    </div>
+
+    <div class="cat" style="--cat-c:#38BDF8"><i></i><h3>Care</h3></div>
+    <div class="mods">
+      <div class="mod" style="--mod-c:#38BDF8"><div class="top"><span class="ic">💊</span><h4>Medication</h4><span class="pill core">Core</span></div><p>Medicines, doses, schedule, taken or missed, refill date, who gives it. Adherence ring. Co-carer sync in Phase 1.</p><dl><dt>Insight</dt><dd>Missed-dose patterns by day and carer</dd><dt>Reminds</dt><dd>Dose time to the right carer, refill 5 days ahead</dd></dl></div>
+      <div class="mod" style="--mod-c:#38BDF8"><div class="top"><span class="ic">🩺</span><h4>Appointments</h4><span class="pill core">Core</span><span class="pill auto">Auto</span></div><p>Doctors, next visit, questions to ask, what was said, report photos. AI prepares a one-page brief before each visit from Health and Medication.</p><dl><dt>Auto</dt><dd>Calendar events matching clinic keywords</dd><dt>Reminds</dt><dd>Day before, follow-up booking</dd></dl></div>
+      <div class="mod" style="--mod-c:#77777F"><div class="top"><span class="ic">📄</span><h4>Documents</h4><span class="pill plus">Plus</span></div><p>Insurance, IDs, prescriptions, school forms per person. Encrypted, Face ID locked, exportable.</p></div>
+      <div class="mod" style="--mod-c:#34D399"><div class="top"><span class="ic">🎒</span><h4>School</h4><span class="pill plus">Plus</span></div><p>Exams, subjects, results, teacher meetings. Night-before and afternoon-after nudges. Term summary.</p></div>
+      <div class="mod" style="--mod-c:#77777F"><div class="top"><span class="ic">🗂️</span><h4>Notes</h4><span class="pill pro">Pro</span></div><p>Longer notes with templates for visits and handovers. Strict per-person separation. For carers, PAs and coaches.</p></div>
+    </div>
+
+    <div class="cat" style="--cat-c:#FF4F8B"><i></i><h3>Taste</h3></div>
+    <div class="mods">
+      <div class="mod" style="--mod-c:#FF4F8B"><div class="top"><span class="ic">🎁</span><h4>Wishlist</h4><span class="pill core">Core</span><span class="pill auto">Auto</span></div><p>Share any product link; Care fetches title, image and price. Sizes, colors, "please do not buy" list. Others can claim an item so gifts never double up.</p><dl><dt>Auto</dt><dd>Share extension link unfurl, Mentions of type Want</dd><dt>Insight</dt><dd>Items in budget before the next date</dd></dl></div>
+      <div class="mod" style="--mod-c:#FF4F8B"><div class="top"><span class="ic">🛍️</span><h4>Favorite brands</h4><span class="pill plus">Plus</span></div><p>Brands, sizes and styles per person. Builds a simple style profile. Later: fetch brand catalogs and new arrivals through connectors, and suggest gifts that match.</p><dl><dt>Insight</dt><dd>"She has mentioned running shoes twice; her size is saved"</dd></dl></div>
+      <div class="mod" style="--mod-c:#FFB347"><div class="top"><span class="ic">🍜</span><h4>Food and places</h4><span class="pill plus">Plus</span></div><p>Favorite dishes, allergies, dislikes, restaurants they love, places to try. Feeds date-night and gift suggestions. No location tracking; a saved list only.</p></div>
+      <div class="mod" style="--mod-c:#77777F"><div class="top"><span class="ic">💸</span><h4>Gifts and budget</h4><span class="pill later">Later</span></div><p>Yearly gift budget per person and a history of what was given. Starts as a small part of Dates and Wishlist.</p></div>
+    </div>
+
+    <details class="deep">
+      <summary><span class="tag">Depth</span> Event taxonomy and reminder defaults <span class="chev"></span></summary>
+      <div class="in">
+        <p>Events are classified into seven categories. The category decides the default reminder set, the suggested support action and the follow-up. Classification is done on-device from the title (Foundation Models) with a manual override.</p>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Category</th><th>Examples</th><th>Lead nudges</th><th>Day of</th><th>Follow-up</th><th>Suggested action</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Milestone</strong></td><td>Birthday, anniversary, graduation, promotion, new home, baby, retirement</td><td>14 d, 3 d</td><td>Morning</td><td>None</td><td>Gift from wishlist, message, plan</td></tr>
+              <tr><td><strong>Health</strong></td><td>Appointment, surgery, test, scan</td><td>1 d</td><td>2 h before with prep brief</td><td>Same evening: "how did it go?"</td><td>Go with them, call after</td></tr>
+              <tr><td><strong>Work and school</strong></td><td>Exam, interview, presentation, deadline, review</td><td>1 d (evening)</td><td>1 h before</td><td>1 h after</td><td>Good-luck message, light evening</td></tr>
+              <tr><td><strong>Travel</strong></td><td>Trip, flight, return</td><td>7 d pack, 1 d</td><td>Departure</td><td>Arrival check, welcome home</td><td>Packing list, weather, pause other nudges while away</td></tr>
+              <tr><td><strong>Social</strong></td><td>Wedding, party, dinner, reunion</td><td>3 d</td><td>Morning</td><td>Optional</td><td>Gift, outfit from brands, RSVP</td></tr>
+              <tr><td><strong>Faith and culture</strong></td><td>Festivals, fasting periods, holidays</td><td>3 d</td><td>Morning</td><td>None</td><td>Greeting, visit, food</td></tr>
+              <tr><td><strong>Personal</strong></td><td>Race, performance, first day, goal date</td><td>1 d</td><td>1 h before</td><td>Same day</td><td>Encouragement, show up</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>The module descriptor (what every module implements)</h4>
+        <pre><code><span class="k">protocol</span> CareModule {
+  <span class="k">static var</span> id: ModuleID { <span class="k">get</span> }                <span class="c">// "mood", "hydration", "travelPlans"</span>
+  <span class="k">static var</span> meta: ModuleMeta { <span class="k">get</span> }            <span class="c">// name, icon, category, tier, defaultFor: [Relationship]</span>
+  <span class="k">associatedtype</span> Payload: Codable               <span class="c">// what one entry holds</span>
+  <span class="k">associatedtype</span> Settings: Codable              <span class="c">// per-person settings (target, schedule)</span>
+
+  <span class="c">// UI</span>
+  <span class="k">static func</span> todayTile(_ ctx: TileContext) -> <span class="k">some</span> View
+  <span class="k">static func</span> quickLog(_ ctx: QuickLogContext) -> <span class="k">some</span> View
+  <span class="k">static func</span> detail(_ ctx: DetailContext) -> <span class="k">some</span> View
+
+  <span class="c">// Ambient input</span>
+  <span class="k">static var</span> notificationActions: [NotificationAction] { <span class="k">get</span> }
+  <span class="k">static var</span> appIntents: [any AppIntent.Type] { <span class="k">get</span> }
+
+  <span class="c">// Intelligence</span>
+  <span class="k">static func</span> contextPack(entries: [Entry], window: DateInterval) -> ContextPack
+  <span class="k">static var</span> allowedBlocks: Set&lt;InsightBlockType&gt; { <span class="k">get</span> }
+
+  <span class="c">// Home ranking and reminders</span>
+  <span class="k">static func</span> signals(entries: [Entry], now: Date) -> [Signal]
+  <span class="k">static var</span> reminderRules: [ReminderRule] { <span class="k">get</span> }
+
+  <span class="c">// Passive sources</span>
+  <span class="k">static var</span> importers: [any Importer] { <span class="k">get</span> }   <span class="c">// EventKit, Contacts, Photos, HealthKit</span>
+}
+
+<span class="k">struct</span> ModuleMeta { <span class="k">let</span> name, icon: String; <span class="k">let</span> category: ModuleCategory; <span class="k">let</span> tier: Tier; <span class="k">let</span> defaultFor: [Relationship] }
+<span class="k">enum</span> Tier: String, Codable { <span class="k">case</span> core, plus, pro }   <span class="c">// paywall-ready, unused in Phase 0</span></code></pre>
+        <h4>Paywall readiness (no purchases yet)</h4>
+        <ul>
+          <li><code>EntitlementService.isUnlocked(module:)</code> returns true for everything in Phase 0. It is the only place the app asks. StoreKit 2 plugs in behind it later.</li>
+          <li>Tier labels render in the module store today as "Included" so the UI is already designed for the switch.</li>
+          <li>Home and weekly deep insights are marked as Plus surfaces in the descriptor, again unlocked today.</li>
+          <li>New modules are added by registering a package in <code>ModuleRegistry</code>. No changes to Today, People, Timeline or the insight engine.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= 08 INTELLIGENCE ================= -->
+<section class="chapter wash-violet" id="intelligence">
+  <div class="wrap">
+    <div class="num">08 &nbsp;Intelligence</div>
+    <h2>Raw taps in. Typed blocks out. The screen draws itself.</h2>
+    <p class="lead">This is the core feature. The model never answers in free prose. It answers in a strict JSON contract of visual blocks that SwiftUI renders directly. Insights generate on app open, cache for 24 hours, and refresh on demand.</p>
+
+    <div class="flow">
+      <div class="st"><span class="n">1</span><b>Collect</b><span>Entries, events, mentions, imports for the scope (person, module or home)</span></div>
+      <div class="st"><span class="n">2</span><b>Pack</b><span>Each module compresses its data into a compact context pack, never raw history</span></div>
+      <div class="st"><span class="n">3</span><b>Prompt</b><span>System voice + scope template + JSON schema, pre-configured per module</span></div>
+      <div class="st hi"><span class="n">4</span><b>Model</b><span>OpenAI Responses API with strict structured output. Luna tier daily, Terra weekly</span></div>
+      <div class="st"><span class="n">5</span><b>Validate</b><span>Decode, drop unknown blocks, check caps and safety rules, attach evidence</span></div>
+      <div class="st"><span class="n">6</span><b>Render</b><span>Blocks map to SwiftUI views. Cached in SwiftData with expiry</span></div>
+    </div>
+
+    <h3>The block vocabulary</h3>
+    <p>Eleven block types cover every insight the app needs. Modules declare which ones they allow. Unknown types are ignored, so the contract can grow without breaking old app versions.</p>
+    <div class="blocks-legend">
+      <div class="blk"><div class="demo"><span style="font-size:10px;color:#8E8C9C">Headline</span><b>A good month with a Wednesday dip</b></div><div><h4>headline</h4><p>One sentence, the whole insight in a line. Sets the card title and tone.</p></div></div>
+      <div class="blk"><div class="demo"><span style="font-size:10px;color:#8E8C9C">Good or better</span><b>71% <span style="font-size:11px;color:#34D399">▲ 8</span></b></div><div><h4>stat</h4><p>Label, value, optional trend and tone. Renders as a tile with tabular numerals.</p></div></div>
+      <div class="blk"><div class="demo"><div class="sp"><i style="height:40%"></i><i style="height:60%"></i><i style="height:35%"></i><i style="height:70%"></i><i style="height:80%"></i><i style="height:75%"></i><i style="height:30%"></i><i style="height:78%"></i></div><span style="font-size:10px">dips on Wednesdays</span></div><div><h4>trend</h4><p>A short series with an annotation. Renders as a Swift Charts sparkline.</p></div></div>
+      <div class="blk"><div class="demo dark"><b style="font-size:22px">12<span style="font-size:11px">d</span></b><span style="font-size:10px;opacity:.7">Anniversary, Nov 12</span></div><div><h4>countdown</h4><p>A date with a title. Renders as the big-numeral hero.</p></div></div>
+      <div class="blk"><div class="demo"><span style="font-size:10px;color:#8E8C9C">Things she mentioned</span><span style="font-size:11px">Pottery class (2x)</span><span style="font-size:11px">Weekend in the hills</span></div><div><h4>list</h4><p>Title and up to five items, each optionally linked to an entry.</p></div></div>
+      <div class="blk"><div class="demo dark"><b style="font-size:12px">Plan a midweek dinner →</b><span style="font-size:10px;opacity:.7">Adds an event Wed 7pm</span></div><div><h4>action</h4><p>Title, reason, and a deep link with prefilled data. Renders as the ink action row.</p></div></div>
+      <div class="blk"><div class="demo ai"><span style="font-size:10px;color:#6F62C9">Pattern</span><span style="font-size:11px">Low days follow short-sleep nights 3 of 4 times.</span></div><div><h4>insight</h4><p>A short paragraph with evidence references. The narrative block.</p></div></div>
+      <div class="blk"><div class="demo"><span style="font-size:10px;color:#8E8C9C">Sentiment</span><b style="font-size:13px;letter-spacing:.04em">😊 😊 😐 😊 😞 😊 😊</b></div><div><h4>mood_strip</h4><p>Seven or fourteen day emoji or color strip for mood and health.</p></div></div>
+      <div class="blk"><div class="demo"><span style="font-size:10px;color:#8E8C9C">Talking points</span><span style="font-size:11px">Her sister visits Friday. It rained all week in Chennai.</span></div><div><h4>talking_points</h4><p>Two or three conversation starters. Used by Call rhythm.</p></div></div>
+      <div class="blk"><div class="demo"><span style="font-size:10px;color:#8E8C9C">Compare</span><span style="font-size:11px">This month 18 of 30 · Last month 12 of 30</span></div><div><h4>compare</h4><p>Two labeled values. Renders as a paired bar.</p></div></div>
+      <div class="blk"><div class="demo"><span style="font-size:10px;color:#8E8C9C">Note</span><span style="font-size:10px">Based on 21 check-ins. Not medical advice.</span></div><div><h4>note</h4><p>Evidence line and disclaimers. Always last, always small.</p></div></div>
+    </div>
+
+    <details class="deep" open>
+      <summary><span class="tag">Contract</span> Insight JSON schema (strict structured output) <span class="chev"></span></summary>
+      <div class="in">
+        <p>Passed as <code>text.format</code> with <code>type: "json_schema"</code> and <code>strict: true</code>. Every property is required, <code>additionalProperties: false</code> on every object, optionals expressed as nullable. Deep-link targets are validated against the module registry before rendering.</p>
+        <pre><code>{
+  <span class="s">"name"</span>: <span class="s">"care_insight"</span>,
+  <span class="s">"strict"</span>: <span class="k">true</span>,
+  <span class="s">"schema"</span>: {
+    <span class="s">"type"</span>: <span class="s">"object"</span>,
+    <span class="s">"additionalProperties"</span>: <span class="k">false</span>,
+    <span class="s">"required"</span>: [<span class="s">"scope"</span>,<span class="s">"tone"</span>,<span class="s">"headline"</span>,<span class="s">"blocks"</span>,<span class="s">"reminders"</span>,<span class="s">"evidence"</span>],
+    <span class="s">"properties"</span>: {
+      <span class="s">"scope"</span>: { <span class="s">"type"</span>: <span class="s">"string"</span>, <span class="s">"enum"</span>: [<span class="s">"person"</span>,<span class="s">"module"</span>,<span class="s">"home"</span>,<span class="s">"weekly"</span>] },
+      <span class="s">"tone"</span>:  { <span class="s">"type"</span>: <span class="s">"string"</span>, <span class="s">"enum"</span>: [<span class="s">"positive"</span>,<span class="s">"neutral"</span>,<span class="s">"attention"</span>] },
+      <span class="s">"headline"</span>: { <span class="s">"type"</span>: <span class="s">"string"</span>, <span class="s">"maxLength"</span>: 80 },
+      <span class="s">"blocks"</span>: {
+        <span class="s">"type"</span>: <span class="s">"array"</span>, <span class="s">"maxItems"</span>: 7,
+        <span class="s">"items"</span>: { <span class="s">"anyOf"</span>: [
+          { <span class="s">"$ref"</span>: <span class="s">"#/$defs/stat"</span> }, { <span class="s">"$ref"</span>: <span class="s">"#/$defs/trend"</span> }, { <span class="s">"$ref"</span>: <span class="s">"#/$defs/countdown"</span> },
+          { <span class="s">"$ref"</span>: <span class="s">"#/$defs/list"</span> }, { <span class="s">"$ref"</span>: <span class="s">"#/$defs/action"</span> }, { <span class="s">"$ref"</span>: <span class="s">"#/$defs/insight"</span> },
+          { <span class="s">"$ref"</span>: <span class="s">"#/$defs/mood_strip"</span> }, { <span class="s">"$ref"</span>: <span class="s">"#/$defs/talking_points"</span> },
+          { <span class="s">"$ref"</span>: <span class="s">"#/$defs/compare"</span> }, { <span class="s">"$ref"</span>: <span class="s">"#/$defs/note"</span> }
+        ] }
+      },
+      <span class="s">"reminders"</span>: {
+        <span class="s">"type"</span>: <span class="s">"array"</span>, <span class="s">"maxItems"</span>: 3,
+        <span class="s">"items"</span>: { <span class="s">"type"</span>: <span class="s">"object"</span>, <span class="s">"additionalProperties"</span>: <span class="k">false</span>,
+          <span class="s">"required"</span>: [<span class="s">"fire_at"</span>,<span class="s">"message"</span>,<span class="s">"reason"</span>,<span class="s">"module"</span>,<span class="s">"person_id"</span>],
+          <span class="s">"properties"</span>: {
+            <span class="s">"fire_at"</span>: { <span class="s">"type"</span>: <span class="s">"string"</span>, <span class="s">"description"</span>: <span class="s">"ISO 8601 local time"</span> },
+            <span class="s">"message"</span>: { <span class="s">"type"</span>: <span class="s">"string"</span>, <span class="s">"maxLength"</span>: 90 },
+            <span class="s">"reason"</span>:  { <span class="s">"type"</span>: <span class="s">"string"</span>, <span class="s">"maxLength"</span>: 120 },
+            <span class="s">"module"</span>:  { <span class="s">"type"</span>: <span class="s">"string"</span> },
+            <span class="s">"person_id"</span>: { <span class="s">"type"</span>: <span class="s">"string"</span> } } }
+      },
+      <span class="s">"evidence"</span>: { <span class="s">"type"</span>: <span class="s">"array"</span>, <span class="s">"items"</span>: { <span class="s">"type"</span>: <span class="s">"string"</span> }, <span class="s">"maxItems"</span>: 6 }
+    },
+    <span class="s">"$defs"</span>: {
+      <span class="s">"stat"</span>: { <span class="s">"type"</span>: <span class="s">"object"</span>, <span class="s">"additionalProperties"</span>: <span class="k">false</span>,
+        <span class="s">"required"</span>: [<span class="s">"type"</span>,<span class="s">"label"</span>,<span class="s">"value"</span>,<span class="s">"trend"</span>,<span class="s">"tone"</span>],
+        <span class="s">"properties"</span>: { <span class="s">"type"</span>: {<span class="s">"const"</span>:<span class="s">"stat"</span>}, <span class="s">"label"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>}, <span class="s">"value"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>},
+          <span class="s">"trend"</span>: {<span class="s">"type"</span>:[<span class="s">"string"</span>,<span class="s">"null"</span>], <span class="s">"enum"</span>:[<span class="s">"up"</span>,<span class="s">"down"</span>,<span class="s">"flat"</span>,<span class="k">null</span>]}, <span class="s">"tone"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>,<span class="s">"enum"</span>:[<span class="s">"good"</span>,<span class="s">"neutral"</span>,<span class="s">"attention"</span>]} } },
+      <span class="s">"trend"</span>: { <span class="s">"type"</span>: <span class="s">"object"</span>, <span class="s">"additionalProperties"</span>: <span class="k">false</span>,
+        <span class="s">"required"</span>: [<span class="s">"type"</span>,<span class="s">"label"</span>,<span class="s">"points"</span>,<span class="s">"annotation"</span>],
+        <span class="s">"properties"</span>: { <span class="s">"type"</span>: {<span class="s">"const"</span>:<span class="s">"trend"</span>}, <span class="s">"label"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>},
+          <span class="s">"points"</span>: {<span class="s">"type"</span>:<span class="s">"array"</span>,<span class="s">"items"</span>:{<span class="s">"type"</span>:<span class="s">"number"</span>},<span class="s">"maxItems"</span>:30}, <span class="s">"annotation"</span>: {<span class="s">"type"</span>:[<span class="s">"string"</span>,<span class="s">"null"</span>]} } },
+      <span class="s">"countdown"</span>: { <span class="s">"type"</span>: <span class="s">"object"</span>, <span class="s">"additionalProperties"</span>: <span class="k">false</span>,
+        <span class="s">"required"</span>: [<span class="s">"type"</span>,<span class="s">"title"</span>,<span class="s">"date"</span>], <span class="s">"properties"</span>: { <span class="s">"type"</span>: {<span class="s">"const"</span>:<span class="s">"countdown"</span>}, <span class="s">"title"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>}, <span class="s">"date"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>} } },
+      <span class="s">"list"</span>: { <span class="s">"type"</span>: <span class="s">"object"</span>, <span class="s">"additionalProperties"</span>: <span class="k">false</span>,
+        <span class="s">"required"</span>: [<span class="s">"type"</span>,<span class="s">"title"</span>,<span class="s">"items"</span>], <span class="s">"properties"</span>: { <span class="s">"type"</span>: {<span class="s">"const"</span>:<span class="s">"list"</span>}, <span class="s">"title"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>},
+          <span class="s">"items"</span>: {<span class="s">"type"</span>:<span class="s">"array"</span>,<span class="s">"maxItems"</span>:5,<span class="s">"items"</span>:{<span class="s">"type"</span>:<span class="s">"object"</span>,<span class="s">"additionalProperties"</span>:<span class="k">false</span>,<span class="s">"required"</span>:[<span class="s">"text"</span>,<span class="s">"entry_id"</span>],
+            <span class="s">"properties"</span>:{<span class="s">"text"</span>:{<span class="s">"type"</span>:<span class="s">"string"</span>},<span class="s">"entry_id"</span>:{<span class="s">"type"</span>:[<span class="s">"string"</span>,<span class="s">"null"</span>]}}}} } },
+      <span class="s">"action"</span>: { <span class="s">"type"</span>: <span class="s">"object"</span>, <span class="s">"additionalProperties"</span>: <span class="k">false</span>,
+        <span class="s">"required"</span>: [<span class="s">"type"</span>,<span class="s">"title"</span>,<span class="s">"reason"</span>,<span class="s">"deeplink"</span>], <span class="s">"properties"</span>: { <span class="s">"type"</span>: {<span class="s">"const"</span>:<span class="s">"action"</span>}, <span class="s">"title"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>},
+          <span class="s">"reason"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>}, <span class="s">"deeplink"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>, <span class="s">"description"</span>:<span class="s">"care://person/{id}/{module}/new?title=..."</span>} } },
+      <span class="s">"insight"</span>: { <span class="s">"type"</span>: <span class="s">"object"</span>, <span class="s">"additionalProperties"</span>: <span class="k">false</span>,
+        <span class="s">"required"</span>: [<span class="s">"type"</span>,<span class="s">"text"</span>,<span class="s">"evidence_ids"</span>], <span class="s">"properties"</span>: { <span class="s">"type"</span>: {<span class="s">"const"</span>:<span class="s">"insight"</span>}, <span class="s">"text"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>,<span class="s">"maxLength"</span>:280},
+          <span class="s">"evidence_ids"</span>: {<span class="s">"type"</span>:<span class="s">"array"</span>,<span class="s">"items"</span>:{<span class="s">"type"</span>:<span class="s">"string"</span>}} } },
+      <span class="s">"mood_strip"</span>: { <span class="s">"type"</span>: <span class="s">"object"</span>, <span class="s">"additionalProperties"</span>: <span class="k">false</span>,
+        <span class="s">"required"</span>: [<span class="s">"type"</span>,<span class="s">"label"</span>,<span class="s">"values"</span>], <span class="s">"properties"</span>: { <span class="s">"type"</span>: {<span class="s">"const"</span>:<span class="s">"mood_strip"</span>}, <span class="s">"label"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>},
+          <span class="s">"values"</span>: {<span class="s">"type"</span>:<span class="s">"array"</span>,<span class="s">"maxItems"</span>:14,<span class="s">"items"</span>:{<span class="s">"type"</span>:[<span class="s">"integer"</span>,<span class="s">"null"</span>],<span class="s">"minimum"</span>:1,<span class="s">"maximum"</span>:5}} } },
+      <span class="s">"talking_points"</span>: { <span class="s">"type"</span>: <span class="s">"object"</span>, <span class="s">"additionalProperties"</span>: <span class="k">false</span>,
+        <span class="s">"required"</span>: [<span class="s">"type"</span>,<span class="s">"items"</span>], <span class="s">"properties"</span>: { <span class="s">"type"</span>: {<span class="s">"const"</span>:<span class="s">"talking_points"</span>}, <span class="s">"items"</span>: {<span class="s">"type"</span>:<span class="s">"array"</span>,<span class="s">"maxItems"</span>:3,<span class="s">"items"</span>:{<span class="s">"type"</span>:<span class="s">"string"</span>}} } },
+      <span class="s">"compare"</span>: { <span class="s">"type"</span>: <span class="s">"object"</span>, <span class="s">"additionalProperties"</span>: <span class="k">false</span>,
+        <span class="s">"required"</span>: [<span class="s">"type"</span>,<span class="s">"label"</span>,<span class="s">"a_label"</span>,<span class="s">"a"</span>,<span class="s">"b_label"</span>,<span class="s">"b"</span>], <span class="s">"properties"</span>: { <span class="s">"type"</span>: {<span class="s">"const"</span>:<span class="s">"compare"</span>}, <span class="s">"label"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>},
+          <span class="s">"a_label"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>}, <span class="s">"a"</span>: {<span class="s">"type"</span>:<span class="s">"number"</span>}, <span class="s">"b_label"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>}, <span class="s">"b"</span>: {<span class="s">"type"</span>:<span class="s">"number"</span>} } },
+      <span class="s">"note"</span>: { <span class="s">"type"</span>: <span class="s">"object"</span>, <span class="s">"additionalProperties"</span>: <span class="k">false</span>,
+        <span class="s">"required"</span>: [<span class="s">"type"</span>,<span class="s">"text"</span>], <span class="s">"properties"</span>: { <span class="s">"type"</span>: {<span class="s">"const"</span>:<span class="s">"note"</span>}, <span class="s">"text"</span>: {<span class="s">"type"</span>:<span class="s">"string"</span>,<span class="s">"maxLength"</span>:160} } }
+    }
+  }
+}</code></pre>
+      </div>
+    </details>
+
+    <details class="deep">
+      <summary><span class="tag">Prompts</span> System voice and the person-scope template <span class="chev"></span></summary>
+      <div class="in">
+        <h4>System prompt (all scopes)</h4>
+        <pre><code>You write insights for Care, an app that helps one person look after the people in their life.
+You receive compact JSON about ONE scope (a person, a module, or the whole home) and must answer
+ONLY with the care_insight JSON contract. No prose outside the JSON.
+
+Voice: warm, specific, short. Like a thoughtful friend who noticed something. Never clinical.
+Rules:
+1. Be specific. Name days, counts, tags. Never vague encouragement.
+2. Never diagnose, never name a condition, never give medical advice. If health data suggests
+   a doctor might help, say exactly that in a "note" block and nothing more.
+3. Never blame the user or the person. No "you should have".
+4. If there is not enough data, say so in the headline and return at most one "note" block.
+5. Use at most one "action". It must be something the user can do this week, and the deeplink
+   must use only modules listed in allowed_modules.
+6. "reminders" are optional and at most 3. Only propose a reminder when there is a clear reason.
+   fire_at must be inside quiet_hours_exclusion and within the next 7 days.
+7. Every claim must be traceable: add the ids you used to evidence_ids, and summarize what you
+   read in "evidence" (for example "21 check-ins, 6 mentions").
+8. Respect visibility: data marked private_to_user is for the user's eyes; never phrase it as if
+   the person said it.
+9. Plain English. No em dashes. Sentence case. Under 80 characters for headline.</code></pre>
+        <h4>Person-scope user message (template)</h4>
+        <pre><code>{
+  "scope": "person",
+  "today": "2026-09-17",
+  "user": { "name": "Arjun", "timezone": "Asia/Kolkata", "quiet_hours": ["22:00","07:00"] },
+  "person": { "id": "p_meera", "name": "Meera", "relationship": "partner", "aura": "coral_rose" },
+  "allowed_modules": ["mood","health","mentions","events","dates","travelPlans","sharedChecklist","wishlist"],
+  "allowed_blocks": ["headline","stat","trend","list","action","insight","mood_strip","countdown","note"],
+  "window": { "from": "2026-08-18", "to": "2026-09-17" },
+  "packs": {
+    "mood": { "self": [ {"d":"09-17","v":4,"tag":"work"}, ... ], "observed": [ ... ], "weekday_avg": {"Mon":3.8,"Wed":2.6,...} },
+    "health": { "private_to_user": true, "streaks": [ {"symptom":"back pain","days":2,"from":"09-16"} ] },
+    "mentions": [ {"id":"m_91","t":"wants to try the pottery class","type":"want","d":"09-02"}, ... ],
+    "dates": [ {"id":"d_1","title":"Anniversary","date":"2026-11-12","last_year":"dinner at Olive"} ],
+    "events": [ {"id":"e_7","title":"Presentation","cat":"work","date":"2026-09-19","followup":true} ],
+    "travelPlans": [ {"id":"t_2","dest":"Goa","from":"2026-10-03","to":"2026-10-06","packing":"4/9"} ],
+    "sharedChecklist": { "open": 3, "done_30d": {"Arjun":2,"Meera":5}, "stale": ["book the dentist (11d)"] }
+  },
+  "previous_headline": "A steady week with one low day"
+}</code></pre>
+        <h4>Model routing</h4>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Job</th><th>Model</th><th>When</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>Person and module insights</td><td><code>gpt-5.6-luna</code></td><td>On app open if cache older than 24 h; manual refresh with cooldown</td><td>Cheap, fast, good enough for tone with a strict schema</td></tr>
+              <tr><td>Home ranking narrative</td><td><code>gpt-5.6-luna</code></td><td>Once per morning, after local ranking</td><td>Only writes the words; the ranking is deterministic</td></tr>
+              <tr><td>Weekly deep insight</td><td><code>gpt-5.6-terra</code></td><td>Sunday, background task</td><td>Larger window, more correlation, worth the cost once a week</td></tr>
+              <tr><td>Mention and event classification</td><td>On-device Foundation Models</td><td>At capture</td><td>Instant, private, free</td></tr>
+              <tr><td>Reminder planning</td><td><code>gpt-5.6-luna</code></td><td>Nightly, background task</td><td>Combines module rules with context; output validated locally</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><small>Model names as listed on OpenAI's models page in September 2026. Keep them in a single config so they can be swapped without a release. Cached input pricing rewards a stable system prompt: keep it identical across calls and put variable data in the user message.</small></p>
+      </div>
+    </details>
+
+    <details class="deep">
+      <summary><span class="tag">Depth</span> Caching, refresh, cost and safety <span class="chev"></span></summary>
+      <div class="in">
+        <ul>
+          <li><strong>Generation trigger:</strong> on app foreground, for the Home scope and for the top three ranked people. Other people generate lazily when opened. Weekly runs in a <code>BGProcessingTask</code>.</li>
+          <li><strong>Cache:</strong> <code>Insight</code> rows in SwiftData with <code>generatedAt</code>, <code>expiresAt</code> (24 h), <code>modelId</code>, <code>blocksJSON</code>, <code>inputHash</code>. If the input hash has not changed, no call is made even after expiry.</li>
+          <li><strong>Manual refresh:</strong> allowed once per hour per scope; the button shows "Refreshed 6h ago" and a subtle cooldown ring.</li>
+          <li><strong>Cost envelope (single user):</strong> about 6 to 10 Luna calls per day at roughly 2k input and 400 output tokens each, plus one Terra call a week. Under a few dollars a month. Multiply by users later; the schema keeps output tokens bounded.</li>
+          <li><strong>Failure:</strong> network or refusal returns the previous insight with a small "could not refresh" note. Never an empty card.</li>
+          <li><strong>Safety:</strong> the validator rejects any headline or text containing a blocked list of clinical terms, rejects reminders inside quiet hours, and caps actions at one. Intimacy data never enters a pack unless both partners opted in (Phase 1 concept; in Phase 0 it is simply excluded).</li>
+          <li><strong>Feedback:</strong> a thumbs on each card writes <code>feedback</code> to the row; the next prompt includes "previous_headline" and "previous_feedback" so the model varies its angle.</li>
+          <li><strong>Privacy:</strong> packs are minimal, names can be replaced with first names or aliases, no photos, no free text longer than 140 characters per item. API key in Keychain, never in source.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= 09 REMINDERS ================= -->
+<section class="chapter wash-coral" id="reminders">
+  <div class="wrap">
+    <div class="num">09 &nbsp;Smart reminders</div>
+    <h2>Every nudge names a person, a reason and one action.</h2>
+    <p class="lead">Reminders are planned nightly by combining module rules with context, then validated locally and scheduled as interactive notifications. Most are answered without opening the app.</p>
+
+    <div class="tiles c3">
+      <div class="tile glow-amber"><div class="ic">📐</div><h4>Rules first</h4><p>Each module declares triggers: lead times, follow-ups, streaks, rhythms. These are deterministic and run on device every night.</p></div>
+      <div class="tile glow-violet"><div class="ic">✦</div><h4>Words second</h4><p>The planner sends the candidate list and the context packs to the model, which writes the message, picks the best time and drops weak candidates.</p></div>
+      <div class="tile glow-mint"><div class="ic">🛡️</div><h4>Guardrails last</h4><p>Daily cap (default 5), quiet hours, Focus modes, batching into digests, no sensitive content in previews. The app has the final say.</p></div>
+    </div>
+
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Reminder</th><th>Trigger</th><th>Notification actions</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>Morning brief</td><td>User's chosen time</td><td>Open</td><td>"Three things today. Everyone else is fine."</td></tr>
+          <tr><td>Pulse check</td><td>Person not checked in for 2 days</td><td>😊 😐 😞</td><td>"How is Meera today?"</td></tr>
+          <tr><td>Event before</td><td>Category lead time</td><td>Message, Done</td><td>"Aarav's exam is at 2. Text good luck?"</td></tr>
+          <tr><td>Event after</td><td>1 h after end</td><td>Went well, Okay, Hard</td><td>"Aarav's exam finished. How did it go?"</td></tr>
+          <tr><td>Date</td><td>14 d, 3 d, day of</td><td>Plan, Wishlist</td><td>"Anniversary in 14 days. Last year: Olive."</td></tr>
+          <tr><td>Medication</td><td>Dose time</td><td>Taken, Skip, Ask Ravi</td><td>"Dad's evening tablet. Ravi is away today."</td></tr>
+          <tr><td>Hydration</td><td>Adaptive slots</td><td>+250 ml, +500 ml</td><td>"1 of 3 L so far."</td></tr>
+          <tr><td>Call rhythm</td><td>Rhythm day, preferred time</td><td>Call, Later</td><td>"Sunday. Mom day. Two things to ask about inside."</td></tr>
+          <tr><td>Signal</td><td>3 low days, symptom 3 days, stale promise</td><td>Open, Snooze</td><td>"Meera has logged low three days in a row."</td></tr>
+          <tr><td>Travel</td><td>7 d, 1 d, arrival, return</td><td>Packing, Message</td><td>"Meera lands in Goa at 4. A quick message when she is down?"</td></tr>
+          <tr><td>Evening wrap</td><td>User's chosen time</td><td>Open, Skip</td><td>"One minute. Three questions."</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <details class="deep">
+      <summary><span class="tag">Depth</span> Planner contract and scheduling <span class="chev"></span></summary>
+      <div class="in">
+        <pre><code><span class="c">// Nightly at 02:00 via BGAppRefreshTask</span>
+<span class="k">let</span> candidates = ModuleRegistry.all.flatMap { $0.reminderRules.evaluate(entries, now) }
+<span class="c">// -> [ReminderCandidate(person, module, kind, earliest, latest, priority, contextIds)]</span>
+
+<span class="k">let</span> plan = <span class="k">try await</span> planner.plan(candidates, packs, prefs)   <span class="c">// model writes message + fire_at</span>
+<span class="k">let</span> approved = Guardrails.apply(plan, prefs)                 <span class="c">// cap, quiet hours, dedupe, preview safety</span>
+<span class="k">for</span> r <span class="k">in</span> approved {
+  <span class="k">let</span> content = UNMutableNotificationContent()
+  content.title = r.personName; content.body = r.message
+  content.categoryIdentifier = r.module.notificationCategory     <span class="c">// actions declared by the module</span>
+  content.userInfo = [<span class="s">"reminderId"</span>: r.id, <span class="s">"deeplink"</span>: r.deeplink]
+  content.interruptionLevel = r.kind == .medication ? .timeSensitive : .active
+  <span class="k">try await</span> center.add(UNNotificationRequest(identifier: r.id, content: content,
+        trigger: UNCalendarNotificationTrigger(dateMatching: r.fireAtComponents, repeats: <span class="k">false</span>)))
+  <span class="k">if</span> prefs.mirrorToAppleReminders { <span class="k">try</span> eventKit.upsertReminder(r) }   <span class="c">// optional mirror</span>
+}</code></pre>
+        <ul>
+          <li>Notification actions call the module's <code>quickLog</code> logic directly through the extension, so an answer never requires opening the app.</li>
+          <li>Ignored reminders (no interaction, three times in a row for the same kind) lower that kind's priority for that person. "Fewer like this" lowers it immediately.</li>
+          <li>Travel plans set an "away" state that suppresses hydration and pulse reminders for that person and turns on arrival and return nudges instead.</li>
+          <li>Medication uses time-sensitive interruption; everything else respects Focus.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= 10 INTEGRATIONS ================= -->
+<section class="chapter wash-sky" id="integrations">
+  <div class="wrap">
+    <div class="num">10 &nbsp;Apple integrations</div>
+    <h2>Apple's apps stay the source of truth. Care adds the person layer.</h2>
+    <p class="lead">Calendar and Reminders are read and written two-way. Contacts, Photos, Health and Weather are read. Notes has no public API, so Care meets it through the share sheet and Shortcuts.</p>
+
+    <div class="tbl">
+      <table>
+        <thead><tr><th>System</th><th>Framework</th><th>Care reads</th><th>Care writes</th><th>Used by</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Calendar</strong></td><td>EventKit</td><td>Events across chosen calendars; matches people by attendee email or name keywords; detects travel and clinic keywords</td><td>A dedicated "Care" calendar for Events, Dates, Travel; edits sync both ways via EKEventStoreChanged</td><td>Events, Dates, Travel plans, Appointments, Timeline</td></tr>
+          <tr><td><strong>Reminders</strong></td><td>EventKit</td><td>Lists the user selects; completion state</td><td>One list per person ("Meera") for Shared checklist and Promises; optional mirror of smart reminders</td><td>Shared checklist, Promises, Smart reminders</td></tr>
+          <tr><td><strong>Contacts</strong></td><td>Contacts</td><td>Name, photo, birthday, relationship labels, phone</td><td>Nothing</td><td>Onboarding, Dates, Call rhythm</td></tr>
+          <tr><td><strong>Photos</strong></td><td>PhotoKit (limited access)</td><td>Date and location clusters, on device only, to propose trips</td><td>Nothing</td><td>Travel log</td></tr>
+          <tr><td><strong>Health</strong></td><td>HealthKit</td><td>Water, sleep, steps for the user's own profile only</td><td>Water logged in Care (self)</td><td>Hydration, Sleep and energy (Me)</td></tr>
+          <tr><td><strong>Weather</strong></td><td>WeatherKit</td><td>Conditions at a person's home city or trip destination</td><td>Nothing</td><td>Call rhythm talking points, Travel plans</td></tr>
+          <tr><td><strong>Maps</strong></td><td>MapKit</td><td>Geocoding, map tiles</td><td>Nothing</td><td>Travel log, Travel plans, Food and places</td></tr>
+          <tr><td><strong>Notes</strong></td><td>No public API</td><td>Nothing directly</td><td>Nothing directly</td><td>Share sheet into Mentions; Shortcuts action "Add to Care"</td></tr>
+          <tr><td><strong>Siri and Shortcuts</strong></td><td>App Intents</td><td>"Log that Meera feels low", "How is everyone?", "Remember that Dad wants a new radio"</td><td>Entries</td><td>All modules with intents</td></tr>
+          <tr><td><strong>Widgets</strong></td><td>WidgetKit, ActivityKit</td><td>Snapshots of ranked signals</td><td>Interactive buttons via App Intents</td><td>Today, Hydration, Countdown, Pulse</td></tr>
+          <tr><td><strong>Notifications</strong></td><td>UserNotifications</td><td>Action responses</td><td>Scheduled reminders with categories</td><td>Smart reminders</td></tr>
+          <tr><td><strong>Share sheet</strong></td><td>Share extension</td><td>URLs, text, images</td><td>Wishlist items, Mentions, Documents</td><td>Wishlist, Mentions, Documents</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <details class="deep">
+      <summary><span class="tag">Depth</span> Sync rules and permission choreography <span class="chev"></span></summary>
+      <div class="in">
+        <h4>Two-way sync rules (EventKit)</h4>
+        <ul>
+          <li>Care owns items it created (tagged with a URL <code>care://…</code> in the event or reminder). It never edits items it did not create; it links to them.</li>
+          <li>Every linked item has an <code>IntegrationLink</code> row: local entity id, external identifier, last known modification date. Conflicts resolve by latest modification; Care never deletes external items, it unlinks.</li>
+          <li>Imported events are proposed, not silently added: a small "3 new events for Meera from Calendar" card on Today with Add all or Review.</li>
+          <li>Person matching: attendee email equals contact email, or title contains the person's first name, or the calendar itself is assigned to a person ("Aarav school").</li>
+        </ul>
+        <h4>Permission choreography (never a wall)</h4>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Permission</th><th>Asked when</th><th>Pre-prompt copy</th></tr></thead>
+            <tbody>
+              <tr><td>Notifications</td><td>After first check-in</td><td>"Care works best when it can ask you one quick question a day."</td></tr>
+              <tr><td>Contacts</td><td>Tapping "Add from Contacts"</td><td>"Pick people from your contacts. Birthdays and photos come along."</td></tr>
+              <tr><td>Calendar</td><td>Enabling Events, Dates or Travel plans</td><td>"Care can find events about this person and keep them in sync."</td></tr>
+              <tr><td>Reminders</td><td>Enabling Shared checklist</td><td>"Your list will also live in Apple Reminders."</td></tr>
+              <tr><td>Photos (limited)</td><td>Enabling Travel log</td><td>"Care can suggest trips from where your photos were taken. Nothing leaves your phone."</td></tr>
+              <tr><td>Health</td><td>Enabling Hydration or Sleep on Me</td><td>"Water and sleep from Apple Health, for your own profile only."</td></tr>
+              <tr><td>Location</td><td>Never</td><td>Care does not use location.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= 11 STACK ================= -->
+<section class="chapter wash-violet" id="stack">
+  <div class="wrap">
+    <div class="num">11 &nbsp;Architecture and stack</div>
+    <h2>Native, local-first, modular. The latest Apple stack, nothing exotic.</h2>
+    <p class="lead">Swift 6 and SwiftUI on iOS 27 with Xcode 27. SwiftData for the local store, structured so CloudKit sync can be switched on in Phase 1 without a migration. Every module is a Swift package.</p>
+
+    <div class="tiles c3">
+      <div class="tile glow-violet"><div class="ic">🧱</div><h4>Language and UI</h4><p>Swift 6 with strict concurrency. SwiftUI everywhere, Liquid Glass second iteration for chrome, MeshGradient for auras, Swift Charts for trends, Observation for state, TipKit for onboarding tips. No UIKit except for share extension plumbing if needed.</p></div>
+      <div class="tile glow-sky"><div class="ic">💾</div><h4>Data</h4><p>SwiftData, local only in Phase 0. UUID ids, updatedAt and deletedAt on every model, JSON payloads per module so schemas evolve independently. CloudKit container reserved for Phase 1 sharing.</p></div>
+      <div class="tile glow-coral"><div class="ic">✦</div><h4>Intelligence</h4><p>OpenAI Responses API through URLSession with strict JSON schema. On-device Foundation Models for classification. Keychain for the key. A single <code>ModelConfig</code> for names and limits.</p></div>
+      <div class="tile glow-amber"><div class="ic">🔔</div><h4>Ambient layer</h4><p>UserNotifications with categories, App Intents for Siri and interactive widgets, WidgetKit, ActivityKit, BackgroundTasks for nightly planning and weekly insight.</p></div>
+      <div class="tile glow-mint"><div class="ic">🔗</div><h4>Integrations</h4><p>EventKit (full access), Contacts, PhotoKit, HealthKit, WeatherKit, MapKit, Share extension, LinkPresentation for unfurling product links.</p></div>
+      <div class="tile"><div class="ic">🧪</div><h4>Quality</h4><p>Swift Testing for logic, snapshot tests for block rendering, a fixtures pack of fake families, Instruments hitch metric under 1 ms per frame, Xcode 27 SwiftUI agent skills exported for the coding agent.</p></div>
+    </div>
+
+    <details class="deep" open>
+      <summary><span class="tag">Depth</span> Package layout <span class="chev"></span></summary>
+      <div class="in">
+        <pre><code>Care/
+  App/                       <span class="c">// iOS app target: tabs, navigation, DI container, deep links</span>
+  Packages/
+    CareCore/                <span class="c">// SwiftData models, repositories, ModuleRegistry, EntitlementService, Signals, Ranking</span>
+    CareDesign/              <span class="c">// tokens, components, motion presets, haptics, glass, auras</span>
+    CareIntelligence/        <span class="c">// ContextPack builders, prompts, schema, OpenAIClient, InsightValidator, BlockRenderer</span>
+    CareReminders/           <span class="c">// rule evaluation, planner, guardrails, notification categories</span>
+    CareIntegrations/        <span class="c">// EventKitBridge, ContactsBridge, PhotosBridge, HealthBridge, WeatherBridge, LinkUnfurl</span>
+    Modules/
+      Mood/  Health/  Hydration/  Mentions/  Events/  Dates/  TravelPlans/  TravelLog/
+      SharedChecklist/  Promises/  CallRhythm/  Medication/  Appointments/  Wishlist/  Brands/ ...
+  Extensions/
+    CareWidgets/             <span class="c">// WidgetKit + ActivityKit</span>
+    CareShare/               <span class="c">// Share extension</span>
+    CareNotificationService/ <span class="c">// handles notification actions without launching the app</span>
+  Fixtures/                  <span class="c">// sample circles for previews and tests</span></code></pre>
+        <h4>Data model (SwiftData)</h4>
+        <pre><code><span class="k">@Model final class</span> Circle   { id: UUID; name: String; createdAt, updatedAt: Date; deletedAt: Date? }
+<span class="k">@Model final class</span> Person   { id: UUID; circle: Circle; name: String; relationship: Relationship; kind: PersonKind <span class="c">/* managed | linked */</span>;
+                              aura: Aura; photoData: Data?; contactId: String?; birthday: Date?; homeCity: String?; sortOrder: Int; updatedAt, deletedAt }
+<span class="k">@Model final class</span> ModuleInstance { id: UUID; person: Person; moduleId: String; isEnabled: Bool; visibility: Visibility;
+                              settingsJSON: Data; sortOrder: Int; updatedAt }
+<span class="k">@Model final class</span> Entry    { id: UUID; person: Person; moduleId: String; occurredAt: Date; author: Author <span class="c">/* selfReport | observed(userId) */</span>;
+                              source: Source <span class="c">/* manual | notification | widget | siri | importCalendar | importPhotos | importHealth | ai */</span>;
+                              payloadJSON: Data; tags: [String]; createdAt, updatedAt, deletedAt }
+<span class="k">@Model final class</span> Event    { id: UUID; person: Person; category: EventCategory; title: String; start: Date; end: Date?;
+                              supportNote: String?; leadTimes: [Int]; followUp: Bool; calendarLink: IntegrationLink? }
+<span class="k">@Model final class</span> Insight  { id: UUID; scope: Scope; scopeId: UUID?; generatedAt, expiresAt: Date; modelId: String;
+                              inputHash: String; blocksJSON: Data; headline: String; tone: Tone; feedback: Feedback? }
+<span class="k">@Model final class</span> ReminderPlan { id: UUID; person: Person; moduleId: String; kind: String; fireAt: Date; message, reason: String;
+                              status: Status <span class="c">/* scheduled | fired | done | snoozed | dismissed */</span>; notificationId: String; reminderLink: IntegrationLink? }
+<span class="k">@Model final class</span> IntegrationLink { id: UUID; system: ExternalSystem; externalId: String; lastModified: Date }
+<span class="k">@Model final class</span> Place    { id: UUID; person: Person?; name: String; lat, lon: Double; visitedFrom, visitedTo: Date; source: Source }</code></pre>
+        <ul>
+          <li><strong>Why JSON payloads:</strong> each module owns its <code>Payload</code> type. Adding a field to Hydration never touches the shared schema. Migrations are per module and versioned with a <code>payloadVersion</code> tag.</li>
+          <li><strong>Sync readiness:</strong> all ids are UUIDs, timestamps are set on write, deletes are soft. Turning on CloudKit later means adding the container and a sharing model, not rewriting models.</li>
+          <li><strong>Ranking on device:</strong> <code>HomeRanker</code> scores signals by time pressure, health weight, streak length, not-yet-acted, neglect and rhythm. The model only writes words around the top results.</li>
+          <li><strong>Deep links:</strong> <code>care://person/{id}</code>, <code>care://person/{id}/{module}</code>, <code>care://person/{id}/{module}/new?…</code>, <code>care://today</code>, <code>care://timeline/{date}</code>. Used by widgets, notifications and insight actions.</li>
+        </ul>
+        <h4>Performance and feel budget</h4>
+        <ul>
+          <li>Cold launch to Today under 600 ms with cached insights. Insight generation is never on the critical path.</li>
+          <li>All lists lazy; entries paged by month; charts downsampled to 30 points.</li>
+          <li>Hitches under 1 ms per frame in Instruments; springs never longer than 500 ms; haptics only on completed actions.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= 12 BUILD PLAN ================= -->
+<section class="chapter wash-mint" id="build">
+  <div class="wrap">
+    <div class="num">12 &nbsp;Build plan</div>
+    <h2>Build it for one life first. Ten weeks to a daily habit.</h2>
+    <p class="lead">Each milestone ends with something used every day. Nothing ships to anyone else until the founder has lived with it for a month.</p>
+
+    <div class="road">
+      <div class="ms"><b>M0</b><small>Week 1. Foundation</small><ul><li>Xcode 27 project, packages, fixtures</li><li>CareDesign tokens, auras, GlassTabBar, PillButton, motion presets</li><li>SwiftData models, ModuleRegistry, Entitlement stub</li></ul></div>
+      <div class="ms"><b>M1</b><small>Weeks 2 to 3. People</small><ul><li>Onboarding, add people from Contacts</li><li>Person profile with AuraHeader, Pulse, bento</li><li>Mood, Health, Hydration, Mentions, Dates, Events (with taxonomy)</li><li>QuickSheet, history</li></ul></div>
+      <div class="ms"><b>M2</b><small>Weeks 4 to 5. Intelligence</small><ul><li>OpenAI client, schema, validator</li><li>Block renderer with all 11 blocks</li><li>Insights on open, 24 h cache, refresh</li><li>Today with HomeRanker and hero</li></ul></div>
+      <div class="ms"><b>M3</b><small>Week 6. Ambient</small><ul><li>Notification categories and actions</li><li>Nightly planner and guardrails</li><li>Morning brief, evening wrap</li><li>EventKit two-way for Events, Dates, checklist</li></ul></div>
+      <div class="ms"><b>M4</b><small>Weeks 7 to 8. Breadth</small><ul><li>Timeline tab with merged sources</li><li>Travel plans, Travel log from Photos, WeatherKit</li><li>Shared checklist, Promises, Call rhythm, Medication, Appointments</li><li>Wishlist with link unfurl, Favorite brands</li></ul></div>
+      <div class="ms"><b>M5</b><small>Weeks 9 to 10. Polish</small><ul><li>Widgets, Live Activities, App Intents</li><li>Module store with tiers</li><li>Night mode, Reduce Motion, Dynamic Type pass</li><li>30 days of daily use, fix list</li></ul></div>
+    </div>
+
+    <div class="tiles c3">
+      <div class="tile"><h4>Phase 1. The circle</h4><p>CloudKit sync and CKShare for linked profiles and co-carers. Per-module visibility. Apple Watch app. Partner and sibling join. Three months of use with two to four people.</p></div>
+      <div class="tile"><h4>Phase 2. Friends and TestFlight</h4><p>Friend circles, gift claiming, School, Documents. Onboarding tuned for strangers. TestFlight with 50 households. Paywall wiring behind the existing entitlement seam.</p></div>
+      <div class="tile"><h4>Phase 3. Public and professional</h4><p>App Store launch. Professional pack for carers and PAs. Brand connectors for Wishlist. Module marketplace cadence: one new module a month.</p></div>
+    </div>
+
+    <details class="deep">
+      <summary><span class="tag">Depth</span> Definition of done per milestone and Phase 0 success measures <span class="chev"></span></summary>
+      <div class="in">
+        <ul>
+          <li><strong>M0 done:</strong> app launches to an empty Today with the design system visible; a fixture circle renders in previews; unit tests for ranking and validator scaffolds pass.</li>
+          <li><strong>M1 done:</strong> the founder's real circle is entered; every core module logs in one tap; history shows entries; Pulse has haptic stops; person switch animates.</li>
+          <li><strong>M2 done:</strong> opening the app shows a rendered insight for Home and for the partner within 3 seconds on first run and instantly afterward; every block type has a snapshot test; refusal and network errors show the previous insight.</li>
+          <li><strong>M3 done:</strong> a full day runs on notifications alone: morning brief, two pulse checks, water nudges, one follow-up, evening wrap; all answered without opening the app; Care calendar and per-person Reminders lists exist and sync both ways.</li>
+          <li><strong>M4 done:</strong> Timeline shows a merged day; a trip proposed from Photos was confirmed; a shared product link became a wishlist item with image and price; Mom's Sunday call nudge carried two talking points.</li>
+          <li><strong>M5 done:</strong> Lock Screen widget and hydration Live Activity work; module store shows tiers; night mode and Reduce Motion pass; 30 consecutive days with at least one entry.</li>
+        </ul>
+        <h4>Phase 0 measures (one user)</h4>
+        <div class="tbl">
+          <table>
+            <thead><tr><th>Measure</th><th>Target</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>Days with at least one entry in 30</td><td>27 or more</td><td>The habit holds</td></tr>
+              <tr><td>Share of entries from passive and ambient rungs</td><td>Over 60 percent</td><td>Zero-exam UX is real</td></tr>
+              <tr><td>Reminders acted on</td><td>Over 50 percent</td><td>Nudges are right and welcome</td></tr>
+              <tr><td>Insights opened per day</td><td>1 or more</td><td>Insights earn attention</td></tr>
+              <tr><td>Caught moments per month</td><td>4 or more</td><td>Things acted on that would have been forgotten</td></tr>
+              <tr><td>Time in app per day</td><td>Under 3 minutes</td><td>It should not need more</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= 13 PROMPTS ================= -->
+<section class="chapter wash-amber" id="prompts">
+  <div class="wrap">
+    <div class="num">13 &nbsp;Prompt library</div>
+    <h2>Paste-ready prompts for the coding agent, in build order.</h2>
+    <p class="lead">Each prompt references this document by section, states the deliverable and the acceptance test. Run them in a fresh project with this file in the repo as <code>SPEC.html</code>. Export Xcode 27's SwiftUI skills first: <code>xcrun agent skills export</code>.</p>
+
+    <details class="deep" open>
+      <summary><span class="tag">P0</span> Project scaffold and design system <span class="chev"></span></summary>
+      <div class="in">
+        <pre><code>You are building "Care", an iOS 27 app in Swift 6 and SwiftUI with Xcode 27. Read SPEC.html sections 05, 07 and 11.
+Create the workspace exactly as the package layout in section 11: App target plus packages CareCore, CareDesign,
+CareIntelligence, CareReminders, CareIntegrations, and Modules/*. Strict concurrency on.
+In CareDesign implement: CareColor tokens (light and night), Aura struct with six presets, MeshBackground(aura:)
+using MeshGradient animated with TimelineView, GlassTabBar (Liquid Glass, hides on scroll down), PillButton
+(52pt, scale 0.96 on press, light impact haptic), PersonOrb (44pt, aura ring, attention dot with phaseAnimator pulse),
+HeroCard, BentoTile (1x1, 2x1, 2x2), ChipRow, Ring (keyframe fill, numericText), Countdown (tabular heavy numerals),
+PulseControl (gradient track, five haptic stops, optional vertical energy axis), InsightCard (violet border and glow),
+TimelineRail, QuickSheet. Motion presets: standard .spring(duration:0.35,bounce:0.15), snappy .spring(duration:0.25,bounce:0),
+expressive .spring(duration:0.5,bounce:0.3). Respect Reduce Motion and Reduce Transparency.
+Add a Fixtures package with a sample circle (Arjun, Meera partner, Dad, Mom, Aarav child, Rohan sibling) and previews for
+every component in light and night. Acceptance: previews compile and render; a demo screen shows every component;
+no UIKit imports in CareDesign.</code></pre>
+      </div>
+    </details>
+    <details class="deep">
+      <summary><span class="tag">P1</span> Data, module framework and the first six modules <span class="chev"></span></summary>
+      <div class="in">
+        <pre><code>Read SPEC.html sections 07 and 11. In CareCore implement the SwiftData models exactly as listed (Circle, Person,
+ModuleInstance, Entry, Event, Insight, ReminderPlan, IntegrationLink, Place) with UUID ids, updatedAt, soft delete,
+and JSON payloads per module. Implement the CareModule protocol, ModuleMeta, Tier, ModuleRegistry and
+EntitlementService (isUnlocked always true, single seam). Implement HomeRanker as pure functions with tests.
+Build modules Mood, Health, Hydration, Mentions, Dates, Events as separate packages conforming to CareModule with:
+Payload, Settings, todayTile, quickLog, detail, notificationActions, appIntents, contextPack, allowedBlocks, signals,
+reminderRules, importers (stubs where integration is later). Events must include the seven-category taxonomy with
+default lead times and follow-ups from section 07. Mentions classify type on device with Foundation Models, falling
+back to "fact". Build the People tab: orbs, AuraHeader that collapses on scroll, PulseControl, module bento with drag
+to reorder, module detail with zoom transition, QuickSheet from orb tap. Build onboarding from section 06 with
+Contacts import. Acceptance: the fixture circle is browsable; every module logs in one tap with haptic; history shows
+entries; person switch crossfades the aura in 350 ms; Swift Testing covers ranking, taxonomy defaults and payload
+round-trips.</code></pre>
+      </div>
+    </details>
+    <details class="deep">
+      <summary><span class="tag">P2</span> Intelligence engine and block renderer <span class="chev"></span></summary>
+      <div class="in">
+        <pre><code>Read SPEC.html section 08 in full. In CareIntelligence implement: ContextPackBuilder (asks each enabled module for
+its pack for a window and scope), PromptLibrary (system prompt verbatim from the spec, person, module, home and weekly
+templates), InsightSchema (the strict JSON schema from the spec, generated from Codable types so they cannot drift),
+OpenAIClient (Responses API, text.format json_schema strict:true, API key from Keychain, retries with backoff,
+refusal handling), InsightValidator (drop unknown blocks, max one action, deeplink must resolve in ModuleRegistry,
+blocked clinical terms, reminders inside quiet hours rejected), InsightStore (SwiftData rows with expiresAt 24h and
+inputHash; skip the call when the hash is unchanged), and BlockRenderer mapping all eleven block types to CareDesign
+views with staggered entrance (80 ms, opacity, scale 0.96, blur 4 to 0). ModelConfig holds model ids
+(gpt-5.6-luna daily, gpt-5.6-terra weekly) in one place. Build the Today tab: HomeRanker picks the hero, orbs with
+attention dots, bento from module todayTiles, InsightCard for home scope, "Refreshed Xh ago" with one hour cooldown.
+Generation triggers on foreground for home and top three people; others lazy. Add a mock client for previews and
+tests, and snapshot tests for every block. Acceptance: with a real key, opening the app renders an insight for Home
+and for Meera; with no network, yesterday's insight shows with a small note; malformed model output never crashes.</code></pre>
+      </div>
+    </details>
+    <details class="deep">
+      <summary><span class="tag">P3</span> Reminders, notifications and EventKit sync <span class="chev"></span></summary>
+      <div class="in">
+        <pre><code>Read SPEC.html sections 09 and 10. In CareReminders implement rule evaluation from each module's reminderRules,
+the nightly planner (BGAppRefreshTask at 02:00) that calls the model with candidates and packs and receives
+reminders in the care_insight contract, Guardrails (daily cap default 5, quiet hours 22:00 to 07:00, dedupe, no
+sensitive content in previews, priority decay for ignored kinds), and scheduling through UNUserNotificationCenter with
+one category per module and actions that log through CareNotificationService without launching the app. Implement
+morning brief and evening wrap sheets. In CareIntegrations implement EventKitBridge: create the "Care" calendar and
+per-person Reminders lists; write Events, Dates, Travel plans and checklist items; observe EKEventStoreChanged for
+two-way updates; propose imported events on Today with Add all or Review; person matching by attendee email, first
+name in title, or assigned calendar. Add the permission pre-prompts from section 10. Acceptance: a simulated day
+fires the full reminder set; tapping a notification action logs an entry with no app launch; editing a Care event in
+Apple Calendar updates Care within one refresh; deleting in Care unlinks but never deletes external items.</code></pre>
+      </div>
+    </details>
+    <details class="deep">
+      <summary><span class="tag">P4</span> Timeline, Travel, Wishlist and the rest of the modules <span class="chev"></span></summary>
+      <div class="in">
+        <pre><code>Read SPEC.html sections 06 and 07. Build the Timeline tab: merged day rail from Care entries, Apple Calendar events
+and Apple Reminders items, colored by aura, source labels visible, now marker via TimelineView, drag to reschedule
+writing back through EventKitBridge, week view strip with dates, trips and countdowns. Build modules TravelPlans
+(destination hero with MapKit tile, countdown, packing checklist, WeatherKit at destination, away state that pauses
+other nudges), TravelLog (PhotoKit limited access, on-device date and location clustering into proposed trips,
+confirm with one tap, full-bleed map with pins, list by year), SharedChecklist and Promises (Reminders mirror),
+CallRhythm (rhythm, preferred time, talking_points from the weekly insight, weather where they are), Medication
+(adherence ring, dose reminders time-sensitive, refill lead), Appointments (visit prep brief from Health and
+Medication packs), Wishlist (share extension, LinkPresentation unfurl for title, image, price, sizes, do-not-buy
+list), FavoriteBrands (brands, sizes, styles, simple style profile). Acceptance: a shared product URL becomes a
+wishlist item with image; a trip is proposed from photos and confirmed; Sunday call nudge carries two talking points;
+Timeline reschedules an Apple Calendar event.</code></pre>
+      </div>
+    </details>
+    <details class="deep">
+      <summary><span class="tag">P5</span> Widgets, intents, module store and polish <span class="chev"></span></summary>
+      <div class="in">
+        <pre><code>Read SPEC.html sections 05, 06 and 12. Add CareWidgets: Lock Screen "Next up", hydration ring, countdown; Home Screen
+Today bento (medium), Person Pulse (small, interactive App Intent buttons), Insight headline (large). Add Live
+Activities for hydration and event days. Add App Intents: LogMood, LogWater, AddMention, HowIsEveryone, AddEvent, with
+Siri phrases. Build the Module store screen with category chips, per-person toggles and tier labels from ModuleMeta
+rendered as "Included" while EntitlementService returns true. Do a polish pass against section 05: concentric radii,
+scale 0.96 press everywhere, numericText on all changing numbers, symbol effects on success, night mode, Reduce
+Motion and Reduce Transparency, Dynamic Type up to accessibility sizes, hitches under 1 ms in Instruments.
+Acceptance: all widgets update within a refresh; Siri logs a mood by voice; the store toggles a module on and off
+per person; the polish checklist in section 05 is ticked item by item with screenshots.</code></pre>
+      </div>
+    </details>
+    <details class="deep">
+      <summary><span class="tag">Design</span> Visual prompts for mockups and the app icon <span class="chev"></span></summary>
+      <div class="in">
+        <p><strong>Screen mockup prompt (for any image or design tool):</strong></p>
+        <pre><code>iOS app screen, iPhone 17 Pro frame, light mode. Background is a soft mesh gradient of coral #FF6B57 and rose #FF4F8B
+in the top corners fading to warm white #FBF8FF, with a faint amber glow at the bottom. Large heavy headline in SF Pro
+Display, tight tracking. One hero card with a huge tabular countdown numeral. A row of five circular avatars with
+gradient rings and one small coral attention dot. Two glass bento tiles with a hydration ring and a mood state. One
+insight card with a thin violet border and soft violet glow and a sparkle icon. A floating glass pill tab bar with four
+items. Premium, calm, generous spacing, no clutter, no drop shadows heavier than 6 percent, radius 24 on cards.</code></pre>
+        <p><strong>App icon prompt (from the app-icon skill, filled in):</strong></p>
+        <pre><code>Create a 1024x1024 square app icon, premium, vibrant and dimensional, in the style of top App Store featured apps.
+Subject: a single glossy 3D heart-shaped orb with two soft overlapping rings of light around it, like a gentle halo.
+Look: one glossy 3D hero, studio lighting, rim light, subtle glow, centered on a full-bleed coral to rose gradient
+background that reaches all four edges. Composition: hero fills about 70 percent, one focal point, sharp corners,
+critical detail inside the central 70 percent. Do not: flat pictogram, black-on-white glyph, line icon, white
+background, text, letters, faces, logos, chrome, neon, flares. Color palette: coral, rose, a touch of violet, warm white
+highlights. Square 1:1, readable at 60 px.</code></pre>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ================= 14 PITCH ================= -->
+<section class="chapter wash-coral" id="pitch">
+  <div class="wrap">
+    <div class="num">14 &nbsp;Pitch</div>
+    <h2>The story we tell when it is time to sell.</h2>
+    <p class="lead">Ready-made narrative for decks and stakeholder conversations. Pricing is deliberately absent; the structure for it is in place.</p>
+
+    <div class="grid-2">
+      <div>
+        <h3>One line</h3>
+        <p class="statement" style="font-size:1.35rem;max-width:none">Care is the app that makes sure you never miss the small things that matter to the people you love.</p>
+        <h3>Elevator pitch</h3>
+        <p>Everyone has people to look after: a partner, parents, kids, friends. The information you need to do that well is scattered across six apps and mostly in your head, and it fails exactly when life gets busy. Care gives every person in your life a profile built from small modules, imports what already exists from your calendar, contacts and photos, and asks you one quick question a day. Its intelligence reads the patterns and turns them into visual insights and perfectly timed nudges. Ten seconds a day, and people start asking "how did you remember that?"</p>
+        <h3>Why now</h3>
+        <ul>
+          <li>Attention is the scarcest resource in a relationship, and it is shrinking.</li>
+          <li>Families are spread across cities and time zones more than ever.</li>
+          <li>Self-tracking is normal; tracking for the people around you is the natural next step and nobody owns it.</li>
+          <li>Language models now write with warmth for a fraction of a cent, which makes personal insight economical at scale.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Three differentiators</h3>
+        <div class="tiles">
+          <div class="tile glow-coral"><h4>Person-centered, not task-centered</h4><p>The only mainstream app where the unit of organization is a person. Every competitor organizes by data type.</p></div>
+          <div class="tile glow-amber"><h4>Modules as the growth engine</h4><p>New life situations become new modules, not new apps. The catalog grows monthly and keeps interest locked.</p></div>
+          <div class="tile glow-violet"><h4>Insights that render, not read</h4><p>A structured AI contract turns raw entries into stats, trends, countdowns and actions. It looks like a product, not a chat.</p></div>
+        </div>
+        <h3>Objections and answers</h3>
+        <div class="tbl">
+          <table>
+            <tbody>
+              <tr><td><strong>"Is this surveillance?"</strong></td><td>Everything is private by default, sharing is per module, adults see what exists about them, and Care never uses location.</td></tr>
+              <tr><td><strong>"Will people really log daily?"</strong></td><td>Most entries come from imports and one-tap notification answers. The app is designed to be answered, not opened.</td></tr>
+              <tr><td><strong>"Why not just use Reminders?"</strong></td><td>Care uses Reminders. It adds the person, the reason, the pattern and the follow-up that Reminders cannot know.</td></tr>
+              <tr><td><strong>"Isn't AI expensive?"</strong></td><td>A strict schema bounds output. Daily insights cost well under a cent per person per day on the small model.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="note mint">
+      <b class="t">Paywall structure, reserved for later</b>
+      <p>Core modules and one circle stay free forever. Plus unlocks the Home agent, weekly deep insights and the Plus modules. Pro adds professional circles and the Notes pack. Every surface already carries its tier label; the entitlement seam is one function. No purchases are wired in Phase 0.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 15 DECISIONS ================= -->
+<section class="chapter wash-sky" id="decisions">
+  <div class="wrap">
+    <div class="num">15 &nbsp;Decisions and risks</div>
+    <h2>Settled, open, and what could go wrong.</h2>
+
+    <div class="grid-2">
+      <div>
+        <h3>Settled in v2</h3>
+        <ul class="checks">
+          <li>Four tabs: Today, People, Timeline, You. Insights are inline, not a tab.</li>
+          <li>Insights auto-generate on open with a 24 hour cache and a one hour manual refresh cooldown.</li>
+          <li>AI returns typed blocks only; the block renderer is the core feature.</li>
+          <li>Phase 0 is single user, local SwiftData, no backend; linked profiles wait for CloudKit in Phase 1.</li>
+          <li>Apple Calendar and Reminders are systems of record; Care writes to its own calendar and per-person lists.</li>
+          <li>Per-person auras and the Pulse control are the signature interactions.</li>
+          <li>Paywall structure exists in code and UI as tiers; no purchases until Phase 2.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Open</h3>
+        <ul>
+          <li><strong>Hidden modules for linked adults:</strong> fully hidden or "exists but private". Decide in Phase 1 with the partner.</li>
+          <li><strong>Pulse axes:</strong> mood only, or mood plus energy on a vertical drag. Try both in M1.</li>
+          <li><strong>Evening wrap default:</strong> on or off after week two, based on skip rate.</li>
+          <li><strong>Travel log clustering:</strong> minimum distance from home and minimum days before a cluster counts as a trip.</li>
+          <li><strong>Brand connectors:</strong> which shopping sources to unfurl beyond LinkPresentation, and when.</li>
+          <li><strong>Apple Watch timing:</strong> Phase 1 or a lightweight companion in M5.</li>
+        </ul>
+        <h3>Risks</h3>
+        <div class="tbl">
+          <table>
+            <tbody>
+              <tr><td><strong>Logging fatigue</strong></td><td>Passive imports and ambient answers first; no streaks; measure the rung mix weekly.</td></tr>
+              <tr><td><strong>AI says something wrong or cold</strong></td><td>Strict schema, validator, blocked terms, evidence line, thumbs feedback, previous insight kept on failure.</td></tr>
+              <tr><td><strong>Feels like control</strong></td><td>Private by default, transparency of existence, no location, easy leave.</td></tr>
+              <tr><td><strong>EventKit edge cases</strong></td><td>Care only edits what it created; unlink instead of delete; conflicts by latest change.</td></tr>
+              <tr><td><strong>Scope creep</strong></td><td>Every module passes the one-shape, one-tap test; one new module a month after launch, never more.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p><strong style="color:var(--text)">Care</strong>. Product and build spec, version 2, September 17, 2026. This file is the source of truth for the Phase 0 build. Keep it in the repository as <code>SPEC.html</code> and reference it by section from every agent prompt.</p>
+    <p>Supersedes version 0.1. Changes: zero-exam UX principles, Aura design language with motion values, screen designs, expanded module catalog with event taxonomy and tiers, the insight block contract and prompts, reminder planner, Apple integrations, architecture and stack, build plan and prompt library.</p>
+  </div>
+</footer>
+
+<style>
+.checks{list-style:none;padding:0}
+.checks li{padding-left:26px;position:relative;color:var(--text-2)}
+.checks li::before{content:"";position:absolute;left:0;top:.55em;width:14px;height:14px;border-radius:50%;background:rgba(52,211,153,.2);border:2px solid var(--mint)}
+</style>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+DerivedData/
+build/
+.build/
+.swiftpm/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+Packages/.build/
+Packages/Package.resolved
+
+# macOS
+.DS_Store
+
+# Node (design render tooling)
+node_modules/
+scripts/node_modules/
+
+# Local secrets. API keys live in the Keychain, never in the repo.
+*.secrets
+.env
