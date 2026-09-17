@@ -143,7 +143,7 @@ public struct DemoCircle: Sendable {
             add(p.id, .mentions, at: day(12, hour: 11), MentionPayload(text: "Her mother's knee surgery went well", kind: .fact, resolved: true))
 
             event(p.id, .events, .workAndSchool, "Presentation to the new VP", start: day(-2, hour: 15), end: day(-2, hour: 16), note: "Send a good-luck text at 8am. Light dinner after.")
-            event(p.id, .events, .social, "Dinner, just us", start: day(0, hour: 19, minute: 30), end: day(0, hour: 21, minute: 30), location: "Olive Bistro")
+            event(p.id, .events, .social, "Dinner, just us", start: day(0, hour: 19, minute: 30), end: day(0, hour: 21, minute: 30), note: "Just the two of you. Leave work on time.", location: "Olive Bistro")
             event(p.id, .events, .social, "Cousin's engagement", start: date(2026, 9, 27, 18), end: date(2026, 9, 27, 22), location: "Vijayawada")
             event(p.id, .dates, .milestone, "Wedding anniversary", start: date(2026, 8, 26), allDay: true, yearly: true, id: DemoCircle.anniversaryID)
             event(p.id, .dates, .milestone, "Srivalli's birthday", start: date(1998, 11, 12), allDay: true, yearly: true)
