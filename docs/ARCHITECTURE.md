@@ -17,7 +17,7 @@ Packages/Sources/
 
 Dependency direction: `CareCore ← CareIntelligence ← CareReminders`, `CareCore ← CareDesign`, `CareCore + CareIntelligence + CareFixtures ← CareData`, `CareDesign + CareData ← CareModules`, everything `← Care`.
 
-The four pure targets contain no Apple UI frameworks, so `swift build` and `swift test` run on Linux and macOS without Xcode. That is where the logic lives and where the tests are.
+The four pure targets contain no Apple UI frameworks, so `swift test` runs on Linux (and on a Mac with `CARE_PURE=1`) without Xcode. That is where the logic lives and where the tests are. CI builds the app with Xcode on a macOS runner and runs the tests on Linux.
 
 ## A module is two types
 

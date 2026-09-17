@@ -62,11 +62,13 @@ open Care.xcodeproj
 
 1. Select the **Care** scheme and a simulator, press Run.
 2. On first launch choose **Try it with a demo circle** to see everything populated, or **Start on this device** to add your own people.
-3. To run the logic tests: `cd Packages && swift test`. They cover ranking, the event taxonomy, payload round-trips, the insight contract and validator, the local engine, and reminder guardrails. They run on macOS and Linux without Xcode.
+3. To run the logic tests without Xcode: `cd Packages && CARE_PURE=1 swift test` (on Linux plain `swift test`). They cover ranking, the event taxonomy, payload round-trips, the insight contract and validator, the local engine, and reminder guardrails.
 
 If Xcode refuses the hand-built project file, `brew install xcodegen && xcodegen generate` recreates it from `project.yml`. Set your team under Signing before running on a device.
 
-**Honest status.** The Swift was written and reviewed without a compiler, because this session ran on Linux. Expect a handful of compile errors on the first build, fix them in place, and the design and structure are all there. I marked every iOS 27 API against Apple's exported Xcode 27 agent skills (`swiftui-whats-new-27`, `swiftui-specialist`) while writing.
+**Build status.** [![CI](https://github.com/paluvadisurya/care/actions/workflows/ci.yml/badge.svg?branch=claude%2Fpeaceful-euler-0wekx1)](https://github.com/paluvadisurya/care/actions/workflows/ci.yml) The whole app builds for the iOS Simulator on GitHub's macOS runner with Xcode 26.6, and the 36 logic tests pass on Swift 6.2 on Linux. The code was written on a Linux machine without Xcode and checked against Apple's exported Xcode 27 agent skills (`swiftui-whats-new-27`, `swiftui-specialist`), then compiled and fixed through CI. Nobody has tapped through it on a device yet: expect small layout and behaviour fixes on your first run, not a broken build.
+
+**iOS 26 and 27.** The deployment target is iOS 26 so the project builds with today's runners and phones. Two iOS 27 additions (swipe actions in scroll views, the minimising navigation bar) sit behind a `CARE_SDK27` compilation condition in [`Compat.swift`](Packages/Sources/CareDesign/Motion/Compat.swift). On Xcode 27, add `-DCARE_SDK27` to Other Swift Flags and they light up on iOS 27.
 
 ## Bringing a model
 

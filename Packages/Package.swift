@@ -63,18 +63,20 @@ let testTargets: [Target] = [
     ),
 ]
 
-// The UI half needs SwiftUI and SwiftData, so it only exists when the manifest is evaluated on an Apple platform.
-// On Linux (CI, or this repo's own `swift test`) the package is just the pure modules.
+// The UI half needs SwiftUI and SwiftData, so it only exists when Xcode evaluates the manifest for iOS.
+// On Linux, or with `CARE_PURE=1 swift test` on a Mac, the package is just the pure modules and their tests.
 #if os(Linux)
-let appleProducts: [Product] = []
-let appleTargets: [Target] = []
+let pureOnly = true
 #else
-let appleProducts: [Product] = [
+let pureOnly = Context.environment["CARE_PURE"] != nil
+#endif
+
+let appleProducts: [Product] = pureOnly ? [] : [
     .library(name: "CareDesign", targets: ["CareDesign"]),
     .library(name: "CareData", targets: ["CareData"]),
     .library(name: "CareModules", targets: ["CareModules"]),
 ]
-let appleTargets: [Target] = [
+let appleTargets: [Target] = pureOnly ? [] : [
     .target(
         name: "CareDesign",
         dependencies: ["CareCore"],
@@ -92,7 +94,6 @@ let appleTargets: [Target] = [
         swiftSettings: uiSettings
     ),
 ]
-#endif
 
 let package = Package(
     name: "CarePackages",

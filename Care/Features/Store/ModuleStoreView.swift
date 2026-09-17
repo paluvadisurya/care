@@ -8,16 +8,17 @@ import CareModules
 struct ModuleStoreView: View {
     @Environment(CareStore.self) private var store
     @Environment(\.dismiss) private var dismiss
+    let initialPersonID: UUID?
     @State private var personID: UUID?
     @State private var category: ModuleCategory?
     private let entitlement = EntitlementService.shared
 
     init(initialPersonID: UUID?) {
-        self.personID = initialPersonID
+        self.initialPersonID = initialPersonID
     }
 
     private var person: PersonRecord? {
-        if let personID, let p = store.person(personID) { return p }
+        if let id = personID ?? initialPersonID, let p = store.person(id) { return p }
         return store.people.first
     }
 

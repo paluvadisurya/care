@@ -19,6 +19,7 @@ public enum HealthUI: ModuleUI {
 struct HealthQuickLog: View {
     @Environment(CareStore.self) private var store
     let person: PersonRecord
+    let prefillKind: ReadingKind?
     @State private var state: HealthState = .allGood
     @State private var symptoms: Set<String> = []
     @State private var readingKind: ReadingKind?
@@ -30,7 +31,7 @@ struct HealthQuickLog: View {
 
     init(person: PersonRecord, prefill: String?) {
         self.person = person
-        self.readingKind = prefill.flatMap { p in ReadingKind.allCases.first { $0.label == p } }
+        self.prefillKind = prefill.flatMap { p in ReadingKind.allCases.first { $0.label == p } }
     }
 
     var reading: HealthReading? {
@@ -84,6 +85,7 @@ struct HealthQuickLog: View {
                 CareField("Note", placeholder: "Optional", text: $note, axis: .vertical)
             }
         }
+        .task { if readingKind == nil { readingKind = prefillKind } }
     }
 }
 
