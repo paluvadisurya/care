@@ -54,12 +54,12 @@ public struct HealthReading: Codable, Hashable, Sendable {
     /// Above the commonly quoted range. This is a nudge to talk to a doctor, never a diagnosis.
     public var isAboveUsualRange: Bool {
         switch kind {
-        case .bloodPressure: (systolic ?? 0) >= 140 || (diastolic ?? 0) >= 90
+        case .bloodPressure: return (systolic ?? 0) >= 140 || (diastolic ?? 0) >= 90
         case .bloodSugar:
             if context?.lowercased().contains("fast") == true { return (value ?? 0) >= 126 }
             return (value ?? 0) >= 200
-        case .temperature: (value ?? 0) >= 38
-        case .weight: false
+        case .temperature: return (value ?? 0) >= 38
+        case .weight: return false
         }
     }
 }
