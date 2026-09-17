@@ -89,38 +89,10 @@ public enum CareFont {
         return .custom(serifItalicName, size: size, relativeTo: style)
     }
 
-    // MARK: Presets. Sizes in points at the default Dynamic Type size.
-
-    public static let screenTitle = display(34)                      // "Good morning, Surya"
-    public static let personName = display(36)                       // aura header
-    public static let heroNumeral = display(64, relativeTo: .largeTitle)
-    public static let cardTitle = displayBold(20, relativeTo: .title3)
-    public static let tileValue = displayBold(22, relativeTo: .title2)
-    public static let body = text(16)
-    public static let bodyMedium = textMedium(16)
-    public static let callout = text(15, relativeTo: .callout)
-    public static let label = textMedium(13, relativeTo: .subheadline)
-    public static let labelSemi = textSemi(13, relativeTo: .subheadline)
-    public static let caption = text(12, relativeTo: .caption)
-    public static let meta = mono(11, relativeTo: .caption2)
-    public static let button = textSemi(16, relativeTo: .body)
-    public static let chip = textMedium(13, relativeTo: .subheadline)
-    public static let tab = textMedium(11, relativeTo: .caption)
 }
 
-/// Process-wide flag. Registration only ever runs on the main actor, so a plain static is enough under MainActor default isolation.
+/// Process-wide flag. Registration only ever runs on the main actor, so a plain static is enough
+/// under MainActor default isolation.
 enum FontRegistration {
     static var done = false
-}
-
-public extension View {
-    /// Tight tracking for headlines, minus 3 to 4 percent, as the spec asks.
-    func displayTracking(_ size: CGFloat) -> some View {
-        tracking(-size * 0.035)
-    }
-
-    /// Numerals track tighter still and always use tabular figures.
-    func numeralStyle(_ size: CGFloat) -> some View {
-        tracking(-size * 0.05).monospacedDigit()
-    }
 }

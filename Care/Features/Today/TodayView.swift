@@ -5,7 +5,10 @@ import CareData
 import CareModules
 import CareIntelligence
 
-/// Home. One hero, orbs for quick check-ins, a bento of what is due, and the insight, already rendered.
+/// Home. One hero, one rail, a bento of what is due, and the insight, already written when you arrive.
+///
+/// The screen is a stack of named sections rather than one long body, so each is its own invalidation
+/// boundary and each enters on its own beat.
 struct TodayView: View {
     @Environment(CareStore.self) private var store
     @Environment(AppPreferences.self) private var prefs
@@ -17,84 +20,49 @@ struct TodayView: View {
     private var hero: Signal? { HomeRanker.hero(from: ranked) }
     private var heroAura: Aura { hero.flatMap { store.person($0.personID)?.aura } ?? store.me?.aura ?? .violetLilac }
     private var attention: Set<UUID> { HomeRanker.peopleNeedingAttention(ranked) }
-    private var greeting: String {
-        let h = Calendar.care.component(.hour, from: now)
-        switch h {
-        case 5..<12: return "Good morning,"
-        case 12..<17: return "Good afternoon,"
-        case 17..<22: return "Good evening,"
-        default: return "Still up,"
-        }
-    }
-
-    /// Up to four (person, module) tiles from the ranked signals, after the hero, one per person.
-    private var bento: [(PersonRecord, ModuleID, ModuleTodayState)] {
-        var out: [(PersonRecord, ModuleID, ModuleTodayState)] = []
-        var seen: Set<String> = []
-        for s in ranked where s.id != hero?.id {
-            let key = "\(s.personID).\(s.moduleID.rawValue)"
-            guard !seen.contains(key), let p = store.person(s.personID) else { continue }
-            seen.insert(key)
-            out.append((p, s.moduleID, store.todayState(for: p, module: s.moduleID, now: now)))
-            if out.count == 4 { break }
-        }
-        if out.count < 2, let me = store.me, me.isEnabled(.hydration), !seen.contains("\(me.id).hydration") {
-            out.append((me, .hydration, store.todayState(for: me, module: .hydration, now: now)))
-        }
-        return out
-    }
 
     var body: some View {
         ZStack {
             MeshBackground(aura: heroAura)
             ScrollView {
-                VStack(alignment: .leading, spacing: CareSpace.md) {
-                    header
-                    if let hero {
-                        heroCard(hero)
-                            .careScrollTransition()
-                    } else {
-                        EmptyState(symbol: "sparkles", title: "Everyone is fine.", message: "Nothing needs you today. That is a good day.")
-                            .careCard(radius: CareRadius.hero, strong: true)
+                VStack(alignment: .leading, spacing: CareLayout.sectionGap) {
+                    TodayHeader(now: now, name: store.me?.shortName ?? prefs.userName, me: store.me) {
+                        if let me = store.me { router.handle(.person(me.id)) }
                     }
-                    orbs
+                    .careGutter()
+                    .staggeredEntrance(index: 0)
+
+                    heroSection
+                        .careGutter()
+                        .staggeredEntrance(index: 1)
+
+                    OrbRail(people: store.others, attention: attention, showsLabels: true, addLabel: "Add") { id in
+                        router.sheet = .quickLog(QuickLogRequest(personID: id))
+                    } onLongPress: { id in
+                        router.handle(.person(id))
+                    } onAdd: {
+                        router.sheet = .addPerson
+                    }
+                    .staggeredEntrance(index: 2)
+
                     if !bento.isEmpty {
-                        LazyVGrid(columns: [GridItem(.flexible(), spacing: CareSpace.sm), GridItem(.flexible(), spacing: CareSpace.sm)], spacing: CareSpace.sm) {
-                            ForEach(Array(bento.enumerated()), id: \.offset) { _, item in
-                                Button {
-                                    router.open(ModuleRoute(personID: item.0.id, module: item.1))
-                                } label: {
-                                    BentoTile(title: "\(item.0.shortName) · \(ModuleCatalog.meta(item.1).name)", symbol: ModuleCatalog.meta(item.1).symbol,
-                                              state: item.2, accent: ModuleAccent.color(for: item.1))
-                                }
-                                .buttonStyle(.pressable(scale: 0.97))
-                            }
-                        }
-                        .careScrollTransition()
+                        bentoSection
+                            .careGutter()
+                            .staggeredEntrance(index: 3)
                     }
-                    InsightCardView(record: store.insight(scope: .home, scopeID: nil), isGenerating: insights.isGenerating(.home, nil),
-                                    errorText: insights.lastError[InsightCoordinator.key(.home, nil)], title: "Insight", now: now,
-                                    onRefresh: { Task { await insights.refreshHome(force: true) } },
-                                    onAction: { router.handle($0) })
-                        .careScrollTransition()
-                    if Calendar.care.component(.hour, from: now) >= prefs.reminders.eveningWrapHour - 1, prefs.reminders.eveningWrapEnabled {
-                        Button { router.sheet = .eveningWrap } label: {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Evening wrap").font(CareFont.textSemi(15, relativeTo: .body)).foregroundStyle(CareColor.inkText)
-                                    Text("One minute. Three questions about the people you saw.").font(CareFont.caption).foregroundStyle(CareColor.inkText.opacity(0.65))
-                                }
-                                Spacer()
-                                Image(systemName: "moon.stars.fill").foregroundStyle(CareColor.inkText)
-                            }
-                            .padding(CareSpace.md)
-                            .background(CareColor.ink, in: RoundedRectangle(cornerRadius: CareRadius.tile))
-                        }
-                        .buttonStyle(.pressable)
+
+                    insightSection
+                        .careGutter()
+                        .staggeredEntrance(index: 4)
+
+                    if showsEveningWrap {
+                        EveningWrapPrompt { router.sheet = .eveningWrap }
+                            .careGutter()
+                            .staggeredEntrance(index: 5)
                     }
                 }
-                .padding(.horizontal, CareSpace.gutter)
-                .padding(.bottom, CareSpace.tabBarClearance)
+                .padding(.top, CareSpace.xs)
+                .padding(.bottom, CareLayout.scrollBottomInset)
             }
             .scrollIndicators(.hidden)
             .refreshable {
@@ -107,63 +75,192 @@ struct TodayView: View {
         .onReceive(Timer.publish(every: 60, on: .main, in: .common).autoconnect()) { now = $0 }
     }
 
-    private var header: some View {
-        HStack(alignment: .center) {
-            ScreenTitle(eyebrow: now.formatted(.dateTime.weekday(.wide).day().month(.wide)), lead: greeting, accent: store.me?.shortName ?? prefs.userName)
-            Spacer()
-            if let me = store.me {
-                Button { router.tab = .people; router.selectedPersonID = me.id } label: {
-                    PersonOrb(initials: me.initials, aura: me.aura, size: 40)
+    // MARK: Hero
+
+    @ViewBuilder
+    private var heroSection: some View {
+        if let hero {
+            TodayHeroCard(signal: hero, person: store.person(hero.personID), now: now) { action in
+                router.perform(action)
+            }
+            .careScrollTransition()
+        } else {
+            EmptyState(symbol: "checkmark.seal",
+                       title: "Everyone is fine.",
+                       message: "Nothing needs you today. That is a good day.",
+                       aura: heroAura)
+                .careSurface(.hero)
+        }
+    }
+
+    // MARK: Bento
+
+    /// Up to four person and module pairs from the ranked signals, one entry per pair, hero excluded.
+    private var bento: [TodayTile] {
+        var out: [TodayTile] = []
+        var seen: Set<String> = []
+        for signal in ranked where signal.id != hero?.id {
+            let key = "\(signal.personID).\(signal.moduleID.rawValue)"
+            guard !seen.contains(key), let person = store.person(signal.personID) else { continue }
+            seen.insert(key)
+            out.append(TodayTile(person: person, module: signal.moduleID,
+                                 state: store.todayState(for: person, module: signal.moduleID, now: now)))
+            if out.count == 4 { break }
+        }
+        if out.count < 2, let me = store.me, me.isEnabled(.hydration), !seen.contains("\(me.id).hydration") {
+            out.append(TodayTile(person: me, module: .hydration,
+                                 state: store.todayState(for: me, module: .hydration, now: now)))
+        }
+        return out
+    }
+
+    private var bentoSection: some View {
+        CareSection("Also today") {
+            BentoGrid {
+                ForEach(bento) { entry in
+                    Button {
+                        router.open(entry.route)
+                    } label: {
+                        BentoTile(title: "\(entry.person.shortName) · \(ModuleCatalog.meta(entry.module).name)",
+                                  symbol: ModuleCatalog.meta(entry.module).symbol,
+                                  state: entry.state,
+                                  accent: ModuleAccent.color(for: entry.module),
+                                  aura: entry.person.aura)
+                    }
+                    .buttonStyle(.pressable(scale: 0.97))
+                    .careZoomSource(entry.route.id)
+                }
+            }
+        }
+        .careScrollTransition()
+    }
+
+    // MARK: Insight
+
+    private var insightSection: some View {
+        InsightCardView(record: store.insight(scope: .home, scopeID: nil),
+                        isGenerating: insights.isGenerating(.home, nil),
+                        errorText: insights.lastError[InsightCoordinator.key(.home, nil)],
+                        title: "Insight",
+                        now: now,
+                        onRefresh: { Task { await insights.refreshHome(force: true) } },
+                        onAction: { router.handle($0) })
+            .careScrollTransition()
+    }
+
+    private var showsEveningWrap: Bool {
+        prefs.reminders.eveningWrapEnabled
+            && Calendar.care.component(.hour, from: now) >= prefs.reminders.eveningWrapHour - 1
+    }
+}
+
+/// One bento entry on Today: whose it is, which module, and that module's state right now.
+private struct TodayTile: Identifiable {
+    var person: PersonRecord
+    var module: ModuleID
+    var state: ModuleTodayState
+    var route: ModuleRoute { ModuleRoute(personID: person.id, module: module) }
+    var id: String { route.id }
+}
+
+// MARK: - Sections
+
+private struct TodayHeader: View {
+    var now: Date
+    var name: String
+    var me: PersonRecord?
+    var openProfile: () -> Void
+
+    private var greeting: String {
+        switch Calendar.care.component(.hour, from: now) {
+        case 5..<12: "Good morning,"
+        case 12..<17: "Good afternoon,"
+        case 17..<22: "Good evening,"
+        default: "Still up,"
+        }
+    }
+
+    var body: some View {
+        HStack(alignment: .center, spacing: CareSpace.sm) {
+            ScreenTitle(eyebrow: now.formatted(.dateTime.weekday(.wide).day().month(.wide)),
+                        lead: greeting,
+                        accent: name)
+            Spacer(minLength: 0)
+            if let me {
+                Button(action: openProfile) {
+                    PersonOrb(person: me, size: .small)
                 }
                 .buttonStyle(.pressable)
                 .accessibilityLabel("Your profile")
             }
         }
-        .padding(.top, CareSpace.xs)
     }
+}
 
-    private func heroCard(_ s: Signal) -> some View {
-        let person = store.person(s.personID)
-        let phone = person?.settings(PetCareSettings.self, for: .petCare)?.vetPhone
-        return HeroCard(label: s.title, trailing: s.at.map { CareDates.isSameDay($0, now) ? CareDates.timeLabel($0) : CareDates.relativeDays(from: now, to: $0).capitalized },
-                        body: s.body, tone: s.tone,
-                        actions: s.actions.prefix(2).map { a in (a.title, a.isPrimary, { router.perform(a, personPhone: phone) }) }) {
-            switch s.hero {
-            case .numeral(let value, let unit): BigNumeral(value: value, unit: unit, size: 60)
-            case .countdown(let date): Countdown(to: date, now: now, size: 60)
-            case .word(let word): Text(word).font(CareFont.display(40)).displayTracking(40).foregroundStyle(s.tone == .attention ? CareColor.attention : CareColor.textPrimary)
-            case .plain: Text(s.body).font(CareFont.cardTitle).foregroundStyle(CareColor.textPrimary)
-            }
+private struct TodayHeroCard: View {
+    var signal: Signal
+    var person: PersonRecord?
+    var now: Date
+    var perform: (SignalAction) -> Void
+
+    var body: some View {
+        HeroCard(label: signal.title,
+                 trailing: signal.at.map {
+                     CareDates.isSameDay($0, now) ? CareDates.timeLabel($0) : CareDates.relativeDays(from: now, to: $0).capitalized
+                 },
+                 message: signal.body,
+                 tone: signal.tone,
+                 aura: person?.aura,
+                 actions: signal.actions.prefix(2).map { action in
+                     HeroCard.Action(title: action.title, isPrimary: action.isPrimary) { perform(action) }
+                 }) {
+            presentation
         }
     }
 
-    private var orbs: some View {
-        ScrollView(.horizontal) {
+    @ViewBuilder
+    private var presentation: some View {
+        switch signal.hero {
+        case .numeral(let value, let unit):
+            BigNumeral(value: value, unit: unit, tone: signal.tone)
+        case .countdown(let date):
+            Countdown(to: date, now: now)
+        case .word(let word):
+            BigWord(word, tone: signal.tone)
+        case .plain:
+            Text(signal.body)
+                .careType(.cardTitle)
+                .foregroundStyle(CareColor.textPrimary)
+        }
+    }
+}
+
+private struct EveningWrapPrompt: View {
+    var open: () -> Void
+
+    var body: some View {
+        Button(action: open) {
             HStack(spacing: CareSpace.sm) {
-                ForEach(store.others) { p in
-                    Button { router.sheet = .quickLog(QuickLogRequest(personID: p.id)) } label: {
-                        VStack(spacing: 4) {
-                            PersonOrb(initials: p.initials, aura: p.aura, hasAttention: attention.contains(p.id), symbol: p.relationship == .pet ? "pawprint.fill" : nil)
-                            Text(p.shortName).font(CareFont.meta).foregroundStyle(CareColor.textSecondary).lineLimit(1)
-                        }
-                    }
-                    .buttonStyle(.pressable)
-                    .contextMenu {
-                        Button("Open profile", systemImage: "person") { router.handle(.person(p.id)) }
-                    }
+                Image(systemName: "moon.stars.fill")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(CareColor.inkText)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Evening wrap")
+                        .careType(.bodyEmphasis)
+                        .foregroundStyle(CareColor.inkText)
+                    Text("One minute. Three questions about the people you saw.")
+                        .careType(.caption)
+                        .foregroundStyle(CareColor.inkText.opacity(0.68))
                 }
-                Button { router.sheet = .addPerson } label: {
-                    VStack(spacing: 4) {
-                        Image(systemName: "plus").font(.system(size: 18, weight: .semibold)).foregroundStyle(CareColor.textSecondary)
-                            .frame(width: 44, height: 44).background(CareColor.chip, in: Circle()).frame(width: 52, height: 52)
-                        Text("Add").font(CareFont.meta).foregroundStyle(CareColor.textSecondary)
-                    }
-                }
-                .buttonStyle(.pressable)
-                .accessibilityLabel("Add a person")
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(CareColor.inkText.opacity(0.6))
             }
-            .padding(.horizontal, 2)
+            .padding(CareSpace.md)
+            .background(CareColor.ink, in: RoundedRectangle(cornerRadius: CareRadius.tile))
+            .contentShape(RoundedRectangle(cornerRadius: CareRadius.tile))
         }
-        .scrollIndicators(.hidden)
+        .buttonStyle(.pressable)
     }
 }

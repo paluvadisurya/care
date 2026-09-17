@@ -128,11 +128,11 @@ struct HealthDetail: View {
                             }
                         }
                         .chartYScale(domain: 60...160)
-                        .chartXAxis { AxisMarks(values: .stride(by: .day, count: 3)) { AxisValueLabel(format: .dateTime.day().month(.abbreviated)).font(CareFont.meta) } }
-                        .chartYAxis { AxisMarks(values: [80, 120, 140]) { AxisGridLine().foregroundStyle(CareColor.separator); AxisValueLabel().font(CareFont.meta) } }
+                        .chartXAxis { AxisMarks(values: .stride(by: .day, count: 3)) { AxisValueLabel(format: .dateTime.day().month(.abbreviated)).careType(.meta) } }
+                        .chartYAxis { AxisMarks(values: [80, 120, 140]) { AxisGridLine().foregroundStyle(CareColor.separator); AxisValueLabel().careType(.meta) } }
                         .frame(height: 150)
                         Text("Dashed line at 140. A reading above it is worth a recheck, not a diagnosis.")
-                            .font(CareFont.meta).foregroundStyle(CareColor.textMuted)
+                            .careType(.meta).foregroundStyle(CareColor.textMuted)
                     }
                     .careCard()
                 }
@@ -144,7 +144,7 @@ struct HealthDetail: View {
                                     subtitle: [h.symptoms.isEmpty ? nil : h.symptoms.joined(separator: ", "), h.note, e.occurredAt.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated).hour().minute())].compactMap { $0 }.joined(separator: " · "),
                                     tint: h.reading?.isAboveUsualRange == true || h.state == .notGood ? CareColor.attention : ModuleAccent.color(for: .health)) {
                                 if h.reading?.isAboveUsualRange == true {
-                                    Text("above range").font(CareFont.meta).foregroundStyle(CareColor.attention)
+                                    Text("above range").careType(.meta).foregroundStyle(CareColor.attention)
                                 }
                             }
                         }

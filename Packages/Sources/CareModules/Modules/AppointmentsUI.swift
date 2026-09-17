@@ -38,7 +38,7 @@ struct AppointmentsDetail: View {
                         ForEach(past) { e in
                             let d = e.decode(AppointmentDetails.self)
                             CardRow(symbol: "checkmark.seal", title: e.title, subtitle: d?.summary ?? "Tap to add what was said", tint: CareColor.textMuted) {
-                                Text(e.start.formatted(.dateTime.day().month(.abbreviated))).font(CareFont.meta).foregroundStyle(CareColor.textMuted)
+                                Text(e.start.formatted(.dateTime.day().month(.abbreviated))).careType(.meta).foregroundStyle(CareColor.textMuted)
                             }
                             .onTapGesture { summaryFor = e }
                         }
@@ -67,37 +67,37 @@ struct BriefCard: View {
         VStack(alignment: .leading, spacing: CareSpace.sm) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Next visit").font(CareFont.labelSemi).foregroundStyle(CareColor.textSecondary)
-                    Text(event.title).font(CareFont.cardTitle).displayTracking(20).foregroundStyle(CareColor.textPrimary)
-                    Text("\(event.start.formatted(.dateTime.weekday(.wide).day().month(.wide).hour().minute()))\(event.location.map { " · \($0)" } ?? "")").font(CareFont.caption).foregroundStyle(CareColor.textMuted)
+                    Text("Next visit").careType(.labelEmphasis).foregroundStyle(CareColor.textSecondary)
+                    Text(event.title).careType(.cardTitle).displayTracking(20).foregroundStyle(CareColor.textPrimary)
+                    Text("\(event.start.formatted(.dateTime.weekday(.wide).day().month(.wide).hour().minute()))\(event.location.map { " · \($0)" } ?? "")").careType(.caption).foregroundStyle(CareColor.textMuted)
                 }
                 Spacer()
-                Countdown(to: event.start, now: now, size: 34, showHours: true)
+                Countdown(to: event.start, now: now, size: .large, showsHours: true)
             }
             if let d {
                 if !d.questions.isEmpty {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Questions to ask").font(CareFont.label).foregroundStyle(CareColor.textSecondary)
+                        Text("Questions to ask").careType(.label).foregroundStyle(CareColor.textSecondary)
                         ForEach(Array(d.questions.enumerated()), id: \.offset) { i, q in
                             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                Text("\(i + 1)").font(CareFont.monoMedium(11)).foregroundStyle(CareColor.violet).frame(width: 14)
-                                Text(q).font(CareFont.callout).foregroundStyle(CareColor.textPrimary)
+                                Text("\(i + 1)").careType(.metaEmphasis).foregroundStyle(CareColor.violet).frame(width: 14)
+                                Text(q).careType(.callout).foregroundStyle(CareColor.textPrimary)
                             }
                         }
                     }
                 }
                 if !d.bring.isEmpty {
-                    Text("Bring: \(d.bring.joined(separator: ", "))").font(CareFont.caption).foregroundStyle(CareColor.textSecondary)
+                    Text("Bring: \(d.bring.joined(separator: ", "))").careType(.caption).foregroundStyle(CareColor.textSecondary)
                 }
             }
             Divider().overlay(CareColor.separator)
             VStack(alignment: .leading, spacing: 4) {
-                Text("Brief, built on device").font(CareFont.label).foregroundStyle(CareColor.intelligence)
-                if !meds.isEmpty { Text("Medicines: " + meds.map { "\($0.name) \($0.dose)" }.joined(separator: ", ")).font(CareFont.caption).foregroundStyle(CareColor.textPrimary) }
+                Text("Brief, built on device").careType(.label).foregroundStyle(CareColor.intelligence)
+                if !meds.isEmpty { Text("Medicines: " + meds.map { "\($0.name) \($0.dose)" }.joined(separator: ", ")).careType(.caption).foregroundStyle(CareColor.textPrimary) }
                 let bp = health.filter { $0.kind == .bloodPressure }.prefix(5)
-                if !bp.isEmpty { Text("Recent BP: " + bp.map(\.label).joined(separator: ", ")).font(CareFont.caption).foregroundStyle(CareColor.textPrimary) }
+                if !bp.isEmpty { Text("Recent BP: " + bp.map(\.label).joined(separator: ", ")).careType(.caption).foregroundStyle(CareColor.textPrimary) }
                 let sugar = health.filter { $0.kind == .bloodSugar }.prefix(3)
-                if !sugar.isEmpty { Text("Sugar: " + sugar.map(\.label).joined(separator: ", ")).font(CareFont.caption).foregroundStyle(CareColor.textPrimary) }
+                if !sugar.isEmpty { Text("Sugar: " + sugar.map(\.label).joined(separator: ", ")).careType(.caption).foregroundStyle(CareColor.textPrimary) }
             }
         }
         .careCard(radius: CareRadius.hero, padding: CareSpace.md + 2, strong: true)

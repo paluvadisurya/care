@@ -54,7 +54,7 @@ struct SharedChecklistDetail: View {
                         .contextMenu { Button("Delete", systemImage: "trash", role: .destructive) { store.deleteEntry(e.id) } }
                         .swipeActions { Button(role: .destructive) { store.deleteEntry(e.id) } label: { Label("Delete", systemImage: "trash") } }
                     }
-                    if open.isEmpty { Text("All clear. Nothing open between you.").font(CareFont.callout).foregroundStyle(CareColor.textSecondary).padding(.horizontal, 4) }
+                    if open.isEmpty { Text("All clear. Nothing open between you.").careType(.callout).foregroundStyle(CareColor.textSecondary).padding(.horizontal, 4) }
                 }
                 if !done.isEmpty {
                     CardSection("Done", trailing: "\(done.count)") {
@@ -131,7 +131,7 @@ struct PromisesDetail: View {
                             }
                         }
                     }
-                    if items.filter({ !$0.1.kept }).isEmpty { Text("Nothing open. Promises you keep build the kind of trust nothing else does.").font(CareFont.callout).foregroundStyle(CareColor.textSecondary).padding(.horizontal, 4) }
+                    if items.filter({ !$0.1.kept }).isEmpty { Text("Nothing open. Promises you keep build the kind of trust nothing else does.").careType(.callout).foregroundStyle(CareColor.textSecondary).padding(.horizontal, 4) }
                 }
                 let kept = items.filter { $0.1.kept }
                 if !kept.isEmpty {
@@ -203,7 +203,7 @@ struct WishlistDetail: View {
                             .accessibilityLabel("More")
                         }
                     }
-                    if wants.isEmpty { Text("Share a product link into Care, or add one here.").font(CareFont.callout).foregroundStyle(CareColor.textSecondary).padding(.horizontal, 4) }
+                    if wants.isEmpty { Text("Share a product link into Care, or add one here.").careType(.callout).foregroundStyle(CareColor.textSecondary).padding(.horizontal, 4) }
                 }
                 if !noBuy.isEmpty {
                     CardSection("Please do not buy") {

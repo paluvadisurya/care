@@ -1,61 +1,81 @@
 import SwiftUI
 import CareCore
 
-/// Person profile top. Aura wash fading into content, name at 36 pt heavy, role and a status line.
-/// The parent drives `collapse` (0 expanded, 1 collapsed) from scroll geometry.
+/// The top of a person's profile. A wash of their aura fading into the content, their name at display size,
+/// their role, and one line of status written by the app.
+///
+/// `collapse` runs 0 to 1 as the screen scrolls. Every value interpolates continuously, so the header
+/// shrinks smoothly instead of snapping between two layouts.
 public struct AuraHeader: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     public var name: String
     public var role: String
     public var status: String
     public var aura: Aura
     public var initials: String
+    public var symbol: String?
     public var collapse: Double
 
-    public init(name: String, role: String, status: String, aura: Aura, initials: String, collapse: Double = 0) {
+    public init(name: String, role: String, status: String, aura: Aura, initials: String,
+                symbol: String? = nil, collapse: Double = 0) {
         self.name = name
         self.role = role
         self.status = status
         self.aura = aura
         self.initials = initials
+        self.symbol = symbol
         self.collapse = collapse
     }
 
+    private var c: Double { min(1, max(0, collapse)) }
+
     public var body: some View {
-        let c = min(1, max(0, collapse))
-        VStack(alignment: .leading, spacing: CareSpace.xxs) {
+        VStack(alignment: .leading, spacing: CareSpace.xs) {
             HStack(alignment: .center, spacing: CareSpace.sm) {
-                PersonOrb(initials: initials, aura: aura, size: 44 + (1 - c) * 14)
-                VStack(alignment: .leading, spacing: 2) {
+                PersonOrb(initials: initials, aura: aura, size: c > 0.5 ? .small : .header, symbol: symbol)
+                    .animation(CareMotion.standard(reduced: reduceMotion), value: c > 0.5)
+
+                VStack(alignment: .leading, spacing: 1) {
                     Text(role)
-                        .font(CareFont.labelSemi)
+                        .careType(.labelEmphasis)
                         .foregroundStyle(CareColor.textSecondary)
-                        .opacity(1 - c)
-                        .frame(height: c > 0.9 ? 0 : nil)
+                        .opacity(1 - c * 1.6)
                     Text(name)
-                        .font(CareFont.display(36 - c * 14))
-                        .displayTracking(36)
+                        .font(CareFont.display(CareType.screenTitle.size + 3 - c * 12, relativeTo: .title))
+                        .tracking((CareType.screenTitle.size + 3) * CareType.screenTitle.trackingRatio)
                         .foregroundStyle(CareColor.textPrimary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
                 }
-                Spacer()
+                Spacer(minLength: 0)
             }
+
             Text(status)
-                .font(CareFont.callout)
+                .careType(.callout)
                 .foregroundStyle(CareColor.textSecondary)
                 .lineLimit(2)
-                .opacity(1 - c)
-                .frame(height: c > 0.9 ? 0 : nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .opacity(1 - c * 1.8)
+                .frame(height: c > 0.55 ? 0 : nil, alignment: .top)
+                .clipped()
         }
         .padding(.horizontal, CareSpace.gutter)
         .padding(.top, CareSpace.xs)
         .padding(.bottom, CareSpace.sm)
-        .background(alignment: .top) {
-            LinearGradient(colors: [aura.startColor.opacity(0.35), aura.endColor.opacity(0.18), .clear], startPoint: .top, endPoint: .bottom)
-                .frame(height: 260)
-                .ignoresSafeArea()
-                .allowsHitTesting(false)
-        }
-        .animation(.easeInOut(duration: 0.2), value: c > 0.9)
+        .background(alignment: .top) { wash }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(name), \(role). \(status)")
+    }
+
+    private var wash: some View {
+        LinearGradient(
+            colors: [aura.startColor.opacity(0.38), aura.endColor.opacity(0.16), .clear],
+            startPoint: .top, endPoint: .bottom
+        )
+        .frame(height: CareLayout.auraWashHeight)
+        .opacity(1 - c * 0.45)
+        .ignoresSafeArea(edges: .top)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }

@@ -14,7 +14,7 @@ struct OnboardingView: View {
     @State private var drafts: [Draft] = [Draft(relationship: .partner), Draft(relationship: .parent), Draft(relationship: .pet)]
     @State private var auraIndex = 0
 
-    enum Step { case welcome, name, people }
+    enum Step: Int { case welcome, name, people }
 
     struct Draft: Identifiable {
         var id = UUID()
@@ -23,129 +23,233 @@ struct OnboardingView: View {
     }
 
     private let auras: [Aura] = [.coralRose, .skyViolet, .honeyMint, .violetLilac]
+    private var aura: Aura { auras[auraIndex % auras.count] }
 
     var body: some View {
         ZStack {
-            MeshBackground(aura: auras[auraIndex % auras.count], intensity: 1.2)
-            switch step {
-            case .welcome: welcome.transition(.opacity)
-            case .name: nameStep.transition(.asymmetric(insertion: .offset(x: 24).combined(with: .opacity), removal: .opacity))
-            case .people: peopleStep.transition(.asymmetric(insertion: .offset(x: 24).combined(with: .opacity), removal: .opacity))
+            MeshBackground(aura: aura, intensity: 1.15)
+            Group {
+                switch step {
+                case .welcome: WelcomeStep(onLocal: { advance(.name) }, onDemo: loadDemo)
+                case .name: NameStep(name: $name, onNext: saveName)
+                case .people: PeopleStep(drafts: $drafts, onFinish: finish)
+                }
             }
+            .careDirectionalTransition(.forward, distance: 26)
         }
         .animation(CareMotion.standard(reduced: reduceMotion), value: step)
         .task {
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(6))
-                withAnimation(.easeInOut(duration: 1.2)) { auraIndex += 1 }
+                try? await Task.sleep(for: .seconds(7))
+                withAnimation(.easeInOut(duration: 1.4)) { auraIndex += 1 }
             }
         }
     }
 
-    // MARK: Welcome
+    private func advance(_ next: Step) {
+        step = next
+    }
 
-    private var welcome: some View {
-        VStack(alignment: .leading, spacing: CareSpace.lg) {
-            Spacer()
+    private func loadDemo() {
+        store.seedDemo()
+        prefs.userName = store.me?.shortName ?? "you"
+        prefs.demoMode = true
+        prefs.hasOnboarded = true
+    }
+
+    private func saveName() {
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        prefs.userName = trimmed
+        if store.me == nil {
+            store.addPerson(PersonRecord(name: trimmed.isEmpty ? "You" : trimmed, relationship: .me, aura: .ink))
+        }
+        advance(.people)
+    }
+
+    private func finish() {
+        for (index, draft) in drafts.enumerated() {
+            let trimmed = draft.name.trimmingCharacters(in: .whitespaces)
+            guard !trimmed.isEmpty else { continue }
+            store.addPerson(PersonRecord(name: trimmed,
+                                         relationship: draft.relationship,
+                                         aura: Aura.suggested(for: draft.relationship, index: index)))
+        }
+        prefs.hasOnboarded = true
+    }
+}
+
+// MARK: - Steps
+
+private struct WelcomeStep: View {
+    var onLocal: () -> Void
+    var onDemo: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: CareLayout.sectionGap) {
+            Spacer(minLength: 0)
             FloatingCards()
-                .frame(height: 260)
+                .frame(maxWidth: .infinity)
+                .frame(height: 280)
                 .accessibilityHidden(true)
+
             VStack(alignment: .leading, spacing: CareSpace.sm) {
-                Text("care").font(CareFont.mono(13)).foregroundStyle(CareColor.textSecondary)
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("The people you love,").font(CareFont.display(40)).displayTracking(40)
-                    HStack(spacing: 0) {
-                        Text("finally ").font(CareFont.serifItalic(44))
-                        Text("in one place.").font(CareFont.display(40)).displayTracking(40)
-                    }
-                }
-                .foregroundStyle(CareColor.textPrimary)
-                .lineLimit(2).minimumScaleFactor(0.7)
+                Text("care")
+                    .careType(.meta)
+                    .foregroundStyle(CareColor.textSecondary)
+                Headline()
                 Text("Modules for every person. Insights every morning. Ten seconds a day.")
-                    .font(CareFont.callout).foregroundStyle(CareColor.textSecondary)
+                    .careType(.callout)
+                    .foregroundStyle(CareColor.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+            .staggeredEntrance(index: 5)
+
             VStack(spacing: CareSpace.xs) {
-                PillButton("Start on this device", style: .ink) { step = .name }
-                PillButton("Try it with a demo circle", style: .ghost) {
-                    store.seedDemo()
-                    prefs.userName = "Surya"
-                    prefs.demoMode = true
-                    prefs.hasOnboarded = true
-                }
+                PillButton("Start on this device", style: .ink, action: onLocal)
+                PillButton("Try it with a demo circle", style: .ghost, action: onDemo)
             }
+            .staggeredEntrance(index: 6)
+
             Text("Everything stays on this phone. No account, no cloud. You can bring a model key later.")
-                .font(CareFont.meta).foregroundStyle(CareColor.textMuted)
+                .careType(.meta)
+                .foregroundStyle(CareColor.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+                .staggeredEntrance(index: 7)
         }
-        .padding(CareSpace.gutter)
-        .padding(.bottom, CareSpace.md)
+        .careGutter()
+        .padding(.bottom, CareSpace.lg)
     }
+}
 
-    // MARK: Name
+/// The headline sets "finally" in serif italic. Built as one concatenated `Text` so it wraps as a paragraph.
+private struct Headline: View {
+    @ScaledMetric private var typeScale: CGFloat = 1
+    private let size: CGFloat = 38
 
-    private var nameStep: some View {
-        VStack(alignment: .leading, spacing: CareSpace.lg) {
-            Spacer()
-            ScreenTitle(eyebrow: "First, you", lead: "What should Care", accent: "call you?", size: 32)
+    var body: some View {
+        (
+            Text("The people you love, ")
+                .font(CareFont.display(size, relativeTo: .largeTitle))
+                .tracking(size * -0.035 * typeScale)
+            + Text("finally")
+                .font(CareFont.serifItalic(size * 1.12, relativeTo: .largeTitle))
+            + Text(" in one place.")
+                .font(CareFont.display(size, relativeTo: .largeTitle))
+                .tracking(size * -0.035 * typeScale)
+        )
+        .foregroundStyle(CareColor.textPrimary)
+        .lineLimit(3)
+        .minimumScaleFactor(0.7)
+        .fixedSize(horizontal: false, vertical: true)
+        .accessibilityLabel("The people you love, finally in one place.")
+    }
+}
+
+private struct NameStep: View {
+    @Binding var name: String
+    var onNext: () -> Void
+    @FocusState private var focused: Bool
+
+    private var isValid: Bool { !name.trimmingCharacters(in: .whitespaces).isEmpty }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: CareLayout.sectionGap) {
+            Spacer(minLength: 0)
+            ScreenTitle(eyebrow: "First, you", lead: "What should Care", accent: "call you?", role: .sheetTitle)
             CareField("Your name", placeholder: "Surya", text: $name)
                 .textContentType(.givenName)
-            Spacer()
-            PillButton("Next", style: .ink) {
-                let trimmed = name.trimmingCharacters(in: .whitespaces)
-                prefs.userName = trimmed
-                if store.me == nil {
-                    store.addPerson(PersonRecord(name: trimmed.isEmpty ? "You" : trimmed, relationship: .me, aura: .ink))
-                }
-                step = .people
-            }
-            .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
-            .opacity(name.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1)
+                .focused($focused)
+                .onSubmit { if isValid { onNext() } }
+            Spacer(minLength: 0)
+            PillButton("Next", style: .ink, action: onNext)
+                .disabled(!isValid)
         }
-        .padding(CareSpace.gutter)
-        .padding(.bottom, CareSpace.md)
+        .careGutter()
+        .padding(.bottom, CareSpace.lg)
+        .task { focused = true }
     }
+}
 
-    // MARK: People
+private struct PeopleStep: View {
+    @Binding var drafts: [OnboardingView.Draft]
+    var onFinish: () -> Void
 
-    private var peopleStep: some View {
-        VStack(alignment: .leading, spacing: CareSpace.md) {
-            ScreenTitle(eyebrow: "Your circle", lead: "Who do you", accent: "look after?", size: 32).padding(.top, CareSpace.xl)
-            Text("A first name and who they are is enough. Modules switch on by themselves. Contacts import comes with Phase 1.")
-                .font(CareFont.callout).foregroundStyle(CareColor.textSecondary)
+    var body: some View {
+        VStack(alignment: .leading, spacing: CareLayout.stackGap) {
+            ScreenTitle(eyebrow: "Your circle", lead: "Who do you", accent: "look after?", role: .sheetTitle)
+                .padding(.top, CareSpace.xl)
+
+            Text("A first name and who they are is enough. Modules switch on by themselves.")
+                .careType(.callout)
+                .foregroundStyle(CareColor.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+
             ScrollView {
                 VStack(spacing: CareSpace.xs) {
                     ForEach($drafts) { $draft in
-                        HStack(spacing: CareSpace.xs) {
-                            PersonOrb(initials: draft.name.isEmpty ? "?" : PersonRecord(name: draft.name, relationship: draft.relationship, aura: .ink).initials,
-                                      aura: Aura.suggested(for: draft.relationship), size: 36, symbol: draft.relationship == .pet ? "pawprint.fill" : nil)
-                            TextField(draft.relationship == .pet ? "Oreo" : draft.relationship.displayName, text: $draft.name)
-                                .font(CareFont.body).frame(minHeight: 40)
-                            Menu {
-                                ForEach(Relationship.allCases.filter { $0 != .me }, id: \.self) { r in
-                                    Button(r.displayName) { draft.relationship = r }
-                                }
-                            } label: {
-                                Text(draft.relationship.displayName).font(CareFont.chip).foregroundStyle(CareColor.textPrimary)
-                                    .padding(.horizontal, 12).frame(height: 32).background(CareColor.chip, in: Capsule())
-                            }
-                        }
-                        .careCard(radius: CareRadius.tile, padding: CareSpace.xs + 2)
+                        DraftRow(draft: $draft)
                     }
-                    Button { drafts.append(Draft(relationship: .friend)) } label: {
-                        Label("Another person", systemImage: "plus").font(CareFont.chip).foregroundStyle(CareColor.textSecondary).frame(maxWidth: .infinity).frame(height: 44)
+                    Button {
+                        withAnimation(CareMotion.standard) {
+                            drafts.append(OnboardingView.Draft(relationship: .friend))
+                        }
+                    } label: {
+                        Label("Another person", systemImage: "plus")
+                            .careType(.chipLabel)
+                            .foregroundStyle(CareColor.textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: CareLayout.touchTarget)
                     }
                     .buttonStyle(.pressable)
                 }
+                .padding(.vertical, 2)
             }
             .scrollIndicators(.hidden)
-            PillButton("Open Care", style: .ink) {
-                for (i, d) in drafts.enumerated() where !d.name.trimmingCharacters(in: .whitespaces).isEmpty {
-                    store.addPerson(PersonRecord(name: d.name.trimmingCharacters(in: .whitespaces), relationship: d.relationship, aura: Aura.suggested(for: d.relationship, index: i)))
-                }
-                prefs.hasOnboarded = true
-            }
+
+            PillButton("Open Care", style: .ink, action: onFinish)
         }
-        .padding(CareSpace.gutter)
-        .padding(.bottom, CareSpace.md)
+        .careGutter()
+        .padding(.bottom, CareSpace.lg)
+    }
+}
+
+private struct DraftRow: View {
+    @Binding var draft: OnboardingView.Draft
+
+    private var initials: String {
+        draft.name.isEmpty ? "?" : PersonRecord(name: draft.name, relationship: draft.relationship, aura: .ink).initials
+    }
+
+    var body: some View {
+        HStack(spacing: CareSpace.sm) {
+            PersonOrb(initials: initials,
+                      aura: Aura.suggested(for: draft.relationship),
+                      size: .small,
+                      symbol: draft.relationship == .pet ? "pawprint.fill" : nil)
+
+            TextField(draft.relationship == .pet ? "Oreo" : draft.relationship.displayName, text: $draft.name)
+                .careType(.body)
+                .frame(minHeight: CareLayout.touchTarget)
+
+            Menu {
+                ForEach(Relationship.allCases.filter { $0 != .me }, id: \.self) { relationship in
+                    Button(relationship.displayName) { draft.relationship = relationship }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text(draft.relationship.displayName)
+                        .careType(.chipLabel)
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 9, weight: .bold))
+                }
+                .foregroundStyle(CareColor.textPrimary)
+                .padding(.horizontal, 12)
+                .frame(height: 34)
+                .background(CareColor.chip, in: Capsule())
+            }
+            .accessibilityLabel("Relationship, \(draft.relationship.displayName)")
+        }
+        .careSurface(.row, padding: CareSpace.xs + 2)
     }
 }
 
@@ -153,42 +257,67 @@ struct OnboardingView: View {
 struct FloatingCards: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private let cards: [(String, String, String, Aura, CGFloat, CGFloat, Double)] = [
-        ("face.smiling", "Mood", "Good, 7 day trail", .coralRose, -110, -30, -8),
-        ("pills", "Medication", "2 of 2 today", .skyViolet, 100, -70, 6),
-        ("birthday.cake", "Anniversary", "in 12 days", .amberCoral, -60, 70, 4),
-        ("pawprint", "Pet care", "vet in 18 days", .honeyMint, 120, 60, -5),
-        ("phone.arrow.up.right", "Sunday call", "2 talking points", .violetLilac, 10, 0, 0),
+    private struct Card: Identifiable {
+        let id = UUID()
+        let symbol: String
+        let title: String
+        let detail: String
+        let aura: Aura
+        let x: CGFloat
+        let y: CGFloat
+        let rotation: Double
+    }
+
+    private let cards: [Card] = [
+        Card(symbol: "face.smiling", title: "Mood", detail: "Good, 7 day trail", aura: .coralRose, x: -72, y: 6, rotation: -7),
+        Card(symbol: "pills", title: "Medication", detail: "2 of 2 today", aura: .skyViolet, x: 76, y: 60, rotation: 6),
+        Card(symbol: "birthday.cake", title: "Anniversary", detail: "in 12 days", aura: .amberCoral, x: -56, y: 116, rotation: 4),
+        Card(symbol: "pawprint", title: "Pet care", detail: "vet in 18 days", aura: .honeyMint, x: 82, y: 170, rotation: -5),
+        Card(symbol: "phone.arrow.up.right", title: "Sunday call", detail: "2 talking points", aura: .violetLilac, x: -14, y: 222, rotation: 1),
     ]
 
     var body: some View {
-        ZStack {
-            ForEach(Array(cards.enumerated()), id: \.offset) { i, c in
-                HStack(spacing: 10) {
-                    Image(systemName: c.0).font(.system(size: 14, weight: .semibold)).foregroundStyle(.white)
-                        .frame(width: 32, height: 32).background(c.3.gradient, in: RoundedRectangle(cornerRadius: 10))
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(c.1).font(CareFont.textSemi(13, relativeTo: .subheadline)).foregroundStyle(CareColor.textPrimary)
-                        Text(c.2).font(CareFont.caption).foregroundStyle(CareColor.textMuted)
-                    }
-                }
-                .careCard(radius: CareRadius.tile, padding: CareSpace.sm, strong: true)
-                .rotationEffect(.degrees(c.6))
-                .offset(x: c.4, y: c.5)
-                .modifier(Float(seed: Double(i), enabled: !reduceMotion))
-                .staggeredEntrance(index: i)
+        ZStack(alignment: .top) {
+            ForEach(Array(cards.enumerated()), id: \.element.id) { index, card in
+                row(card)
+                    .offset(x: card.x, y: card.y)
+                    .rotationEffect(.degrees(card.rotation))
+                    .modifier(Drift(seed: Double(index), enabled: !reduceMotion))
+                    .staggeredEntrance(index: index)
             }
         }
     }
 
-    struct Float: ViewModifier {
+    private func row(_ card: Card) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: card.symbol)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 32, height: 32)
+                .background(card.aura.gradient, in: RoundedRectangle(cornerRadius: 10))
+            VStack(alignment: .leading, spacing: 1) {
+                Text(card.title)
+                    .careType(.labelEmphasis)
+                    .foregroundStyle(CareColor.textPrimary)
+                Text(card.detail)
+                    .careType(.caption)
+                    .foregroundStyle(CareColor.textMuted)
+            }
+            Spacer(minLength: 0)
+        }
+        .frame(width: 196)
+        .careSurface(.row, padding: CareSpace.xs + 2)
+    }
+
+    private struct Drift: ViewModifier {
         var seed: Double
         var enabled: Bool
+
         func body(content: Content) -> some View {
             if enabled {
-                TimelineView(.animation(minimumInterval: 1 / 30)) { ctx in
-                    let t = ctx.date.timeIntervalSinceReferenceDate
-                    content.offset(y: sin(t * 0.8 + seed * 1.7) * 6)
+                TimelineView(.animation(minimumInterval: 1 / 30)) { context in
+                    let t = context.date.timeIntervalSinceReferenceDate
+                    content.offset(y: sin(t * 0.7 + seed * 1.7) * 6)
                 }
             } else {
                 content

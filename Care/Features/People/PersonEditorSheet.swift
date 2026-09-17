@@ -37,7 +37,9 @@ struct PersonEditorSheet: View {
         } content: {
             VStack(alignment: .leading, spacing: CareSpace.md) {
                 HStack(spacing: CareSpace.sm) {
-                    PersonOrb(initials: PersonRecord(name: name.isEmpty ? "?" : name, relationship: relationship, aura: aura).initials, aura: aura, size: 56, symbol: relationship == .pet ? "pawprint.fill" : nil)
+                    PersonOrb(initials: PersonRecord(name: name.isEmpty ? "?" : name, relationship: relationship, aura: aura).initials,
+                              aura: aura, size: .hero,
+                              symbol: relationship == .pet ? "pawprint.fill" : nil)
                     CareField("Name", placeholder: "Srivalli", text: $name)
                 }
                 VStack(alignment: .leading, spacing: CareSpace.xs) {
@@ -49,17 +51,7 @@ struct PersonEditorSheet: View {
                 }
                 VStack(alignment: .leading, spacing: CareSpace.xs) {
                     SectionLabel("Aura", trailing: aura.name)
-                    HStack(spacing: CareSpace.xs) {
-                        ForEach(Aura.presets, id: \.self) { a in
-                            Button { aura = a } label: {
-                                Circle().fill(a.gradient).frame(width: 34, height: 34)
-                                    .overlay { if a == aura { Circle().strokeBorder(CareColor.ink, lineWidth: 2.5).padding(-4) } }
-                                    .frame(width: 42, height: 42)
-                            }
-                            .buttonStyle(.pressable)
-                            .accessibilityLabel(a.name)
-                        }
-                    }
+                    AuraPicker(selection: $aura)
                 }
                 CareToggleRow(relationship == .pet ? "Gotcha day" : "Birthday", detail: "Becomes a yearly date with a countdown", isOn: $hasBirthday)
                 if hasBirthday { CareDateRow("Date", date: $birthday, components: [.date]) }
@@ -67,7 +59,7 @@ struct PersonEditorSheet: View {
                 CareField("Note", placeholder: relationship == .parent ? "BP patient, Mom gives the evening tablets" : "Anything you want to remember", text: $note, axis: .vertical)
                 if existing == nil {
                     Text("Starts with: " + relationship.defaultModules.map { ModuleCatalog.meta($0).name }.joined(separator: ", ") + ". Change any time in Modules.")
-                        .font(CareFont.meta).foregroundStyle(CareColor.textMuted)
+                        .careType(.meta).foregroundStyle(CareColor.textMuted)
                 }
                 if let existing, existing.relationship != .me {
                     PillButton("Remove \(existing.shortName)", style: .ghost, compact: true) { confirmDelete = true }
@@ -101,5 +93,42 @@ struct PersonEditorSheet: View {
             }
             router.selectedPersonID = p.id
         }
+    }
+}
+
+/// The eight aura presets as swatches. Each reserves a full touch target and its selection ring is drawn
+/// inside that reserved space, so the row never clips at either end.
+private struct AuraPicker: View {
+    @Binding var selection: Aura
+
+    var body: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: CareSpace.xs) {
+                ForEach(Aura.presets, id: \.self) { aura in
+                    Button { selection = aura } label: {
+                        ZStack {
+                            Circle()
+                                .fill(aura.gradient)
+                                .frame(width: 34, height: 34)
+                            if aura == selection {
+                                Circle()
+                                    .strokeBorder(CareColor.ink, lineWidth: 2.5)
+                                    .frame(width: 42, height: 42)
+                                    .transition(.scale(scale: 0.8).combined(with: .opacity))
+                            }
+                        }
+                        .frame(width: CareLayout.touchTarget, height: CareLayout.touchTarget)
+                        .contentShape(Circle())
+                    }
+                    .buttonStyle(.pressable(scale: 0.9))
+                    .accessibilityLabel(aura.name)
+                    .accessibilityAddTraits(aura == selection ? .isSelected : [])
+                }
+            }
+            .padding(.vertical, 2)
+        }
+        .scrollIndicators(.hidden)
+        .scrollClipDisabled()
+        .animation(CareMotion.snappy, value: selection)
     }
 }

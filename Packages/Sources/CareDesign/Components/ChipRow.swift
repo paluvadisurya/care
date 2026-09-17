@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Single or multi select chips. Selected fills ink; spring 0.25.
+/// Single or multi select chips in a scrolling row. Selected fills ink.
 public struct ChipRow<Item: Hashable>: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     public var items: [Item]
@@ -22,14 +22,17 @@ public struct ChipRow<Item: Hashable>: View {
                     Chip(text: label(item), isSelected: selection.contains(item)) { onTap(item) }
                 }
             }
-            .padding(.horizontal, 1)
+            .padding(.vertical, 2)
+            .scrollTargetLayout()
         }
         .scrollIndicators(.hidden)
+        .scrollClipDisabled()
         .animation(CareMotion.snappy(reduced: reduceMotion), value: selection)
     }
 }
 
 public struct Chip: View {
+    @ScaledMetric(relativeTo: .subheadline) private var height: CGFloat = 36
     public var text: String
     public var isSelected: Bool
     public var action: () -> Void
@@ -43,11 +46,13 @@ public struct Chip: View {
     public var body: some View {
         Button(action: action) {
             Text(text)
-                .font(CareFont.chip)
+                .careType(.chipLabel)
                 .foregroundStyle(isSelected ? CareColor.inkText : CareColor.textPrimary)
-                .padding(.horizontal, 13)
-                .frame(height: 34)
+                .padding(.horizontal, 14)
+                .frame(height: height)
                 .background(isSelected ? CareColor.ink : CareColor.chip, in: Capsule())
+                .frame(minHeight: CareLayout.touchTarget)
+                .contentShape(Capsule())
         }
         .buttonStyle(.pressable(scale: 0.94))
         .sensoryFeedback(.selection, trigger: isSelected)

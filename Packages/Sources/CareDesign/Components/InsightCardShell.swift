@@ -1,63 +1,63 @@
 import SwiftUI
 
-/// The violet-bordered surface every insight renders in. Blocks come from CareModules' renderer.
+/// The violet surface every insight renders in. The sparkle animates only while something is being written,
+/// and the refresh control shows its cooldown rather than silently doing nothing.
 public struct InsightCardShell<Content: View>: View {
-    @Environment(\.colorScheme) private var scheme
     public var title: String
     public var meta: String
     public var isGenerating: Bool
+    public var canRefresh: Bool
     public var onRefresh: (() -> Void)?
     public var content: Content
 
-    public init(title: String, meta: String, isGenerating: Bool = false, onRefresh: (() -> Void)? = nil, @ViewBuilder content: () -> Content) {
+    public init(title: String, meta: String, isGenerating: Bool = false, canRefresh: Bool = true,
+                onRefresh: (() -> Void)? = nil, @ViewBuilder content: () -> Content) {
         self.title = title
         self.meta = meta
         self.isGenerating = isGenerating
+        self.canRefresh = canRefresh
         self.onRefresh = onRefresh
         self.content = content()
     }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: CareSpace.sm) {
-            HStack(spacing: CareSpace.xs) {
-                Image(systemName: "sparkle")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(CareColor.intelligence)
-                    .symbolEffect(.variableColor.iterative, isActive: isGenerating)
-                Text(title)
-                    .font(CareFont.labelSemi)
-                    .foregroundStyle(CareColor.intelligence)
-                Spacer()
-                Text(meta)
-                    .font(CareFont.meta)
-                    .foregroundStyle(CareColor.textMuted)
-                if let onRefresh {
-                    Button(action: onRefresh) {
-                        Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(CareColor.textSecondary)
-                            .frame(width: 28, height: 28)
-                            .background(CareColor.chip, in: Circle())
-                    }
-                    .buttonStyle(.pressable(scale: 0.9))
-                    .accessibilityLabel("Refresh insight")
-                    .disabled(isGenerating)
-                }
-            }
+            header
             content
         }
-        .padding(CareSpace.md)
-        .background {
-            RoundedRectangle(cornerRadius: CareRadius.card)
-                .fill(.ultraThinMaterial)
-            RoundedRectangle(cornerRadius: CareRadius.card)
-                .fill(LinearGradient(colors: [CareColor.lilac.opacity(scheme == .dark ? 0.22 : 0.35), CareColor.surface], startPoint: .topLeading, endPoint: .bottomTrailing))
+        .careSurface(.intelligence)
+    }
+
+    private var header: some View {
+        HStack(spacing: CareSpace.xs) {
+            Image(systemName: "sparkle")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(CareColor.intelligence)
+                .symbolEffect(.variableColor.iterative, isActive: isGenerating)
+            Text(title)
+                .careType(.labelEmphasis)
+                .foregroundStyle(CareColor.intelligence)
+            Spacer(minLength: CareSpace.xs)
+            Text(meta)
+                .careType(.meta)
+                .foregroundStyle(CareColor.textMuted)
+            if let onRefresh {
+                Button(action: onRefresh) {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(canRefresh ? CareColor.textSecondary : CareColor.textMuted)
+                        .rotationEffect(.degrees(isGenerating ? 360 : 0))
+                        .animation(isGenerating ? .linear(duration: 1).repeatForever(autoreverses: false) : .default,
+                                   value: isGenerating)
+                        .frame(width: 30, height: 30)
+                        .background(CareColor.chip, in: Circle())
+                        .frame(width: CareLayout.touchTarget, height: CareLayout.touchTarget)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.pressable(scale: 0.9))
+                .disabled(isGenerating || !canRefresh)
+                .accessibilityLabel(canRefresh ? "Refresh insight" : "Refreshed recently")
+            }
         }
-        .overlay {
-            RoundedRectangle(cornerRadius: CareRadius.card)
-                .strokeBorder(CareColor.intelligence.opacity(0.45), lineWidth: 1)
-        }
-        .shadow(color: CareColor.intelligence.opacity(scheme == .dark ? 0.25 : 0.18), radius: 28, y: 10)
-        .clipShape(RoundedRectangle(cornerRadius: CareRadius.card))
     }
 }

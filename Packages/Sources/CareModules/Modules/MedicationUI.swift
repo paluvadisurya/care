@@ -29,7 +29,7 @@ struct DoseSlotRow: View {
             case .taken:
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(CareColor.positive).font(.system(size: 22))
             case .skipped:
-                Text("skipped").font(CareFont.meta).foregroundStyle(CareColor.textMuted)
+                Text("skipped").careType(.meta).foregroundStyle(CareColor.textMuted)
             default:
                 HStack(spacing: 6) {
                     PillButton("Taken", style: .ink, compact: true) { log(.taken) }
@@ -57,12 +57,12 @@ struct DoseSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: CareSpace.sm) {
                     HStack {
-                        Text("\(person.shortName)'s doses today").font(CareFont.display(26)).displayTracking(26).foregroundStyle(CareColor.textPrimary)
+                        Text("\(person.shortName)'s doses today").careType(.sheetTitle).displayTracking(26).foregroundStyle(CareColor.textPrimary)
                         Spacer()
                         IconButton("xmark", label: "Close") { dismiss() }
                     }
                     ForEach(slots) { DoseSlotRow(person: person, slot: $0) }
-                    if slots.isEmpty { Text("No medicines set up yet.").font(CareFont.callout).foregroundStyle(CareColor.textSecondary) }
+                    if slots.isEmpty { Text("No medicines set up yet.").careType(.callout).foregroundStyle(CareColor.textSecondary) }
                 }
                 .padding(CareSpace.gutter)
             }
@@ -88,7 +88,7 @@ struct MedicationDetail: View {
             VStack(alignment: .leading, spacing: CareSpace.md) {
                 CardSection("Today") {
                     ForEach(today) { DoseSlotRow(person: person, slot: $0) }
-                    if today.isEmpty { Text("Nothing scheduled today.").font(CareFont.callout).foregroundStyle(CareColor.textSecondary) }
+                    if today.isEmpty { Text("Nothing scheduled today.").careType(.callout).foregroundStyle(CareColor.textSecondary) }
                 }
                 if let a7 = adherence7 {
                     HStack(spacing: CareSpace.sm) {
@@ -102,7 +102,7 @@ struct MedicationDetail: View {
                                 subtitle: [m.times.map(\.label).joined(separator: ", "), m.purpose, m.refillDate.map { "refill \(CareDates.relativeDays(from: ctx.now, to: $0))" }].compactMap { $0 }.joined(separator: " · "),
                                 tint: ModuleAccent.color(for: .medication)) {
                             if let r = m.refillDate, CareDates.daysBetween(ctx.now, r) <= 5 {
-                                Text("refill").font(CareFont.meta).foregroundStyle(CareColor.upcoming)
+                                Text("refill").careType(.meta).foregroundStyle(CareColor.upcoming)
                             }
                         }
                         .contextMenu {
@@ -123,10 +123,10 @@ struct MedicationDetail: View {
 
     func adherenceTile(_ label: String, _ value: Double) -> some View {
         HStack(spacing: CareSpace.sm) {
-            Ring(progress: value, size: 52, lineWidth: 7, gradient: [CareColor.mint, CareColor.sky])
+            Ring(progress: value, size: .row, gradient: [CareColor.mint, CareColor.sky])
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(Int((value * 100).rounded()))%").font(CareFont.tileValue).numeralStyle(22).foregroundStyle(CareColor.textPrimary)
-                Text("taken, \(label)").font(CareFont.caption).foregroundStyle(CareColor.textMuted)
+                Text("\(Int((value * 100).rounded()))%").careType(.tileValue).numeralStyle(22).foregroundStyle(CareColor.textPrimary)
+                Text("taken, \(label)").careType(.caption).foregroundStyle(CareColor.textMuted)
             }
             Spacer(minLength: 0)
         }

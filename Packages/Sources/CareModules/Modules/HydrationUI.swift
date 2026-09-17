@@ -31,14 +31,14 @@ struct HydrationQuickLog: View {
             MeshBackground(aura: person.aura, intensity: 0.8)
             VStack(spacing: CareSpace.lg) {
                 HStack {
-                    Text("Water for \(person.shortName)").font(CareFont.display(26)).displayTracking(26).foregroundStyle(CareColor.textPrimary)
+                    Text("Water for \(person.shortName)").careType(.sheetTitle).displayTracking(26).foregroundStyle(CareColor.textPrimary)
                     Spacer()
                     IconButton("xmark", label: "Close") { dismiss() }
                 }
-                Ring(progress: Double(total) / Double(max(1, settings.targetML)), size: 168, lineWidth: 16, gradient: [CareColor.sky, CareColor.violet]) {
+                Ring(progress: Double(total) / Double(max(1, settings.targetML)), size: .jumbo, gradient: [CareColor.sky, CareColor.violet]) {
                     VStack(spacing: 2) {
-                        Text(ModuleHelpers.litres(total)).font(CareFont.display(38)).numeralStyle(38).foregroundStyle(CareColor.textPrimary).contentTransition(.numericText())
-                        Text("of \(ModuleHelpers.litres(settings.targetML))").font(CareFont.caption).foregroundStyle(CareColor.textMuted)
+                        Text(ModuleHelpers.litres(total)).careType(.screenTitle).numeralStyle(38).foregroundStyle(CareColor.textPrimary).contentTransition(.numericText())
+                        Text("of \(ModuleHelpers.litres(settings.targetML))").careType(.caption).foregroundStyle(CareColor.textMuted)
                     }
                 }
                 HStack(spacing: CareSpace.xs) {
@@ -97,7 +97,7 @@ struct HydrationDetail: View {
                             .cornerRadius(5)
                         RuleMark(y: .value("Target", settings.targetML)).foregroundStyle(CareColor.textMuted.opacity(0.5)).lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
                     }
-                    .chartXAxis { AxisMarks(values: .stride(by: .day)) { AxisValueLabel(format: .dateTime.weekday(.narrow)).font(CareFont.meta) } }
+                    .chartXAxis { AxisMarks(values: .stride(by: .day)) { AxisValueLabel(format: .dateTime.weekday(.narrow)).careType(.meta) } }
                     .chartYAxis(.hidden)
                     .frame(height: 120)
                 }
@@ -105,7 +105,7 @@ struct HydrationDetail: View {
                 VStack(alignment: .leading, spacing: CareSpace.xs) {
                     SectionLabel("Daily target")
                     HStack {
-                        Text(ModuleHelpers.litres(settings.targetML)).font(CareFont.tileValue).foregroundStyle(CareColor.textPrimary).contentTransition(.numericText())
+                        Text(ModuleHelpers.litres(settings.targetML)).careType(.tileValue).foregroundStyle(CareColor.textPrimary).contentTransition(.numericText())
                         Spacer()
                         Stepper("Target", value: Binding(get: { settings.targetML }, set: { new in
                             var p = person

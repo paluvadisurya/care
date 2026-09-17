@@ -48,28 +48,28 @@ struct CallRhythmDetail: View {
             VStack(alignment: .leading, spacing: CareSpace.md) {
                 VStack(alignment: .leading, spacing: CareSpace.xs) {
                     HStack {
-                        Text("Talking points").font(CareFont.labelSemi).foregroundStyle(CareColor.intelligence)
+                        Text("Talking points").careType(.labelEmphasis).foregroundStyle(CareColor.intelligence)
                         Spacer()
-                        Text("from mentions and events").font(CareFont.meta).foregroundStyle(CareColor.textMuted)
+                        Text("from mentions and events").careType(.meta).foregroundStyle(CareColor.textMuted)
                     }
                     if points.isEmpty {
-                        Text("Nothing saved yet. Mentions and upcoming events show up here.").font(CareFont.callout).foregroundStyle(CareColor.textSecondary)
+                        Text("Nothing saved yet. Mentions and upcoming events show up here.").careType(.callout).foregroundStyle(CareColor.textSecondary)
                     }
                     ForEach(Array(points.enumerated()), id: \.offset) { i, p in
                         HStack(alignment: .firstTextBaseline, spacing: 8) {
-                            Text("\(i + 1)").font(CareFont.monoMedium(11)).foregroundStyle(CareColor.violet).frame(width: 14)
-                            Text(p).font(CareFont.callout).foregroundStyle(CareColor.textPrimary)
+                            Text("\(i + 1)").careType(.metaEmphasis).foregroundStyle(CareColor.violet).frame(width: 14)
+                            Text(p).careType(.callout).foregroundStyle(CareColor.textPrimary)
                         }
                     }
                     if let city = person.homeCity {
-                        Text("Weather in \(city) arrives with WeatherKit in Phase 1.").font(CareFont.meta).foregroundStyle(CareColor.textMuted)
+                        Text("Weather in \(city) arrives with WeatherKit in Phase 1.").careType(.meta).foregroundStyle(CareColor.textMuted)
                     }
                 }
                 .careCard(strong: true)
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Rhythm").font(CareFont.label).foregroundStyle(CareColor.textSecondary)
-                        Text("Every \(settings.weekdayName), \(TimeOfDay(hour: settings.hour).label)").font(CareFont.bodyMedium).foregroundStyle(CareColor.textPrimary)
+                        Text("Rhythm").careType(.label).foregroundStyle(CareColor.textSecondary)
+                        Text("Every \(settings.weekdayName), \(TimeOfDay(hour: settings.hour).label)").careType(.bodyEmphasis).foregroundStyle(CareColor.textPrimary)
                     }
                     Spacer()
                     PillButton("Change", style: .ghost, compact: true) { showSettings = true }

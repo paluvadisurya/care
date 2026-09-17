@@ -27,19 +27,19 @@ struct TravelPlansDetail: View {
                     VStack(alignment: .leading, spacing: CareSpace.sm) {
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(next.trip.travelers.isEmpty ? "Trip" : next.trip.travelers.joined(separator: " and ")).font(CareFont.labelSemi).foregroundStyle(CareColor.textSecondary)
-                                Text(next.trip.destination).font(CareFont.display(32)).displayTracking(32).foregroundStyle(CareColor.textPrimary)
-                                Text("\(next.trip.from.formatted(.dateTime.day().month(.abbreviated))) to \(next.trip.to.formatted(.dateTime.day().month(.abbreviated)))").font(CareFont.caption).foregroundStyle(CareColor.textMuted)
+                                Text(next.trip.travelers.isEmpty ? "Trip" : next.trip.travelers.joined(separator: " and ")).careType(.labelEmphasis).foregroundStyle(CareColor.textSecondary)
+                                Text(next.trip.destination).careType(.screenTitle).displayTracking(32).foregroundStyle(CareColor.textPrimary)
+                                Text("\(next.trip.from.formatted(.dateTime.day().month(.abbreviated))) to \(next.trip.to.formatted(.dateTime.day().month(.abbreviated)))").careType(.caption).foregroundStyle(CareColor.textMuted)
                             }
                             Spacer()
-                            Countdown(to: next.trip.from, now: ctx.now, size: 40, showHours: false)
+                            Countdown(to: next.trip.from, now: ctx.now, size: .large, showsHours: false)
                         }
-                        if let notes = next.trip.notes { Text(notes).font(CareFont.callout).foregroundStyle(CareColor.textSecondary) }
+                        if let notes = next.trip.notes { Text(notes).careType(.callout).foregroundStyle(CareColor.textSecondary) }
                         VStack(alignment: .leading, spacing: 6) {
                             HStack {
-                                Text("Packing").font(CareFont.label).foregroundStyle(CareColor.textSecondary)
+                                Text("Packing").careType(.label).foregroundStyle(CareColor.textSecondary)
                                 Spacer()
-                                Text("\(next.trip.packedCount) of \(next.trip.packing.count)").font(CareFont.meta).foregroundStyle(CareColor.textMuted)
+                                Text("\(next.trip.packedCount) of \(next.trip.packing.count)").careType(.meta).foregroundStyle(CareColor.textMuted)
                             }
                             ForEach(next.trip.packing) { item in
                                 HStack {
@@ -48,12 +48,12 @@ struct TravelPlansDetail: View {
                                         if let i = t.packing.firstIndex(where: { $0.id == item.id }) { t.packing[i].done = new }
                                         store.updateEntry(next.entry.id, payload: t)
                                     }))
-                                    Text(item.text).font(CareFont.body).foregroundStyle(item.done ? CareColor.textMuted : CareColor.textPrimary).strikethrough(item.done)
+                                    Text(item.text).careType(.body).foregroundStyle(item.done ? CareColor.textMuted : CareColor.textPrimary).strikethrough(item.done)
                                     Spacer()
                                 }
                             }
                             HStack {
-                                TextField("Add to the list", text: $newItem).font(CareFont.body)
+                                TextField("Add to the list", text: $newItem).careType(.body)
                                     .onSubmit { addItem(to: next) }
                                 IconButton("plus", label: "Add item") { addItem(to: next) }
                             }

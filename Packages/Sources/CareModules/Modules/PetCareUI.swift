@@ -77,10 +77,10 @@ struct PetCareDetail: View {
                     ForEach(dues, id: \.kind) { d in
                         CardRow(symbol: d.kind.symbol, title: d.kind.label, subtitle: d.note ?? d.date.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)),
                                 tint: d.days <= 3 ? CareColor.attention : d.days <= 14 ? CareColor.upcoming : ModuleAccent.color(for: .petCare)) {
-                            Text(d.days <= 0 ? "due" : "\(d.days)d").font(CareFont.monoMedium(12)).foregroundStyle(d.days <= 3 ? CareColor.attention : CareColor.textMuted)
+                            Text(d.days <= 0 ? "due" : "\(d.days)d").careType(.metaEmphasis).foregroundStyle(d.days <= 3 ? CareColor.attention : CareColor.textMuted)
                         }
                     }
-                    if dues.isEmpty { Text("Log a vet visit, vaccine or food order and the next due date appears here.").font(CareFont.callout).foregroundStyle(CareColor.textSecondary).padding(.horizontal, 4) }
+                    if dues.isEmpty { Text("Log a vet visit, vaccine or food order and the next due date appears here.").careType(.callout).foregroundStyle(CareColor.textSecondary).padding(.horizontal, 4) }
                 }
                 if weights.count >= 2 {
                     VStack(alignment: .leading, spacing: CareSpace.xs) {
@@ -91,9 +91,9 @@ struct PetCareDetail: View {
                 }
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("\(settings.breed.isEmpty ? settings.species : settings.breed)").font(CareFont.bodyMedium).foregroundStyle(CareColor.textPrimary)
-                        if let vet = settings.vetName { Text("Vet: \(vet)").font(CareFont.caption).foregroundStyle(CareColor.textSecondary) }
-                        if let food = settings.foodBrand { Text("Food: \(food), \(settings.foodDaysSupply) days a bag").font(CareFont.caption).foregroundStyle(CareColor.textSecondary) }
+                        Text("\(settings.breed.isEmpty ? settings.species : settings.breed)").careType(.bodyEmphasis).foregroundStyle(CareColor.textPrimary)
+                        if let vet = settings.vetName { Text("Vet: \(vet)").careType(.caption).foregroundStyle(CareColor.textSecondary) }
+                        if let food = settings.foodBrand { Text("Food: \(food), \(settings.foodDaysSupply) days a bag").careType(.caption).foregroundStyle(CareColor.textSecondary) }
                     }
                     Spacer()
                     PillButton("Edit", style: .ghost, compact: true) { showSettings = true }
@@ -146,9 +146,9 @@ struct PetSettingsSheet: View {
                 CareField("Vet", placeholder: "Dr. Meera, Cessna Lifeline", text: $vet)
                 CareField("Food", placeholder: "Royal Canin, 3 kg", text: $food)
                 HStack {
-                    Text("Days a bag lasts").font(CareFont.label).foregroundStyle(CareColor.textSecondary)
+                    Text("Days a bag lasts").careType(.label).foregroundStyle(CareColor.textSecondary)
                     Spacer()
-                    Stepper("\(days)", value: $days, in: 5...120, step: 5).font(CareFont.bodyMedium).tint(CareColor.ink)
+                    Stepper("\(days)", value: $days, in: 5...120, step: 5).careType(.bodyEmphasis).tint(CareColor.ink)
                 }
                 .padding(.horizontal, CareSpace.sm).frame(minHeight: 46)
                 .background(CareColor.surfaceStrong, in: RoundedRectangle(cornerRadius: CareRadius.inner))

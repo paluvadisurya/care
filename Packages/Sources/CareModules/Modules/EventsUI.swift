@@ -37,8 +37,8 @@ struct EventsDetail: View {
             VStack(alignment: .leading, spacing: CareSpace.md) {
                 ForEach(awaiting) { e in
                     VStack(alignment: .leading, spacing: CareSpace.xs) {
-                        Text("How did it go?").font(CareFont.labelSemi).foregroundStyle(CareColor.upcoming)
-                        Text(e.title).font(CareFont.cardTitle).foregroundStyle(CareColor.textPrimary)
+                        Text("How did it go?").careType(.labelEmphasis).foregroundStyle(CareColor.upcoming)
+                        Text(e.title).careType(.cardTitle).foregroundStyle(CareColor.textPrimary)
                         HStack(spacing: CareSpace.xs) {
                             ForEach(EventOutcome.allCases, id: \.self) { o in
                                 PillButton(o.label, style: o == .wentWell ? .ink : .ghost, compact: true) {
@@ -51,13 +51,13 @@ struct EventsDetail: View {
                 }
                 CardSection("Coming up", trailing: "\(upcoming.count)") {
                     if upcoming.isEmpty {
-                        Text("Nothing ahead. Add what is happening in \(person.shortName)'s life.").font(CareFont.callout).foregroundStyle(CareColor.textSecondary).padding(.horizontal, 4)
+                        Text("Nothing ahead. Add what is happening in \(person.shortName)'s life.").careType(.callout).foregroundStyle(CareColor.textSecondary).padding(.horizontal, 4)
                     }
                     ForEach(upcoming) { e in
                         CardRow(symbol: e.category.symbol, title: e.title,
                                 subtitle: "\(e.start.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated).hour().minute())) · \(e.category.displayName)\(e.supportNote.map { " · \($0)" } ?? "")",
                                 tint: e.category == .health ? CareColor.attention : ModuleAccent.color(for: .events)) {
-                            Text(CareDates.relativeDays(from: ctx.now, to: e.start)).font(CareFont.meta).foregroundStyle(CareColor.textMuted)
+                            Text(CareDates.relativeDays(from: ctx.now, to: e.start)).careType(.meta).foregroundStyle(CareColor.textMuted)
                         }
                         .contextMenu {
                             Button("Delete", systemImage: "trash", role: .destructive) { store.deleteEvent(e.id) }
@@ -70,7 +70,7 @@ struct EventsDetail: View {
                             let outcome = EventsLogic.followUp(for: e, ctx)?.outcome
                             CardRow(symbol: e.category.symbol, title: e.title, subtitle: e.start.formatted(.dateTime.day().month(.abbreviated).year()), tint: CareColor.textMuted, isDone: false) {
                                 if let outcome {
-                                    Text(outcome.label).font(CareFont.meta).foregroundStyle(outcome == .hard ? CareColor.attention : CareColor.positive)
+                                    Text(outcome.label).careType(.meta).foregroundStyle(outcome == .hard ? CareColor.attention : CareColor.positive)
                                 }
                             }
                         }
@@ -111,7 +111,7 @@ struct EventComposer: View {
                 VStack(alignment: .leading, spacing: CareSpace.xs) {
                     SectionLabel("Category", trailing: category == nil ? "guessed from the title" : nil)
                     ChipRow(items: EventCategory.allCases, selection: [resolvedCategory], label: { $0.displayName }) { category = $0 }
-                    Text(resolvedCategory.examples).font(CareFont.meta).foregroundStyle(CareColor.textMuted)
+                    Text(resolvedCategory.examples).careType(.meta).foregroundStyle(CareColor.textMuted)
                 }
                 CareDateRow("When", date: $start, components: allDay ? [.date] : [.date, .hourAndMinute])
                 CareToggleRow("All day", isOn: $allDay)
@@ -119,7 +119,7 @@ struct EventComposer: View {
                 CareField("How to support", placeholder: resolvedCategory.defaults.suggestedAction, text: $note, axis: .vertical)
                 CareToggleRow("Ask me how it went", detail: "A nudge after it ends", isOn: $followUp)
                 Text("Reminders: \(resolvedCategory.defaults.leadTimeDays.map { "\($0)d before" }.joined(separator: ", ")), and the day of.")
-                    .font(CareFont.meta).foregroundStyle(CareColor.textMuted)
+                    .careType(.meta).foregroundStyle(CareColor.textMuted)
             }
         }
     }

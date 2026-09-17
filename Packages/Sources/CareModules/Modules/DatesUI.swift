@@ -25,20 +25,20 @@ struct DatesDetail: View {
                 if let next = upcoming.first {
                     VStack(alignment: .leading, spacing: CareSpace.xs) {
                         HStack {
-                            Text(next.event.title).font(CareFont.labelSemi).foregroundStyle(CareColor.textSecondary)
+                            Text(next.event.title).careType(.labelEmphasis).foregroundStyle(CareColor.textSecondary)
                             Spacer()
-                            Text(next.date.formatted(.dateTime.weekday(.wide).day().month(.wide))).font(CareFont.meta).foregroundStyle(CareColor.textMuted)
+                            Text(next.date.formatted(.dateTime.weekday(.wide).day().month(.wide))).careType(.meta).foregroundStyle(CareColor.textMuted)
                         }
-                        Countdown(to: next.date, now: ctx.now, size: 64, showHours: next.days < 3)
+                        Countdown(to: next.date, now: ctx.now, size: .hero, showsHours: next.days < 3)
                         if let y = next.years, y > 0 {
                             Text("The \(DatesLogic.ordinal(y)).\(DatesLogic.lastGift(for: next.event, ctx).map { " Last year: \($0.gift)." } ?? " No gift logged last year.")")
-                                .font(CareFont.callout).foregroundStyle(CareColor.textSecondary)
+                                .careType(.callout).foregroundStyle(CareColor.textSecondary)
                         }
                         HStack(spacing: CareSpace.xs) {
                             PillButton("Log a gift", style: .ink, compact: true) { giftFor = next.event }
                             if person.isEnabled(.wishlist) {
                                 NavigationLink(value: ModuleRoute(personID: person.id, module: .wishlist)) {
-                                    Text("Wishlist").font(CareFont.chip).foregroundStyle(CareColor.textPrimary).padding(.horizontal, CareSpace.sm).frame(height: 36).background(CareColor.chip, in: Capsule())
+                                    Text("Wishlist").careType(.chipLabel).foregroundStyle(CareColor.textPrimary).padding(.horizontal, CareSpace.sm).frame(height: 36).background(CareColor.chip, in: Capsule())
                                 }
                                 .buttonStyle(.pressable)
                             }
@@ -51,7 +51,7 @@ struct DatesDetail: View {
                         CardRow(symbol: u.event.category.symbol, title: u.event.title,
                                 subtitle: "\(u.date.formatted(.dateTime.day().month(.abbreviated)))\(u.years.map { $0 > 0 ? " · the \(DatesLogic.ordinal($0))" : "" } ?? "")",
                                 tint: ModuleAccent.color(for: .dates)) {
-                            Text(u.days == 0 ? "today" : "\(u.days)d").font(CareFont.monoMedium(12)).foregroundStyle(u.days <= 14 ? CareColor.upcoming : CareColor.textMuted)
+                            Text(u.days == 0 ? "today" : "\(u.days)d").careType(.metaEmphasis).foregroundStyle(u.days <= 14 ? CareColor.upcoming : CareColor.textMuted)
                         }
                         .contextMenu {
                             Button("Log a gift", systemImage: "gift") { giftFor = u.event }
@@ -108,9 +108,9 @@ struct GiftSheet: View {
             VStack(spacing: CareSpace.sm) {
                 CareField("Gift", placeholder: "Dinner at Olive, a book…", text: $gift)
                 HStack {
-                    Text("Year").font(CareFont.label).foregroundStyle(CareColor.textSecondary)
+                    Text("Year").careType(.label).foregroundStyle(CareColor.textSecondary)
                     Spacer()
-                    Stepper("\(year)", value: $year, in: 2000...2100).font(CareFont.bodyMedium).tint(CareColor.ink)
+                    Stepper("\(year)", value: $year, in: 2000...2100).careType(.bodyEmphasis).tint(CareColor.ink)
                 }
                 .padding(.horizontal, CareSpace.sm).frame(minHeight: 46)
                 .background(CareColor.surfaceStrong, in: RoundedRectangle(cornerRadius: CareRadius.inner))

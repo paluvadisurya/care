@@ -34,7 +34,7 @@ struct MentionQuickLog: View {
             VStack(alignment: .leading, spacing: CareSpace.md) {
                 HStack(alignment: .top) {
                     TextField("Wants to try the pottery class", text: $text, axis: .vertical)
-                        .font(CareFont.text(20, relativeTo: .title3))
+                        .careType(.cardTitle)
                         .foregroundStyle(CareColor.textPrimary)
                         .focused($focused)
                         .lineLimit(3...8)

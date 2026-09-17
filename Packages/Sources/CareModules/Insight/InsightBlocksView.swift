@@ -3,7 +3,8 @@ import CareCore
 import CareDesign
 import CareIntelligence
 
-/// Maps every block type to a view. Blocks enter staggered by 80 ms.
+/// Maps every block the model can return to a view. Stats gather into one row, everything else stacks, and
+/// the whole set enters on a stagger so an insight assembles itself rather than appearing all at once.
 public struct InsightBlocksView: View {
     public var blocks: [InsightBlock]
     public var now: Date
@@ -15,123 +16,185 @@ public struct InsightBlocksView: View {
         self.onAction = onAction
     }
 
-    private var stats: [InsightBlock] { blocks.filter { if case .stat = $0 { return true } else { return false } } }
-    private var rest: [InsightBlock] { blocks.filter { if case .stat = $0 { return false } else { return true } } }
+    private var stats: [InsightBlock] {
+        blocks.filter { if case .stat = $0 { true } else { false } }
+    }
+
+    private var rest: [InsightBlock] {
+        blocks.filter { if case .stat = $0 { false } else { true } }
+    }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: CareSpace.sm) {
             if !stats.isEmpty {
-                HStack(spacing: CareSpace.xs) {
-                    ForEach(Array(stats.prefix(3).enumerated()), id: \.offset) { i, block in
+                HStack(alignment: .top, spacing: CareSpace.xs) {
+                    ForEach(Array(stats.prefix(3).enumerated()), id: \.offset) { index, block in
                         if case .stat(let label, let value, let trend, let tone) = block {
                             StatTile(label: label, value: value, trend: trend, tone: tone)
-                                .staggeredEntrance(index: i)
+                                .staggeredEntrance(index: index)
                         }
                     }
                 }
+                .fixedSize(horizontal: false, vertical: true)
             }
-            ForEach(Array(rest.enumerated()), id: \.offset) { i, block in
-                blockView(block)
-                    .staggeredEntrance(index: i + min(stats.count, 3))
+            ForEach(Array(rest.enumerated()), id: \.offset) { index, block in
+                view(for: block)
+                    .staggeredEntrance(index: index + min(stats.count, 3))
             }
         }
     }
 
     @ViewBuilder
-    private func blockView(_ block: InsightBlock) -> some View {
+    private func view(for block: InsightBlock) -> some View {
         switch block {
         case .stat(let label, let value, let trend, let tone):
             StatTile(label: label, value: value, trend: trend, tone: tone)
+
         case .trend(let label, let points, let annotation):
-            VStack(alignment: .leading, spacing: 6) {
-                Text(label).font(CareFont.label).foregroundStyle(CareColor.textSecondary)
-                Sparkline(points: points, color: CareColor.violet, height: 52)
-                if let annotation { Text(annotation).font(CareFont.caption).foregroundStyle(CareColor.textMuted) }
+            BlockPanel(label: label) {
+                Sparkline(points: points, color: CareColor.intelligence, height: 54)
+                if let annotation {
+                    Text(annotation)
+                        .careType(.caption)
+                        .foregroundStyle(CareColor.textMuted)
+                }
             }
-            .padding(CareSpace.sm)
-            .background(CareColor.surfaceStrong, in: RoundedRectangle(cornerRadius: CareRadius.inner + 2))
+
         case .countdown(let title, let dateString):
-            HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title).font(CareFont.label).foregroundStyle(CareColor.textSecondary)
+            BlockPanel(label: title) {
+                HStack(alignment: .firstTextBaseline) {
                     if let date = Self.parse(dateString) {
-                        Countdown(to: date, now: now, size: 40, showHours: false)
+                        Countdown(to: date, now: now, size: .large, showsHours: false)
+                        Spacer(minLength: CareSpace.xs)
+                        Text(date.formatted(.dateTime.weekday(.wide).day().month(.abbreviated)))
+                            .careType(.meta)
+                            .foregroundStyle(CareColor.textMuted)
                     } else {
-                        Text(dateString).font(CareFont.tileValue)
+                        Text(dateString).careType(.tileValue)
                     }
                 }
-                Spacer()
-                if let date = Self.parse(dateString) {
-                    Text(date.formatted(.dateTime.weekday(.wide).day().month(.abbreviated)))
-                        .font(CareFont.meta).foregroundStyle(CareColor.textMuted)
-                }
             }
-            .padding(CareSpace.sm)
-            .background(CareColor.surfaceStrong, in: RoundedRectangle(cornerRadius: CareRadius.inner + 2))
+
         case .list(let title, let items):
             VStack(alignment: .leading, spacing: 6) {
-                Text(title).font(CareFont.label).foregroundStyle(CareColor.textSecondary)
+                Text(title)
+                    .careType(.label)
+                    .foregroundStyle(CareColor.textSecondary)
                 ForEach(Array(items.enumerated()), id: \.offset) { _, item in
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Circle().fill(CareColor.violet).frame(width: 5, height: 5).padding(.top, 6)
-                        Text(item.text).font(CareFont.callout).foregroundStyle(CareColor.textPrimary)
+                    HStack(alignment: .firstTextBaseline, spacing: CareSpace.xs) {
+                        Circle()
+                            .fill(CareColor.intelligence)
+                            .frame(width: 5, height: 5)
+                            .alignmentGuide(.firstTextBaseline) { $0[.bottom] + 3 }
+                        Text(item.text)
+                            .careType(.callout)
+                            .foregroundStyle(CareColor.textPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }
+
         case .action(let title, let reason, let deeplink):
             Button {
                 if let link = DeepLink(string: deeplink) { onAction(link) }
             } label: {
-                HStack {
+                HStack(spacing: CareSpace.sm) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(title).font(CareFont.textSemi(15, relativeTo: .body)).foregroundStyle(CareColor.inkText)
-                        Text(reason).font(CareFont.caption).foregroundStyle(CareColor.inkText.opacity(0.65))
+                        Text(title)
+                            .careType(.bodyEmphasis)
+                            .foregroundStyle(CareColor.inkText)
+                        Text(reason)
+                            .careType(.caption)
+                            .foregroundStyle(CareColor.inkText.opacity(0.66))
                     }
-                    Spacer()
-                    Image(systemName: "arrow.right").font(.system(size: 14, weight: .bold)).foregroundStyle(CareColor.inkText)
+                    Spacer(minLength: 0)
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(CareColor.inkText)
                 }
                 .padding(CareSpace.sm)
-                .background(CareColor.ink, in: RoundedRectangle(cornerRadius: CareRadius.inner + 2))
+                .frame(minHeight: CareLayout.touchTarget)
+                .background(CareColor.ink, in: RoundedRectangle(cornerRadius: CareRadius.inner))
+                .contentShape(RoundedRectangle(cornerRadius: CareRadius.inner))
             }
             .buttonStyle(.pressable)
+
         case .insight(let text, _):
-            HStack(alignment: .top, spacing: 8) {
-                Image(systemName: "sparkle").font(.system(size: 11, weight: .bold)).foregroundStyle(CareColor.violet).padding(.top, 4)
-                Text(text).font(CareFont.callout).foregroundStyle(CareColor.textPrimary).fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .firstTextBaseline, spacing: CareSpace.xs) {
+                Image(systemName: "sparkle")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(CareColor.intelligence)
+                    .alignmentGuide(.firstTextBaseline) { $0[.bottom] - 1 }
+                Text(text)
+                    .careType(.callout)
+                    .foregroundStyle(CareColor.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
+
         case .moodStrip(let label, let values):
-            VStack(alignment: .leading, spacing: 6) {
-                Text(label).font(CareFont.label).foregroundStyle(CareColor.textSecondary)
+            BlockPanel(label: label) {
                 MoodStrip(values: values, height: 30)
             }
+
         case .talkingPoints(let items):
             VStack(alignment: .leading, spacing: 6) {
-                Text("Talking points").font(CareFont.label).foregroundStyle(CareColor.textSecondary)
-                ForEach(Array(items.enumerated()), id: \.offset) { i, item in
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text("\(i + 1)").font(CareFont.monoMedium(11)).foregroundStyle(CareColor.violet).frame(width: 14)
-                        Text(item).font(CareFont.callout).foregroundStyle(CareColor.textPrimary)
+                Text("Talking points")
+                    .careType(.label)
+                    .foregroundStyle(CareColor.textSecondary)
+                ForEach(Array(items.enumerated()), id: \.offset) { index, item in
+                    HStack(alignment: .firstTextBaseline, spacing: CareSpace.xs) {
+                        Text("\(index + 1)")
+                            .careType(.metaEmphasis)
+                            .foregroundStyle(CareColor.intelligence)
+                            .frame(width: 14, alignment: .leading)
+                        Text(item)
+                            .careType(.callout)
+                            .foregroundStyle(CareColor.textPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }
+
         case .compare(let label, let aLabel, let a, let bLabel, let b):
-            VStack(alignment: .leading, spacing: 6) {
-                Text(label).font(CareFont.label).foregroundStyle(CareColor.textSecondary)
+            BlockPanel(label: label) {
                 CompareBars(aLabel: aLabel, a: a, bLabel: bLabel, b: b)
             }
+
         case .note(let text):
-            Text(text).font(CareFont.meta).foregroundStyle(CareColor.textMuted).fixedSize(horizontal: false, vertical: true)
+            Text(text)
+                .careType(.meta)
+                .foregroundStyle(CareColor.textMuted)
+                .fixedSize(horizontal: false, vertical: true)
+
         case .unknown:
             EmptyView()
         }
     }
 
-    static func parse(_ s: String) -> Date? {
-        let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX")
-        f.dateFormat = "yyyy-MM-dd"
-        if let d = f.date(from: String(s.prefix(10))) { return d }
-        return ISO8601DateFormatter().date(from: s)
+    static func parse(_ string: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        if let date = formatter.date(from: String(string.prefix(10))) { return date }
+        return ISO8601DateFormatter().date(from: string)
+    }
+}
+
+/// The quiet panel that holds a chart, a strip or a pair of bars inside an insight.
+private struct BlockPanel<Content: View>: View {
+    var label: String
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(label)
+                .careType(.label)
+                .foregroundStyle(CareColor.textSecondary)
+            content
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(CareSpace.sm)
+        .background(CareColor.surfaceStrong, in: RoundedRectangle(cornerRadius: CareRadius.inner))
     }
 }
 
@@ -141,54 +204,82 @@ struct StatTile: View {
     var trend: TrendDirection?
     var tone: StatTone
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(label).font(CareFont.caption).foregroundStyle(CareColor.textSecondary).lineLimit(1)
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(value).font(CareFont.displayBold(22, relativeTo: .title2)).numeralStyle(22).foregroundStyle(color).lineLimit(1).minimumScaleFactor(0.7)
-                if let trend {
-                    Image(systemName: trend == .up ? "arrow.up.right" : trend == .down ? "arrow.down.right" : "arrow.right")
-                        .font(.system(size: 11, weight: .bold)).foregroundStyle(color)
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(CareSpace.sm)
-        .background(CareColor.surfaceStrong, in: RoundedRectangle(cornerRadius: CareRadius.inner + 2))
-    }
-
-    var color: Color {
+    private var color: Color {
         switch tone {
         case .good: CareColor.positive
         case .attention: CareColor.attention
         case .neutral: CareColor.textPrimary
         }
     }
+
+    private var trendSymbol: String? {
+        switch trend {
+        case .up: "arrow.up.right"
+        case .down: "arrow.down.right"
+        case .flat: "arrow.right"
+        case nil: nil
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .careType(.caption)
+                .foregroundStyle(CareColor.textSecondary)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(value)
+                    .careType(.tileValue)
+                    .foregroundStyle(color)
+                    .rollingNumber()
+                if let trendSymbol {
+                    Image(systemName: trendSymbol)
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(color)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 62, alignment: .topLeading)
+        .padding(CareSpace.sm)
+        .background(CareColor.surfaceStrong, in: RoundedRectangle(cornerRadius: CareRadius.inner))
+        .accessibilityElement(children: .combine)
+    }
 }
 
 struct CompareBars: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var aLabel: String
     var a: Double
     var bLabel: String
     var b: Double
 
     var body: some View {
-        let maxV = max(a, b, 1)
+        let maximum = max(a, b, 1)
         VStack(spacing: 6) {
-            bar(label: aLabel, value: a, fraction: a / maxV, color: CareColor.violet)
-            bar(label: bLabel, value: b, fraction: b / maxV, color: CareColor.lilac)
+            bar(label: aLabel, value: a, fraction: a / maximum, color: CareColor.intelligence)
+            bar(label: bLabel, value: b, fraction: b / maximum, color: CareColor.lilac)
         }
     }
 
-    func bar(label: String, value: Double, fraction: Double, color: Color) -> some View {
-        HStack(spacing: 8) {
-            Text(label).font(CareFont.caption).foregroundStyle(CareColor.textSecondary).frame(width: 84, alignment: .leading).lineLimit(1)
-            GeometryReader { geo in
-                Capsule().fill(color).frame(width: max(8, geo.size.width * fraction))
+    private func bar(label: String, value: Double, fraction: Double, color: Color) -> some View {
+        HStack(spacing: CareSpace.xs) {
+            Text(label)
+                .careType(.caption)
+                .foregroundStyle(CareColor.textSecondary)
+                .frame(width: 86, alignment: .leading)
+            GeometryReader { geometry in
+                Capsule()
+                    .fill(color)
+                    .frame(width: max(8, geometry.size.width * fraction))
+                    .animation(CareMotion.standard(reduced: reduceMotion), value: fraction)
             }
             .frame(height: 10)
             Text(value == value.rounded() ? "\(Int(value))" : String(format: "%.1f", value))
-                .font(CareFont.monoMedium(11)).foregroundStyle(CareColor.textPrimary).frame(width: 36, alignment: .trailing)
+                .careType(.metaEmphasis)
+                .foregroundStyle(CareColor.textPrimary)
+                .frame(width: 34, alignment: .trailing)
         }
+        .accessibilityElement(children: .combine)
     }
 }
