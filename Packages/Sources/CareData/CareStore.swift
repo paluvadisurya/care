@@ -112,7 +112,10 @@ public final class CareStore {
 
     public func movePeople(fromOffsets: IndexSet, toOffset: Int) {
         var list = people
-        list.move(fromOffsets: fromOffsets, toOffset: toOffset)
+        let moving = fromOffsets.sorted().map { list[$0] }
+        let before = fromOffsets.filter { $0 < toOffset }.count
+        for i in fromOffsets.sorted(by: >) { list.remove(at: i) }
+        list.insert(contentsOf: moving, at: max(0, min(list.count, toOffset - before)))
         for (i, var p) in list.enumerated() where p.sortOrder != i {
             p.sortOrder = i
             updatePerson(p)
