@@ -71,15 +71,30 @@ public struct Ring<Center: View>: View {
     }
 }
 
-public extension Ring where Center == Text {
+/// The default centre: a percentage that rolls as the ring fills.
+public struct RingLabel: View {
+    public var progress: Double
+    public var size: RingSize
+
+    public init(progress: Double, size: RingSize) {
+        self.progress = progress
+        self.size = size
+    }
+
+    public var body: some View {
+        Text("\(Int((min(1, max(0, progress)) * 100).rounded()))%")
+            .font(CareFont.textSemi(size.labelSize, relativeTo: .caption))
+            .foregroundStyle(CareColor.textPrimary)
+            .monospacedDigit()
+            .minimumScaleFactor(0.7)
+            .lineLimit(1)
+    }
+}
+
+public extension Ring where Center == RingLabel {
     init(progress: Double, size: RingSize = .tile, gradient: [Color] = [CareColor.sky, CareColor.violet]) {
         self.init(progress: progress, size: size, gradient: gradient) {
-            Text("\(Int((min(1, max(0, progress)) * 100).rounded()))%")
-                .font(CareFont.textSemi(size.labelSize, relativeTo: .caption))
-                .foregroundStyle(CareColor.textPrimary)
-                .monospacedDigit()
-                .minimumScaleFactor(0.7)
-                .lineLimit(1)
+            RingLabel(progress: progress, size: size)
         }
     }
 }
