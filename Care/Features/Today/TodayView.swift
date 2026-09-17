@@ -242,7 +242,7 @@ private struct EveningWrapPrompt: View {
         Button(action: open) {
             HStack(spacing: CareSpace.sm) {
                 Image(systemName: "moon.stars.fill")
-                    .font(.system(size: 17, weight: .semibold))
+                    .careSymbol(.large)
                     .foregroundStyle(CareColor.inkText)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Evening wrap")
@@ -254,7 +254,7 @@ private struct EveningWrapPrompt: View {
                 }
                 Spacer(minLength: 0)
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .bold))
+                    .careSymbol(.small, weight: .bold)
                     .foregroundStyle(CareColor.inkText.opacity(0.6))
             }
             .padding(CareSpace.md)

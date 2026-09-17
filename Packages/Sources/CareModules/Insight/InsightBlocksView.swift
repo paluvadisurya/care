@@ -109,7 +109,7 @@ public struct InsightBlocksView: View {
                     }
                     Spacer(minLength: 0)
                     Image(systemName: "arrow.right")
-                        .font(.system(size: 13, weight: .bold))
+                        .careSymbol(.small, weight: .bold)
                         .foregroundStyle(CareColor.inkText)
                 }
                 .padding(CareSpace.sm)
@@ -122,7 +122,7 @@ public struct InsightBlocksView: View {
         case .insight(let text, _):
             HStack(alignment: .firstTextBaseline, spacing: CareSpace.xs) {
                 Image(systemName: "sparkle")
-                    .font(.system(size: 10, weight: .bold))
+                    .careSymbol(.tiny, weight: .bold)
                     .foregroundStyle(CareColor.intelligence)
                     .alignmentGuide(.firstTextBaseline) { $0[.bottom] - 1 }
                 Text(text)
@@ -242,7 +242,7 @@ struct StatTile: View {
                     .rollingNumber()
                 if let trendSymbol {
                     Image(systemName: trendSymbol)
-                        .font(.system(size: 10, weight: .bold))
+                        .careSymbol(.tiny, weight: .bold)
                         .foregroundStyle(color)
                 }
             }

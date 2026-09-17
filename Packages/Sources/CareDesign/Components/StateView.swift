@@ -27,7 +27,7 @@ public struct EmptyState: View {
                     .fill(aura?.gradient ?? LinearGradient(colors: [CareColor.chip, CareColor.chip], startPoint: .top, endPoint: .bottom))
                     .opacity(aura == nil ? 1 : 0.18)
                 Image(systemName: symbol)
-                    .font(.system(size: 24, weight: .medium))
+                    .careSymbol(.xlarge, weight: .medium)
                     .foregroundStyle(aura?.startColor ?? CareColor.textSecondary)
             }
             .frame(width: 64, height: 64)

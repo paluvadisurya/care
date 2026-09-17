@@ -48,7 +48,7 @@ public struct BentoTile: View {
                     .frame(width: 9, height: 9)
             } else {
                 Image(systemName: symbol)
-                    .font(.system(size: 11, weight: .semibold))
+                    .careSymbol(.small)
                     .foregroundStyle(accent)
                     .frame(width: 11)
             }
@@ -100,7 +100,7 @@ public struct AddTile: View {
         Button(action: action) {
             VStack(spacing: 6) {
                 Image(systemName: "plus")
-                    .font(.system(size: 17, weight: .semibold))
+                    .careSymbol(.large)
                 Text(title)
                     .careType(.label)
             }

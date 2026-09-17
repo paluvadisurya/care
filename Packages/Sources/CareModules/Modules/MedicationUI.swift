@@ -27,7 +27,7 @@ struct DoseSlotRow: View {
                 isDone: slot.state == .taken) {
             switch slot.state {
             case .taken:
-                Image(systemName: "checkmark.circle.fill").foregroundStyle(CareColor.positive).font(.system(size: 22))
+                Image(systemName: "checkmark.circle.fill").foregroundStyle(CareColor.positive).careSymbol(.xlarge, weight: .regular)
             case .skipped:
                 Text("skipped").careType(.meta).foregroundStyle(CareColor.textMuted)
             default:

@@ -191,7 +191,7 @@ public struct CheckToggle: View {
             isOn.toggle()
         } label: {
             Image(systemName: isOn ? "checkmark.circle.fill" : "circle")
-                .font(.system(size: 23, weight: .regular))
+                .careSymbol(.xlarge, weight: .regular)
                 .foregroundStyle(isOn ? tint : CareColor.textMuted)
                 .symbolEffect(.bounce, value: isOn)
                 .frame(width: CareLayout.touchTarget, height: CareLayout.touchTarget)

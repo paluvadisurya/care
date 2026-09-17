@@ -61,7 +61,7 @@ private struct MeCard: View {
                     }
                     Spacer(minLength: CareSpace.xs)
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 13, weight: .semibold))
+                        .careSymbol(.small)
                         .foregroundStyle(CareColor.textMuted)
                 }
                 .careSurface(.hero)
@@ -100,7 +100,7 @@ struct IntelligenceSettingsCard: View {
         VStack(alignment: .leading, spacing: CareLayout.stackGap) {
             HStack(spacing: CareSpace.xs) {
                 Image(systemName: "sparkle")
-                    .font(.system(size: 12, weight: .bold))
+                    .careSymbol(.small, weight: .bold)
                     .foregroundStyle(CareColor.intelligence)
                 Text("Intelligence")
                     .careType(.labelEmphasis)

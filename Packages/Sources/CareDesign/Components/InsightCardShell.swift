@@ -31,7 +31,7 @@ public struct InsightCardShell<Content: View>: View {
     private var header: some View {
         HStack(spacing: CareSpace.xs) {
             Image(systemName: "sparkle")
-                .font(.system(size: 12, weight: .bold))
+                .careSymbol(.small, weight: .bold)
                 .foregroundStyle(CareColor.intelligence)
                 .symbolEffect(.variableColor.iterative, isActive: isGenerating)
             Text(title)
@@ -44,7 +44,7 @@ public struct InsightCardShell<Content: View>: View {
             if let onRefresh {
                 Button(action: onRefresh) {
                     Image(systemName: "arrow.clockwise")
-                        .font(.system(size: 12, weight: .semibold))
+                        .careSymbol(.small)
                         .foregroundStyle(canRefresh ? CareColor.textSecondary : CareColor.textMuted)
                         .rotationEffect(.degrees(isGenerating ? 360 : 0))
                         .animation(isGenerating ? .linear(duration: 1).repeatForever(autoreverses: false) : .default,

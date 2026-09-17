@@ -57,7 +57,7 @@ public struct GlassTabBar: View {
         } label: {
             VStack(spacing: 3) {
                 Image(systemName: isOn ? tab.selectedSymbol : tab.symbol)
-                    .font(.system(size: 17, weight: .semibold))
+                    .careSymbol(.large)
                     .symbolEffect(.bounce, value: isOn)
                     .overlay(alignment: .topTrailing) {
                         if badged.contains(tab.id), !isOn {

@@ -101,7 +101,7 @@ public struct QuickSheetView: View {
                     .careType(.body)
                     .lineLimit(1...4)
                 Image(systemName: "microphone.fill")
-                    .font(.system(size: 13, weight: .semibold))
+                    .careSymbol(.small)
                     .foregroundStyle(CareColor.textMuted)
                     .padding(.top, 3)
                     .accessibilityLabel("Use dictation from the keyboard")

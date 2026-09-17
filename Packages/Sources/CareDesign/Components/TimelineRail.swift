@@ -124,7 +124,7 @@ struct SourceTag: View {
             if isDone {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(CareColor.positive)
-                    .font(.system(size: 18))
+                    .careSymbol(.large, weight: .regular)
             } else if let label {
                 CareTag(label, tone: tone == .attention ? .attention : .quiet)
             }

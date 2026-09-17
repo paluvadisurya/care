@@ -100,7 +100,7 @@ struct FeedbackButtons: View {
             onSet(isOn ? nil : feedback)
         } label: {
             Image(systemName: isOn ? symbol + ".fill" : symbol)
-                .font(.system(size: 12, weight: .semibold))
+                .careSymbol(.small)
                 .foregroundStyle(isOn ? CareColor.intelligence : CareColor.textMuted)
                 .symbolEffect(.bounce, value: isOn)
                 .frame(width: 30, height: 30)

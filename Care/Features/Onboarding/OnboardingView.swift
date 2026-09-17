@@ -240,7 +240,7 @@ private struct DraftRow: View {
                     Text(draft.relationship.displayName)
                         .careType(.chipLabel)
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 9, weight: .bold))
+                        .careSymbol(.tiny, weight: .bold)
                 }
                 .foregroundStyle(CareColor.textPrimary)
                 .padding(.horizontal, 12)

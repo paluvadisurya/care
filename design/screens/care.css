@@ -259,16 +259,19 @@ body{margin:0;background:#141419;font-family:"Geist",-apple-system,sans-serif;-w
 .progress i{flex:1;height:3px;border-radius:999px;background:var(--chip)}
 .progress i.on{background:var(--ink)}
 
-/* Drawn glyphs. One stroke weight, round caps, sized by role - the same discipline SF Symbols keep. */
+/* Drawn glyphs. One stroke weight, round caps, and the five sizes CareSymbol defines: tiny 10,
+   small 12.5, medium 15, large 17.5, xlarge 23. Nothing here picks its own number. */
 .gl{width:1em;height:1em;display:block}
-.gtile{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:0 0 auto;font-size:20px}
-.gl-inline{display:inline-grid;place-items:center;font-size:16px;vertical-align:-3px}
-.gl-inline.up{font-size:13px;margin-left:3px}
+.gtile{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:0 0 auto;font-size:15px}
+.gl-inline{display:inline-grid;place-items:center;font-size:12.5px;vertical-align:-2px}
+.gl-inline.lg{font-size:17.5px}
+.gl-inline.up{font-size:10px;margin-left:3px}
 .ai-mark{display:inline-flex;align-items:center;gap:5px}
-.ai-mark .gl{font-size:13px}
-.iconbtn.sm{width:30px;height:30px;font-size:14px}
-.pill .gl{font-size:16px;margin-right:2px}
-.pill.sm .gl{font-size:14px}
+.ai-mark .gl{font-size:12.5px}
+.iconbtn{font-size:15px}
+.iconbtn.sm{width:30px;height:30px;font-size:12.5px}
+.pill .gl{font-size:15px;margin-right:2px}
+.pill.sm .gl{font-size:12.5px}
 
 /* Sheets at a detent: the screen behind stays, dimmed, and the sheet is only as tall as its content. */
 .dim{position:absolute;inset:0;z-index:6;background:rgba(21,19,28,.34);backdrop-filter:blur(1.5px);

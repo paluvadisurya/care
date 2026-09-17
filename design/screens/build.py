@@ -418,7 +418,7 @@ night = f'''
       <span class="t-meta" style="align-self:flex-end">Monday 5 Oct</span></div>
     <div class="action"><div><div class="t-body-e">Plan the day</div>
       <div class="t-caption" style="color:rgba(255,255,255,.66)">5 wishlist items, 18 days to go</div></div>
-      <span class="gl-inline">{G["arrow"]}</span></div>
+      <span class="gl-inline lg">{G["arrow"]}</span></div>
     <div class="row b" style="gap:10px"><span class="t-foot sp">Based on 30 check-ins, 6 mentions, 2 events.</span>
       <span class="row" style="gap:2px"><span class="iconbtn sm">{G["thumbup"]}</span>
       <span class="iconbtn sm">{G["thumbdown"]}</span></span></div>

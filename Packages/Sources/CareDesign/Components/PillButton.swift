@@ -38,7 +38,7 @@ public struct PillButton: View {
             HStack(spacing: CareSpace.xs) {
                 if let symbol {
                     Image(systemName: symbol)
-                        .font(.system(size: isCompact ? 13 : 15, weight: .semibold))
+                        .careSymbol(isCompact ? .small : .medium)
                 }
                 Text(title)
                     .careType(isCompact ? .chipLabel : .buttonLabel)
@@ -104,7 +104,7 @@ public struct IconButton: View {
     public var body: some View {
         Button(action: action) {
             Image(systemName: symbol)
-                .font(.system(size: 15, weight: .semibold))
+                .careSymbol(.medium)
                 .foregroundStyle(isProminent ? CareColor.inkText : CareColor.textPrimary)
                 .frame(width: CareLayout.touchTarget, height: CareLayout.touchTarget)
                 .background(isProminent ? CareColor.ink : CareColor.chip, in: Circle())
