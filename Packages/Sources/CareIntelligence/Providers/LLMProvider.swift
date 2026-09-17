@@ -1,5 +1,8 @@
 import Foundation
 import CareCore
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 /// The model vendors the app can talk to. Bring a key for either; the app picks the active one.
 public enum ProviderID: String, Codable, CaseIterable, Sendable, Hashable, Identifiable {
