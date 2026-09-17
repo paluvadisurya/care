@@ -111,7 +111,7 @@ private struct WelcomeStep: View {
             .staggeredEntrance(index: 6)
 
             Text("Everything stays on this phone. No account, no cloud. You can bring a model key later.")
-                .careType(.meta)
+                .careType(.footnote)
                 .foregroundStyle(CareColor.textMuted)
                 .fixedSize(horizontal: false, vertical: true)
                 .staggeredEntrance(index: 7)

@@ -6,7 +6,7 @@ import SwiftUI
 /// Four families, each with one job:
 /// - Bricolage Grotesque: headlines and numerals, tight tracking
 /// - Geist: everything you read
-/// - Geist Mono: metadata, times, counts that sit beside prose
+/// - Geist Mono: times, counts and machine status only. Never a sentence, never a person's name
 /// - Instrument Serif italic: exactly one accent word per screen
 public enum CareType: Sendable, Hashable, CaseIterable {
     // Numerals. Tabular figures, tightest tracking, they roll rather than blink.
@@ -27,9 +27,11 @@ public enum CareType: Sendable, Hashable, CaseIterable {
     case callout            // supporting sentence under a title
     case label              // section and field labels
     case labelEmphasis
+    case itemLabel          // the name under an orb, the word under a scale tick
     case caption            // helper text under a value
+    case footnote           // an explanatory paragraph under a control
 
-    // Mono. Geist Mono.
+    // Mono. Geist Mono. Reserved for values a machine produced: times, counts, model names, key status.
     case meta               // timestamps, "refreshed 6h ago"
     case metaEmphasis       // times on the timeline rail
 
@@ -54,7 +56,9 @@ public enum CareType: Sendable, Hashable, CaseIterable {
         case .callout: 15
         case .label: 13
         case .labelEmphasis: 13
+        case .itemLabel: 12
         case .caption: 12
+        case .footnote: 13
         case .meta: 11
         case .metaEmphasis: 11
         case .buttonLabel: 16
@@ -82,6 +86,7 @@ public enum CareType: Sendable, Hashable, CaseIterable {
         case .screenTitle, .accent: 2
         case .sheetTitle, .cardTitle: 3
         case .label, .labelEmphasis, .chipLabel, .tabLabel, .meta, .metaEmphasis: 1
+        case .itemLabel: 1
         case .caption: 2
         default: nil
         }
@@ -116,7 +121,8 @@ public enum CareType: Sendable, Hashable, CaseIterable {
         case .body, .bodyEmphasis, .buttonLabel: .body
         case .callout: .callout
         case .label, .labelEmphasis, .chipLabel: .subheadline
-        case .caption: .caption
+        case .footnote: .footnote
+        case .itemLabel, .caption: .caption
         case .meta, .metaEmphasis, .tabLabel: .caption2
         }
     }
@@ -131,9 +137,9 @@ public enum CareType: Sendable, Hashable, CaseIterable {
             CareFont.displayBold(size, relativeTo: textStyle)
         case .accent:
             CareFont.serifItalic(size, relativeTo: textStyle)
-        case .body, .callout, .caption:
+        case .body, .callout, .caption, .footnote:
             CareFont.text(size, relativeTo: textStyle)
-        case .bodyEmphasis, .label, .chipLabel, .tabLabel:
+        case .bodyEmphasis, .label, .chipLabel, .tabLabel, .itemLabel:
             CareFont.textMedium(size, relativeTo: textStyle)
         case .labelEmphasis, .buttonLabel:
             CareFont.textSemi(size, relativeTo: textStyle)

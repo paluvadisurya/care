@@ -50,7 +50,7 @@ struct CallRhythmDetail: View {
                     HStack {
                         Text("Talking points").careType(.labelEmphasis).foregroundStyle(CareColor.intelligence)
                         Spacer()
-                        Text("from mentions and events").careType(.meta).foregroundStyle(CareColor.textMuted)
+                        Text("from mentions and events").careType(.footnote).foregroundStyle(CareColor.textMuted)
                     }
                     if points.isEmpty {
                         Text("Nothing saved yet. Mentions and upcoming events show up here.").careType(.callout).foregroundStyle(CareColor.textSecondary)
@@ -62,10 +62,10 @@ struct CallRhythmDetail: View {
                         }
                     }
                     if let city = person.homeCity {
-                        Text("Weather in \(city) arrives with WeatherKit in Phase 1.").careType(.meta).foregroundStyle(CareColor.textMuted)
+                        Text("Weather in \(city) arrives with WeatherKit in Phase 1.").careType(.footnote).foregroundStyle(CareColor.textMuted)
                     }
                 }
-                .careCard(strong: true)
+                .careSurface(.hero)
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Rhythm").careType(.label).foregroundStyle(CareColor.textSecondary)
@@ -74,7 +74,7 @@ struct CallRhythmDetail: View {
                     Spacer()
                     PillButton("Change", style: .ghost, compact: true) { showSettings = true }
                 }
-                .careCard(radius: CareRadius.tile, padding: CareSpace.sm + 2)
+                .careSurface(.tile)
                 CardSection("Calls", trailing: ModuleHelpers.plural(ctx.entries.count, "call")) {
                     ForEach(ctx.entries.prefix(20)) { e in
                         let c = e.decode(CallPayload.self)

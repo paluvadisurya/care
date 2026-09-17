@@ -59,7 +59,7 @@ public struct InsightCardView: View {
                 HStack(alignment: .firstTextBaseline, spacing: CareSpace.xs) {
                     if let note = record.refreshNote {
                         Text(note)
-                            .careType(.meta)
+                            .careType(.footnote)
                             .foregroundStyle(CareColor.textMuted)
                             .fixedSize(horizontal: false, vertical: true)
                     }

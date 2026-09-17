@@ -29,7 +29,7 @@ struct MoodQuickLog: View {
         } content: {
             VStack(alignment: .leading, spacing: CareSpace.md) {
                 PulseControl(value: $value)
-                    .careCard(padding: CareSpace.sm + 2)
+                    .careSurface(.card, padding: CareSpace.sm + 2)
                 VStack(alignment: .leading, spacing: CareSpace.xs) {
                     SectionLabel("Why, if you know")
                     ChipRow(items: MoodPayload.tags, selection: tag.map { [$0] } ?? [], label: { $0.capitalized }) { tag = tag == $0 ? nil : $0 }
@@ -63,14 +63,14 @@ struct MoodDetail: View {
                         justSaved.toggle()
                     }
                 }
-                .careCard(padding: CareSpace.sm + 2)
+                .careSurface(.card, padding: CareSpace.sm + 2)
                 .sensoryFeedback(.success, trigger: justSaved)
 
                 VStack(alignment: .leading, spacing: CareSpace.xs) {
                     SectionLabel("Last 14 days")
                     MoodStrip(values: trail, height: 44)
                 }
-                .careCard()
+                .careSurface(.card)
 
                 if averages.count >= 3 {
                     VStack(alignment: .leading, spacing: CareSpace.xs) {
@@ -89,7 +89,7 @@ struct MoodDetail: View {
                         .chartXAxis { AxisMarks { AxisValueLabel().font(CareType.meta.font).foregroundStyle(CareColor.textMuted) } }
                         .frame(height: 110)
                     }
-                    .careCard()
+                    .careSurface(.card)
                 }
 
                 CardSection("History", trailing: ModuleHelpers.plural(entries.count, "check-in")) {

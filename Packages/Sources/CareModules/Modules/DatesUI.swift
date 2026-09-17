@@ -44,7 +44,7 @@ struct DatesDetail: View {
                             }
                         }
                     }
-                    .careCard(radius: CareRadius.hero, padding: CareSpace.md + 2, strong: true)
+                    .careSurface(.hero)
                 }
                 CardSection("All dates", trailing: "\(upcoming.count)") {
                     ForEach(upcoming, id: \.event.id) { u in

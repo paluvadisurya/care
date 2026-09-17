@@ -68,7 +68,9 @@ struct ModuleScreenHeader: View {
     private var meta: ModuleMeta { ModuleCatalog.meta(module) }
 
     var body: some View {
-        HStack(alignment: .top, spacing: CareSpace.sm) {
+        // Centre alignment, so the ring sits beside the headline it belongs to rather than floating up
+        // beside the eyebrow. It stays put as the detail line grows to two or three lines.
+        HStack(alignment: .center, spacing: CareSpace.sm) {
             VStack(alignment: .leading, spacing: CareSpace.xxs) {
                 HStack(spacing: 6) {
                     PersonOrb(person: person, size: .inline)
@@ -87,7 +89,9 @@ struct ModuleScreenHeader: View {
             }
             Spacer(minLength: 0)
             if let progress = state.progress {
-                Ring(progress: progress, size: .hero,
+                // The headline already reads "2 of 3", so the ring is the shape of that fraction, not a
+                // second copy of it.
+                Ring(bare: progress, size: .hero,
                      gradient: [ModuleAccent.color(for: module), person.aura.endColor])
             }
         }

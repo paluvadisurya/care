@@ -59,7 +59,7 @@ struct PersonEditorSheet: View {
                 CareField("Note", placeholder: relationship == .parent ? "BP patient, Mom gives the evening tablets" : "Anything you want to remember", text: $note, axis: .vertical)
                 if existing == nil {
                     Text("Starts with: " + relationship.defaultModules.map { ModuleCatalog.meta($0).name }.joined(separator: ", ") + ". Change any time in Modules.")
-                        .careType(.meta).foregroundStyle(CareColor.textMuted)
+                        .careType(.footnote).foregroundStyle(CareColor.textMuted)
                 }
                 if let existing, existing.relationship != .me {
                     PillButton("Remove \(existing.shortName)", style: .ghost, compact: true) { confirmDelete = true }

@@ -101,7 +101,7 @@ struct HydrationDetail: View {
                     .chartYAxis(.hidden)
                     .frame(height: 120)
                 }
-                .careCard()
+                .careSurface(.card)
                 VStack(alignment: .leading, spacing: CareSpace.xs) {
                     SectionLabel("Daily target")
                     HStack {
@@ -114,7 +114,7 @@ struct HydrationDetail: View {
                         }), in: 1000...5000, step: 250).labelsHidden().tint(CareColor.ink)
                     }
                 }
-                .careCard()
+                .careSurface(.card)
             }
         }
         .sheet(isPresented: $showLog) { HydrationQuickLog(person: person, prefillML: nil) }

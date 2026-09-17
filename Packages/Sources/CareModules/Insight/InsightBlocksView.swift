@@ -162,7 +162,7 @@ public struct InsightBlocksView: View {
 
         case .note(let text):
             Text(text)
-                .careType(.meta)
+                .careType(.footnote)
                 .foregroundStyle(CareColor.textMuted)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -198,7 +198,13 @@ private struct BlockPanel<Content: View>: View {
     }
 }
 
+/// One number in the stat row of an insight.
+///
+/// The label sits at the top and the value is pinned to the bottom, so a label that wraps to two lines
+/// grows the whole row and every value in it still lands on one baseline. Three stats with labels of
+/// wildly different lengths read as one instrument rather than three loose readouts.
 struct StatTile: View {
+    @ScaledMetric(relativeTo: .headline) private var minHeight: CGFloat = 66
     var label: String
     var value: String
     var trend: TrendDirection?
@@ -222,12 +228,13 @@ struct StatTile: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: CareSpace.xs) {
             Text(label)
                 .careType(.caption)
                 .foregroundStyle(CareColor.textSecondary)
-                .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Spacer(minLength: 0)
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(value)
                     .careType(.tileValue)
@@ -240,7 +247,7 @@ struct StatTile: View {
                 }
             }
         }
-        .frame(maxWidth: .infinity, minHeight: 62, alignment: .topLeading)
+        .frame(maxWidth: .infinity, minHeight: minHeight, maxHeight: .infinity, alignment: .topLeading)
         .padding(CareSpace.sm)
         .background(CareColor.surfaceStrong, in: RoundedRectangle(cornerRadius: CareRadius.inner))
         .accessibilityElement(children: .combine)

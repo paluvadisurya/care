@@ -76,7 +76,7 @@ public struct BentoTile: View {
             }
             Spacer(minLength: 0)
             if let progress = state.progress {
-                Ring(progress: progress, size: .tile, gradient: [accent, accent.opacity(0.55)])
+                Ring(bare: progress, size: .tile, gradient: [accent, accent.opacity(0.55)])
                     .alignmentGuide(.firstTextBaseline) { $0[.bottom] * 0.72 }
             }
         }

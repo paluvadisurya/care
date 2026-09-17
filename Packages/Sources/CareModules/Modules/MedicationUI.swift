@@ -123,14 +123,14 @@ struct MedicationDetail: View {
 
     func adherenceTile(_ label: String, _ value: Double) -> some View {
         HStack(spacing: CareSpace.sm) {
-            Ring(progress: value, size: .row, gradient: [CareColor.mint, CareColor.sky])
+            Ring(bare: value, size: .row, gradient: [CareColor.mint, CareColor.sky])
             VStack(alignment: .leading, spacing: 2) {
                 Text("\(Int((value * 100).rounded()))%").careType(.tileValue).foregroundStyle(CareColor.textPrimary)
                 Text("taken, \(label)").careType(.caption).foregroundStyle(CareColor.textMuted)
             }
             Spacer(minLength: 0)
         }
-        .careCard(radius: CareRadius.tile, padding: CareSpace.sm)
+        .careSurface(.row)
     }
 }
 

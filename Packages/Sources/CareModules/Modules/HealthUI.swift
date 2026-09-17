@@ -132,9 +132,9 @@ struct HealthDetail: View {
                         .chartYAxis { AxisMarks(values: [80, 120, 140]) { AxisGridLine().foregroundStyle(CareColor.separator); AxisValueLabel().font(CareType.meta.font) } }
                         .frame(height: 150)
                         Text("Dashed line at 140. A reading above it is worth a recheck, not a diagnosis.")
-                            .careType(.meta).foregroundStyle(CareColor.textMuted)
+                            .careType(.footnote).foregroundStyle(CareColor.textMuted)
                     }
-                    .careCard()
+                    .careSurface(.card)
                 }
                 CardSection("Log", trailing: "private to you") {
                     ForEach(entries.prefix(40)) { e in

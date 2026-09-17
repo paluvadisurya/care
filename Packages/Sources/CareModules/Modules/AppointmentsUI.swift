@@ -100,7 +100,7 @@ struct BriefCard: View {
                 if !sugar.isEmpty { Text("Sugar: " + sugar.map(\.label).joined(separator: ", ")).careType(.caption).foregroundStyle(CareColor.textPrimary) }
             }
         }
-        .careCard(radius: CareRadius.hero, padding: CareSpace.md + 2, strong: true)
+        .careSurface(.hero)
     }
 }
 

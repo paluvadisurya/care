@@ -47,7 +47,7 @@ struct EventsDetail: View {
                             }
                         }
                     }
-                    .careCard(radius: CareRadius.hero, padding: CareSpace.md + 2, attention: false, strong: true)
+                    .careSurface(.hero)
                 }
                 CardSection("Coming up", trailing: "\(upcoming.count)") {
                     if upcoming.isEmpty {
@@ -111,7 +111,7 @@ struct EventComposer: View {
                 VStack(alignment: .leading, spacing: CareSpace.xs) {
                     SectionLabel("Category", trailing: category == nil ? "guessed from the title" : nil)
                     ChipRow(items: EventCategory.allCases, selection: [resolvedCategory], label: { $0.displayName }) { category = $0 }
-                    Text(resolvedCategory.examples).careType(.meta).foregroundStyle(CareColor.textMuted)
+                    Text(resolvedCategory.examples).careType(.footnote).foregroundStyle(CareColor.textMuted)
                 }
                 CareDateRow("When", date: $start, components: allDay ? [.date] : [.date, .hourAndMinute])
                 CareToggleRow("All day", isOn: $allDay)
@@ -119,7 +119,7 @@ struct EventComposer: View {
                 CareField("How to support", placeholder: resolvedCategory.defaults.suggestedAction, text: $note, axis: .vertical)
                 CareToggleRow("Ask me how it went", detail: "A nudge after it ends", isOn: $followUp)
                 Text("Reminders: \(resolvedCategory.defaults.leadTimeDays.map { "\($0)d before" }.joined(separator: ", ")), and the day of.")
-                    .careType(.meta).foregroundStyle(CareColor.textMuted)
+                    .careType(.footnote).foregroundStyle(CareColor.textMuted)
             }
         }
     }

@@ -98,3 +98,12 @@ public extension Ring where Center == RingLabel {
         }
     }
 }
+
+public extension Ring where Center == EmptyView {
+    /// A ring with an empty centre, for the places where the number is already written beside or above it.
+    /// Printing a percentage twice in one row is the most common way a dashboard starts to look careless.
+    init(bare progress: Double, size: RingSize = .tile,
+         gradient: [Color] = [CareColor.sky, CareColor.violet]) {
+        self.init(progress: progress, size: size, gradient: gradient) { EmptyView() }
+    }
+}

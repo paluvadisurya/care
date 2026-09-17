@@ -62,19 +62,42 @@ public struct AuraHeader: View {
         .padding(.horizontal, CareSpace.gutter)
         .padding(.top, CareSpace.xs)
         .padding(.bottom, CareSpace.sm)
-        .background(alignment: .top) { wash }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(name), \(role). \(status)")
     }
+}
 
-    private var wash: some View {
-        LinearGradient(
-            colors: [aura.startColor.opacity(0.38), aura.endColor.opacity(0.16), .clear],
+/// The colour a person casts over the top of their screen.
+///
+/// This is a screen layer, not a header background. It is drawn behind everything from the very top edge so
+/// the wash meets the status bar and the rail without a seam, and it fades as the header collapses. Keeping
+/// it separate is also what lets the rail sit outside the scroll view while still standing in the person's
+/// colour.
+public struct AuraWash: View {
+    public var aura: Aura
+    public var collapse: Double
+
+    public init(aura: Aura, collapse: Double = 0) {
+        self.aura = aura
+        self.collapse = collapse
+    }
+
+    public var body: some View {
+        let c = min(1, max(0, collapse))
+        return LinearGradient(
+            stops: [
+                .init(color: aura.startColor.opacity(0.34), location: 0),
+                .init(color: aura.startColor.opacity(0.30), location: 0.22),
+                .init(color: aura.endColor.opacity(0.14), location: 0.58),
+                .init(color: .clear, location: 1)
+            ],
             startPoint: .top, endPoint: .bottom
         )
         .frame(height: CareLayout.auraWashHeight)
-        .opacity(1 - c * 0.45)
-        .ignoresSafeArea(edges: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .opacity(1 - c * 0.5)
+        .animation(.linear(duration: 0.1), value: c)
+        .ignoresSafeArea()
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }

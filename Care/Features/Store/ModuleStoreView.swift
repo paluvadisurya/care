@@ -65,7 +65,7 @@ struct ModuleStoreView: View {
                     .careGutter()
 
                     Text("Tier labels come from the module descriptor. Everything reads Included while Phase 0 keeps the paywall off.")
-                        .careType(.meta)
+                        .careType(.footnote)
                         .foregroundStyle(CareColor.textMuted)
                         .careGutter()
                 }

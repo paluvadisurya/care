@@ -106,7 +106,7 @@ public struct PulseControl: View {
         HStack(spacing: 0) {
             ForEach(Array(Self.words.enumerated()), id: \.offset) { i, word in
                 Text(word)
-                    .careType(.meta)
+                    .careType(.itemLabel)
                     .foregroundStyle(i == clampedIndex ? CareColor.textPrimary : CareColor.textMuted)
                     .frame(maxWidth: .infinity)
                     .animation(CareMotion.snappy(reduced: reduceMotion), value: clampedIndex)

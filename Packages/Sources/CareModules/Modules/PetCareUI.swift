@@ -87,7 +87,7 @@ struct PetCareDetail: View {
                         SectionLabel("Weight", trailing: weights.last.map { String(format: "%.1f kg now", $0) })
                         Sparkline(points: Array(weights), color: CareColor.honey, height: 56)
                     }
-                    .careCard()
+                    .careSurface(.card)
                 }
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 4) {
@@ -98,7 +98,7 @@ struct PetCareDetail: View {
                     Spacer()
                     PillButton("Edit", style: .ghost, compact: true) { showSettings = true }
                 }
-                .careCard(radius: CareRadius.tile, padding: CareSpace.sm + 2)
+                .careSurface(.tile)
                 CardSection("Log", trailing: ModuleHelpers.plural(ctx.entries.count, "entry", "entries")) {
                     ForEach(ctx.entries.prefix(25)) { e in
                         if let p = e.decode(PetCarePayload.self) {

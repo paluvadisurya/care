@@ -104,7 +104,7 @@ public struct OrbRail: View {
                           symbol: item.symbol, accessibilityName: item.name)
                 if showsLabels {
                     Text(item.name)
-                        .careType(.meta)
+                        .careType(.itemLabel)
                         .foregroundStyle(item.id == selection ? CareColor.textPrimary : CareColor.textSecondary)
                         .frame(maxWidth: itemWidth)
                 }
@@ -132,7 +132,7 @@ public struct OrbRail: View {
                 .frame(width: size.reserved, height: size.reserved)
                 if showsLabels {
                     Text(title)
-                        .careType(.meta)
+                        .careType(.itemLabel)
                         .foregroundStyle(CareColor.textSecondary)
                         .frame(maxWidth: itemWidth)
                 }

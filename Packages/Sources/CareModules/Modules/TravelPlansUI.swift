@@ -60,7 +60,7 @@ struct TravelPlansDetail: View {
                             .padding(.leading, 8)
                         }
                     }
-                    .careCard(radius: CareRadius.hero, padding: CareSpace.md + 2, strong: true)
+                    .careSurface(.hero)
                 }
                 if trips.count > 1 || next == nil {
                     CardSection("All trips", trailing: "\(trips.count)") {

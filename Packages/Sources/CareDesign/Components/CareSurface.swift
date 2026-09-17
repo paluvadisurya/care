@@ -107,10 +107,4 @@ public extension View {
     func careSurface(_ variant: CareSurfaceVariant = .card, padding: CGFloat? = nil) -> some View {
         modifier(CareSurfaceModifier(variant: variant, padding: padding))
     }
-
-    /// Kept so older call sites keep compiling; prefer `careSurface`.
-    func careCard(radius: CGFloat = CareRadius.card, padding: CGFloat = CareSpace.md, attention: Bool = false, strong: Bool = false) -> some View {
-        let variant: CareSurfaceVariant = attention ? .attention : (strong ? .hero : (radius <= CareRadius.tile ? .tile : .card))
-        return careSurface(variant, padding: padding)
-    }
 }

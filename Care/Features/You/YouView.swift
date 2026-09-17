@@ -182,7 +182,7 @@ struct IntelligenceSettingsCard: View {
             }
 
             Link("Where to get a key", destination: prefs.provider.docsURL)
-                .careType(.meta)
+                .careType(.footnote)
                 .foregroundStyle(CareColor.textMuted)
         }
         .careSurface(.card)
@@ -269,7 +269,7 @@ private struct AppearanceCard: View {
                 $0.rawValue.capitalized
             }
             Text("Night is deep and glowing. Light is warm. System follows your phone.")
-                .careType(.meta)
+                .careType(.footnote)
                 .foregroundStyle(CareColor.textMuted)
         }
         .careSurface(.card)
@@ -336,7 +336,7 @@ private struct AboutCard: View {
                 .foregroundStyle(CareColor.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
             Text("Type: Bricolage Grotesque, Geist, Geist Mono and Instrument Serif, all under the SIL Open Font License.")
-                .careType(.meta)
+                .careType(.footnote)
                 .foregroundStyle(CareColor.textMuted)
                 .fixedSize(horizontal: false, vertical: true)
         }

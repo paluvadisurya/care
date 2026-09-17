@@ -31,6 +31,13 @@ struct PeopleView: View {
     var body: some View {
         ZStack {
             MeshBackground(aura: selected?.aura ?? .violetLilac)
+            // The wash is a screen layer, not a header background, so the person's colour reaches the
+            // status bar and runs behind the rail without a visible seam where the header begins.
+            if let person = selected {
+                AuraWash(aura: person.aura, collapse: collapse)
+                    .transition(.opacity)
+                    .id(person.id)
+            }
             if let person = selected {
                 VStack(spacing: 0) {
                     OrbRail(people: people, attention: attention, selection: person.id) { id in

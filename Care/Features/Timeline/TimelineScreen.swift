@@ -76,7 +76,7 @@ struct TimelineScreen: View {
                     if let link = item.link { router.handle(link) }
                 }
                 Text("Apple Calendar and Reminders merge into this rail when the integrations arrive in Phase 1.")
-                    .careType(.meta)
+                    .careType(.footnote)
                     .foregroundStyle(CareColor.textMuted)
                     .padding(.horizontal, CareSpace.xxs)
             }
