@@ -77,7 +77,7 @@ What the model receives is compact: first names, module summaries, counts and da
 ## Structure
 
 ```
-Care.xcodeproj            Xcode 27 project. Everything under Care/ is a synchronised folder.
+Care.xcodeproj            Xcode project (synchronised folder for Care/). Config/Info.plist holds the URL scheme.
 Care/                     App target: entry, router, Today, People, Timeline, You, store, onboarding, evening wrap.
 Packages/                 One Swift package, seven modules (see docs/ARCHITECTURE.md).
   Sources/CareCore        Pure Swift. Records, module logic, ranking, deep links, taxonomy.

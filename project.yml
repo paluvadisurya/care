@@ -16,9 +16,8 @@ targets:
     platform: iOS
     sources:
       - path: Care
-        excludes: ["Info.plist"]
     info:
-      path: Care/Info.plist
+      path: Config/Info.plist
       properties:
         CFBundleDisplayName: Care
         UILaunchScreen: {}
