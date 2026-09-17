@@ -51,6 +51,7 @@ struct SharedChecklistDetail: View {
                                 store.updateEntry(e.id, payload: copy)
                             }))
                         }
+                        .contextMenu { Button("Delete", systemImage: "trash", role: .destructive) { store.deleteEntry(e.id) } }
                         .swipeActions { Button(role: .destructive) { store.deleteEntry(e.id) } label: { Label("Delete", systemImage: "trash") } }
                     }
                     if open.isEmpty { Text("All clear. Nothing open between you.").font(CareFont.callout).foregroundStyle(CareColor.textSecondary).padding(.horizontal, 4) }

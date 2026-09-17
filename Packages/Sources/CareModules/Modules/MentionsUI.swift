@@ -78,6 +78,9 @@ struct MentionsDetail: View {
                                             }))
                                         }
                                     }
+                                    .contextMenu {
+                                        Button("Delete", systemImage: "trash", role: .destructive) { store.deleteEntry(e.id) }
+                                    }
                                     .swipeActions {
                                         Button(role: .destructive) { store.deleteEntry(e.id) } label: { Label("Delete", systemImage: "trash") }
                                     }
