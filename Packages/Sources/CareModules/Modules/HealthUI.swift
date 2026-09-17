@@ -128,8 +128,8 @@ struct HealthDetail: View {
                             }
                         }
                         .chartYScale(domain: 60...160)
-                        .chartXAxis { AxisMarks(values: .stride(by: .day, count: 3)) { AxisValueLabel(format: .dateTime.day().month(.abbreviated)).careType(.meta) } }
-                        .chartYAxis { AxisMarks(values: [80, 120, 140]) { AxisGridLine().foregroundStyle(CareColor.separator); AxisValueLabel().careType(.meta) } }
+                        .chartXAxis { AxisMarks(values: .stride(by: .day, count: 3)) { AxisValueLabel(format: .dateTime.day().month(.abbreviated)).font(CareType.meta.font) } }
+                        .chartYAxis { AxisMarks(values: [80, 120, 140]) { AxisGridLine().foregroundStyle(CareColor.separator); AxisValueLabel().font(CareType.meta.font) } }
                         .frame(height: 150)
                         Text("Dashed line at 140. A reading above it is worth a recheck, not a diagnosis.")
                             .careType(.meta).foregroundStyle(CareColor.textMuted)

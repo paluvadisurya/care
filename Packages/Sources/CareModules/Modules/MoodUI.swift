@@ -86,7 +86,7 @@ struct MoodDetail: View {
                         }
                         .chartYScale(domain: 1...5)
                         .chartYAxis(.hidden)
-                        .chartXAxis { AxisMarks { AxisValueLabel().careType(.meta).foregroundStyle(CareColor.textMuted) } }
+                        .chartXAxis { AxisMarks { AxisValueLabel().font(CareType.meta.font).foregroundStyle(CareColor.textMuted) } }
                         .frame(height: 110)
                     }
                     .careCard()

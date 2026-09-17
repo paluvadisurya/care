@@ -97,7 +97,7 @@ struct HydrationDetail: View {
                             .cornerRadius(5)
                         RuleMark(y: .value("Target", settings.targetML)).foregroundStyle(CareColor.textMuted.opacity(0.5)).lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
                     }
-                    .chartXAxis { AxisMarks(values: .stride(by: .day)) { AxisValueLabel(format: .dateTime.weekday(.narrow)).careType(.meta) } }
+                    .chartXAxis { AxisMarks(values: .stride(by: .day)) { AxisValueLabel(format: .dateTime.weekday(.narrow)).font(CareType.meta.font) } }
                     .chartYAxis(.hidden)
                     .frame(height: 120)
                 }
