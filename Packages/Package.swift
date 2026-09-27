@@ -85,7 +85,10 @@ let appleTargets: [Target] = pureOnly ? [] : [
     ),
     .target(
         name: "CareData",
-        dependencies: ["CareCore", "CareIntelligence", "CareFixtures"],
+        // CareReminders is here because ReminderScheduler and AppPreferences import it. Leaving it
+        // undeclared happened to link under implicit module builds and fails the module scan under
+        // explicit ones, which is the kind of drift scripts/check-imports.py now catches in CI.
+        dependencies: ["CareCore", "CareIntelligence", "CareReminders", "CareFixtures"],
         swiftSettings: uiSettings
     ),
     .target(

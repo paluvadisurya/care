@@ -12,6 +12,8 @@ jobs:
     container: swift:6.2
     steps:
       - uses: actions/checkout@v4
+      - name: Check that every cross-module import is declared
+        run: python3 scripts/check-imports.py
       - name: Build pure targets
         working-directory: Packages
         run: swift build
@@ -32,9 +34,13 @@ jobs:
           xcodebuild -version
       - name: Build for simulator
         run: |
+          # Explicit module builds, because that is what Xcode 27 does by default. Without this the
+          # runner's older Xcode resolves undeclared imports through implicit module search paths and
+          # a build that is green here fails on a current Mac.
           xcodebuild -project Care.xcodeproj -scheme Care \
             -destination 'generic/platform=iOS Simulator' \
             -skipPackagePluginValidation \
+            SWIFT_ENABLE_EXPLICIT_MODULES=YES \
             CODE_SIGNING_ALLOWED=NO build > build.log 2>&1 || true
           echo "===== COMPILER ERRORS ====="
           grep -E "error:" build.log | sed 's|/Users/runner/work/care/care/||' | sort -u | head -40 || true
