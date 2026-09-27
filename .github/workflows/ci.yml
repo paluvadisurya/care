@@ -46,3 +46,16 @@ jobs:
           grep -E "error:" build.log | sed 's|/Users/runner/work/care/care/||' | sort -u | head -40 || true
           echo "===== END ERRORS ====="
           grep -q "BUILD SUCCEEDED" build.log
+      - name: Build for a device
+        run: |
+          # The simulator build alone does not prove the app compiles for iPhone hardware. Signing is
+          # the one thing a runner cannot do, so that is all this skips.
+          xcodebuild -project Care.xcodeproj -scheme Care \
+            -destination 'generic/platform=iOS' \
+            -skipPackagePluginValidation \
+            SWIFT_ENABLE_EXPLICIT_MODULES=YES \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build > device.log 2>&1 || true
+          echo "===== DEVICE BUILD ERRORS ====="
+          grep -E "error:" device.log | sed 's|/Users/runner/work/care/care/||' | sort -u | head -40 || true
+          echo "===== END ERRORS ====="
+          grep -q "BUILD SUCCEEDED" device.log
