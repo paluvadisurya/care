@@ -12,8 +12,6 @@ jobs:
     container: swift:6.2
     steps:
       - uses: actions/checkout@v4
-      - name: Check that every cross-module import is declared
-        run: python3 scripts/check-imports.py
       - name: Build pure targets
         working-directory: Packages
         run: swift build
@@ -26,6 +24,8 @@ jobs:
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
+      - name: Check that every cross-module import is declared
+        run: python3 scripts/check-imports.py
       - name: Select the newest Xcode on the runner
         run: |
           latest="$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
